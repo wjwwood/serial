@@ -1,0 +1,15 @@
+<package>
+  <description brief="serial">
+
+     serial
+
+  </description>
+  <author>William Woodall</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/serial</url>
+  <depend package="roscpp"/>
+
+</package>
+
+
