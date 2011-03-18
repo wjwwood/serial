@@ -37,6 +37,7 @@
 #define SERIAL_H
 
 #include <iostream>
+#include <sstream>
 #include <string>
 
 #include <boost/asio.hpp>
@@ -44,12 +45,23 @@
 #include <boost/bind.hpp>
 #include <boost/thread.hpp>
 
-#define READ_BUFFER_SIZE 4
-#define SERIAL_BUFFER_SIZE 1024
+// DEFINES
+#define DEFAULT_BAUDRATE 9600
+#define DEFAULT_TIMEOUT 0.0
+#define DEFAULT_BYTESIZE EIGHTBITS
+#define DEFAULT_PARITY PARITY_NONE
+#define DEFAULT_STOPBITS STOPBITS_ONE
+#define DEFAULT_FLOWCONTROL FLOWCONTROL_NONE
+
+// Serial Port settings CONSTANTS
+enum { FIVEBITS, SIXBITS, SEVENBITS, EIGHTBITS };
+enum { PARITY_NONE, PARITY_ODD, PARITY_EVEN };
+enum { STOPBITS_ONE, STOPBITS_ONE_POINT_FIVE, STOPBITS_TWO };
+enum { FLOWCONTROL_NONE, FLOWCONTROL_SOFTWARE, FLOWCONTROL_HARDWARE };
 
 class Serial {
 public:
-    /** Constructor, creates a SerialPortBoost object without opening a port. */
+    /** Constructor, Creates a Serial object but doesn't open the serial port. */
     Serial();
     
     /**
@@ -62,16 +74,42 @@ public:
     * @param baudrate An integer that represents the buadrate
     * 
     * @param timeout A double that represents the time (in seconds) until a 
-    *        timeout on reads occur.  Setting this to a negative number will 
-    *        silently disable the timeout on reads.
+    *        timeout on reads occur.  Setting this to a number less than or 
+    *        equal to zero will silently disable the timeout on reads.
+    * 
+    * @param bytesize Size of each byte in the serial transmission of data, 
+    *        default is EIGHTBITS, possible values are: FIVEBITS, 
+    *        SIXBITS, SEVENBITS, EIGHTBITS
+    * 
+    * @param parity Method of parity, default is PARITY_NONE, possible values
+    *        are: PARITY_NONE, PARITY_ODD, PARITY_EVEN
+    * 
+    * @param stopbits Number of stop bits used, default is STOPBITS_ONE, possible 
+    *        values are: STOPBITS_ONE, STOPBITS_ONE_POINT_FIVE, STOPBITS_TWO
+    * 
+    * @param flowcontrol Type of flowcontrol used, default is FLOWCONTROL_NONE, possible
+    *        values are: FLOWCONTROL_NONE, FLOWCONTROL_SOFTWARE, FLOWCONTROL_HARDWARE
+    * 
+    * @throw SerialPortAlreadyOpenException
+    * @throw SerialPortFailedToOpenException
     */
-    Serial(std::string port, int baudrate = 9600, double timeout = -1.0);
-    // Serial(string port, int baudrate = 9600, int bytesize = EIGHTBITS, int parity = PARITY_NONE, int stopbits = STOPBITS_ONE, double timeout = -1.0, bool xonxoff = false, bool rtscts = false, double writeTimeout = -1.0, bool dsrdtr = false, double interCharTimeout = -1.0);
+    Serial(std::string port,
+           int baudrate = DEFAULT_BAUDRATE,
+           double timeout = DEFAULT_TIMEOUT,
+           int bytesize = DEFAULT_BYTESIZE,
+           int parity = DEFAULT_PARITY,
+           int stopbits = DEFAULT_STOPBITS,
+           int flowcontrol = DEFAULT_FLOWCONTROL);
     
     /** Destructor */
     ~Serial();
     
-    /** Opens the serial port as long as the portname is set and the port isn't alreay open. */
+    /** 
+    * Opens the serial port as long as the portname is set and the port isn't alreay open.
+    * 
+    * @throw SerialPortAlreadyOpenException
+    * @throw SerialPortFailedToOpenException
+    */
     void open();
     
     /** Closes the serial port and terminates threads. */
@@ -97,7 +135,7 @@ public:
     * 
     * @return A std::string containing the data read.
     */
-    std::string read(int size=1);
+    std::string read(int size = 1);
     
     /** Write length bytes from buffer to the serial port.
     * 
@@ -116,15 +154,6 @@ public:
     * @return An integer representing the number of bytes written to the serial port.
     */
     int write(std::string data);
-    
-    /** Checks the number of bytes waiting in the buffer.
-    * 
-    * @return An integer representing the number of bytes in the serial buffer.
-    */
-    int inWaiting();
-    
-    /** Flushes the write buffer, blocks untill all data has been written. */
-    void flush();
     
     /** Sets the logic level of the RTS line.
     * 
@@ -149,19 +178,184 @@ public:
     * @return A boolean value that represents the current logic level of the DSR line.
     */
     bool getDSR();
+    
+    /** Sets the timeout for reads in seconds.
+    * 
+    * @param timeout A long that specifies how long the read timeout is in seconds.
+    */
+    void setTimeoutMilliseconds(long timeout);
+    
+    /** Gets the timeout for reads in seconds.
+    * 
+    * @return A long that specifies how long the read timeout is in seconds.
+    */
+    long getTimeoutMilliseconds();
+    
+    /** Sets the baudrate for the serial port.
+    * 
+    * @param baudrate An integer that sets the baud rate for the serial port.
+    */
+    void setBaudrate(int baudrate);
+    
+    /** Gets the baudrate for the serial port.
+    * 
+    * @return An integer that sets the baud rate for the serial port.
+    */
+    int getBaudrate();
+    
+    /** Sets the bytesize for the serial port.
+    * 
+    * @param bytesize Size of each byte in the serial transmission of data, 
+    *        default is EIGHTBITS, possible values are: FIVEBITS, 
+    *        SIXBITS, SEVENBITS, EIGHTBITS
+    */
+    void setBytesize(int bytesize);
+    
+    /** Gets the bytesize for the serial port.
+    * 
+    * @return Size of each byte in the serial transmission of data, 
+    *         default is EIGHTBITS, possible values are: FIVEBITS, 
+    *         SIXBITS, SEVENBITS, EIGHTBITS
+    */
+    int getBytesize();
+    
+    /** Sets the parity for the serial port.
+    * 
+    * @param parity Method of parity, default is PARITY_NONE, possible values
+    *        are: PARITY_NONE, PARITY_ODD, PARITY_EVEN
+    */
+    void setParity(int parity);
+    
+    /** Gets the parity for the serial port.
+    * 
+    * @return Method of parity, default is PARITY_NONE, possible values
+    *         are: PARITY_NONE, PARITY_ODD, PARITY_EVEN
+    */
+    int getParity();
+    
+    /** Sets the stopbits for the serial port.
+    * 
+    * @param stopbits Number of stop bits used, default is STOPBITS_ONE, possible 
+    *        values are: STOPBITS_ONE, STOPBITS_ONE_POINT_FIVE, STOPBITS_TWO
+    */
+    void setStopbits(int stopbits);
+    
+    /** Gets the stopbits for the serial port.
+    * 
+    * @return Number of stop bits used, default is STOPBITS_ONE, possible 
+    *         values are: STOPBITS_ONE, STOPBITS_ONE_POINT_FIVE, STOPBITS_TWO
+    */
+    int getStopbits();
+    
+    /** Sets the flow control for the serial port.
+    * 
+    * @param flowcontrol Type of flowcontrol used, default is FLOWCONTROL_NONE, possible
+    *        values are: FLOWCONTROL_NONE, FLOWCONTROL_SOFTWARE, FLOWCONTROL_HARDWARE
+    */
+    void setFlowcontrol(int flowcontrol);
+    
+    /** Gets the flow control for the serial port.
+    * 
+    * @return Type of flowcontrol used, default is FLOWCONTROL_NONE, possible
+    *         values are: FLOWCONTROL_NONE, FLOWCONTROL_SOFTWARE, FLOWCONTROL_HARDWARE
+    */
+    int getFlowcontrol();
 private:
+    void init();
+    void read_complete(const boost::system::error_code& error, std::size_t bytes_transferred);
+    void timeout_callback(const boost::system::error_code& error);
+    
     boost::asio::io_service io_service;
-    boost::asio::serial_port *serial_port;
     
-    boost::thread * io_service_thread;
+    boost::asio::io_service::work * work;
     
-    char read_buffer[READ_BUFFER_SIZE];
+    boost::asio::serial_port * serial_port;
     
-    
+    boost::asio::deadline_timer * timeout_timer;
     
     std::string port;
-    int baudrate;
-    double timeout;
+    boost::asio::serial_port_base::baud_rate * baudrate;
+    boost::posix_time::time_duration * timeout;
+    boost::asio::serial_port_base::character_size * bytesize;
+    boost::asio::serial_port_base::parity * parity;
+    boost::asio::serial_port_base::stop_bits * stopbits;
+    boost::asio::serial_port_base::flow_control * flowcontrol;
+    
+    int bytes_read;
+    int bytes_to_read;
+    bool reading;
+};
+
+class SerialPortAlreadyOpenException : public std::exception {
+    const char * port;
+public:
+    SerialPortAlreadyOpenException(const char * port) {this->port = port;}
+    
+    virtual const char* what() const throw() {
+        std::stringstream ss;
+        ss << "Serial Port already open: " << this->port;
+        return ss.str().c_str();
+    }
+};
+
+class SerialPortFailedToOpenException : public std::exception {
+    const char * e_what;
+public:
+    SerialPortFailedToOpenException(const char * e_what) {this->e_what = e_what;}
+    
+    virtual const char* what() const throw() {
+        std::stringstream ss;
+        ss << "Serial Port failed to open: " << this->e_what;
+        return ss.str().c_str();
+    }
+};
+
+class InvalidBytesizeException : public std::exception {
+    int bytesize;
+public:
+    InvalidBytesizeException(int bytesize) {this->bytesize = bytesize;}
+    
+    virtual const char* what() const throw() {
+        std::stringstream ss;
+        ss << "Invalid bytesize provided: " << this->bytesize;
+        return ss.str().c_str();
+    }
+};
+
+class InvalidParityException : public std::exception {
+    int parity;
+public:
+    InvalidParityException(int parity) {this->parity = parity;}
+    
+    virtual const char* what() const throw() {
+        std::stringstream ss;
+        ss << "Invalid parity provided: " << this->parity;
+        return ss.str().c_str();
+    }
+};
+
+class InvalidStopbitsException : public std::exception {
+    int stopbits;
+public:
+    InvalidStopbitsException(int stopbits) {this->stopbits = stopbits;}
+    
+    virtual const char* what() const throw() {
+        std::stringstream ss;
+        ss << "Invalid stopbits provided: " << this->stopbits;
+        return ss.str().c_str();
+    }
+};
+
+class InvalidFlowcontrolException : public std::exception {
+    int flowcontrol;
+public:
+    InvalidFlowcontrolException(int flowcontrol) {this->flowcontrol = flowcontrol;}
+    
+    virtual const char* what() const throw() {
+        std::stringstream ss;
+        ss << "Invalid flowcontrol provided: " << this->flowcontrol;
+        return ss.str().c_str();
+    }
 };
 
 #endif
