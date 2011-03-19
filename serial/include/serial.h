@@ -40,6 +40,8 @@
 #include <sstream>
 #include <string>
 
+// #define BOOST_ASIO_DISABLE_KQUEUE
+
 #include <boost/asio.hpp>
 #include <boost/asio/serial_port.hpp>
 #include <boost/bind.hpp>

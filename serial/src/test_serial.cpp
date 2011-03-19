@@ -30,7 +30,7 @@ int main(int argc, char **argv)
     
     ros::NodeHandle n;
     
-    std::string port("/dev/ttyUSB0");
+    std::string port("/dev/tty.usbserial-A900cfJA");
     // std::string port("/dev/tty.usbmodemfa141");
     
     serial = new Serial(port, 9600, 250);

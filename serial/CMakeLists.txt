@@ -28,4 +28,8 @@ rosbuild_add_boost_directories()
 rosbuild_link_boost(${PROJECT_NAME} system filesystem thread)
 rosbuild_add_executable(test_serial src/test_serial.cpp)
 target_link_libraries(test_serial serial)
-# rosbuild_add_executable(boosttest src/boosttest.cpp)
+
+# Check for OS X and if so disable kqueue support in asio
+IF(CMAKE_SYSTEM_NAME MATCHES Darwin)
+    add_definitions(-DBOOST_ASIO_DISABLE_KQUEUE)
+ENDIF(CMAKE_SYSTEM_NAME MATCHES Darwin)
