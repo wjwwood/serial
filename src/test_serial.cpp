@@ -1,5 +1,3 @@
-#include "ros/ros.h"
-
 #include <string>
 #include <iostream>
 
@@ -26,34 +24,17 @@ std::string toHex(std::string input) {
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "serial_test_node");
-    
-    ros::NodeHandle n;
-    
     std::string port("/dev/tty.usbserial-A900cfJA");
     // std::string port("/dev/tty.usbmodemfa141");
     
     serial = new Serial(port, 9600, 250);
     
-    ros::Rate loop_rate(0.5);
-    
     int count = 0;
-    while (ros::ok() and count != 30) {
+    while (count != 30) {
         // serial->write("Testing.");
-        // ROS_INFO("Out of write");
         std::string result = serial->read(1);
         std::cout << ">" << result << std::endl;
         
-        
-        // ROS_INFO("Here.");
-        
-        // ROS_INFO(result.c_str());
-        // ROS_INFO("%d,%s", result.length(), toHex(result).c_str());
-        
-        
-        ros::spinOnce();
-        
-        // loop_rate.sleep();
         // count += 1;
     }
     
