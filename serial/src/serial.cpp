@@ -10,10 +10,10 @@ public:
     
     template <typename Error>
     bool operator()(const Error& err, std::size_t bytes_transferred) {
-        std::cout << "Here2" << std::endl;
         if(err) {// There is an Error
+            if(err == boost::asio::error::invalid_argument)
+                std::cout << "Invalid Argument Error" << std::endl;
             if(err == boost::asio::error::operation_aborted) {
-                std::cout << "Here1" << std::endl;
                 return 1;
             }
             if(err != boost::asio::error::invalid_argument) {// The Error is not invalid argument
@@ -212,7 +212,6 @@ std::string Serial::read(int size) {
 }
 
 void Serial::read_complete(const boost::system::error_code& error, std::size_t bytes_transferred) {
-    // std::cout << "Here2" << std::endl;
     if(!error || error != boost::asio::error::operation_aborted) { // If there was no error OR the error wasn't operation aborted (canceled), Cancel the timer
         this->timeout_timer->cancel();  // will cause timeout_callback to fire with an error
     }
@@ -225,7 +224,6 @@ void Serial::read_complete(const boost::system::error_code& error, std::size_t b
 void Serial::timeout_callback(const boost::system::error_code& error) {
     if (!error) {
         // The timeout wasn't canceled, so cancel the async read
-        std::cout << "Here3" << std::endl;
         this->serial_port->cancel();
     }
 }
