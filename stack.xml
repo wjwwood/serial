@@ -1,9 +1,0 @@
-<stack>
-  <description brief="wwoodall-ros-pkg">wwoodall-ros-pkg</description>
-  <author>Maintained by William Woodall</author>
-  <license>BSD</license>  
-  <review status="unreviewed" notes=""/>
-  <url>http://ros.org/wiki/wwoodall-ros-pkg</url>
-  <depend stack="ros" />
-
-</stack>
