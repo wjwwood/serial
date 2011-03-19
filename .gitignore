@@ -15,6 +15,7 @@
 .svn
 build
 bin
+lib
 cpp
 */lib/*
 installed
