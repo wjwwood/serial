@@ -27,15 +27,16 @@ int main(int argc, char **argv)
     std::string port("/dev/tty.usbserial-A900cfJA");
     // std::string port("/dev/tty.usbmodemfa141");
     
-    serial = new Serial(port, 9600, 250);
+    serial = new Serial(port, 115200, 250);
     
     int count = 0;
-    while (count != 30) {
-        // serial->write("Testing.");
-        std::string result = serial->read(1);
-        std::cout << ">" << result << std::endl;
+    while (count >= 0) {
+        int bytes_wrote = serial->write("Testing.");
+        std::string result = serial->read(8);
+        if(count % 10 == 0)
+            std::cout << ">" << count << ">" << bytes_wrote << ">" << result << std::endl;
         
-        // count += 1;
+        count += 1;
     }
     
     return 0;
