@@ -17,6 +17,9 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 # Find Boost
 find_package(Boost COMPONENTS system filesystem thread REQUIRED)
 
+link_directories(${Boost_LIBRARY_DIRS})
+include_directories(${Boost_INCLUDE_DIRS})
+
 # Compile the Serial Library
 add_library(serial src/serial.cpp include/serial.h)
 target_link_libraries(serial ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY} ${Boost_THREAD_LIBRARY})
