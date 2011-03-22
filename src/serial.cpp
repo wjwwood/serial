@@ -342,11 +342,11 @@ void Serial::setParity(parity_t parity) {
 const parity_t Serial::getParity() {
     switch(this->parity.value()) {
         case boost::asio::serial_port_base::parity::none:
-            return parity_t(PARITY_NONE);
+            return parity_t(NONE);
         case boost::asio::serial_port_base::parity::odd:
-            return parity_t(PARITY_ODD);
+            return parity_t(ODD);
         case boost::asio::serial_port_base::parity::even:
-            return parity_t(PARITY_EVEN);
+            return parity_t(EVEN);
         default:
             throw(InvalidParityException(this->parity.value()));
     }
