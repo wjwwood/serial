@@ -189,7 +189,7 @@ void Serial::close() {
     this->serial_port->close();
 }
 
-int Serial::read(char* buffer, int size) {
+const int Serial::read(char* buffer, int size) {
     this->reading = true;
     if(this->nonblocking) // Do not wait for data
         boost::asio::async_read(*this->serial_port, boost::asio::buffer(buffer, size),
@@ -215,7 +215,7 @@ int Serial::read(char* buffer, int size) {
     return this->bytes_read;
 }
 
-std::string Serial::read(int size) {
+const std::string Serial::read(int size) {
     char *serial_buffer = new char[size];
     int bytes_read_ = this->read(serial_buffer, size);
     std::string return_str(serial_buffer, (std::size_t)bytes_read_);
@@ -240,11 +240,11 @@ void Serial::timeout_callback(const boost::system::error_code& error) {
     }
 }
 
-int Serial::write(char data[], int length) {
+const int Serial::write(char data[], int length) {
     return boost::asio::write(*this->serial_port, boost::asio::buffer(data, length), boost::asio::transfer_all());
 }
 
-int Serial::write(std::string data) {
+const int Serial::write(std::string data) {
     char *cstr = new char[data.size()+1];
     std::strcpy(cstr, data.c_str());
     int bytes_wrote = this->write(cstr, data.length());
@@ -260,12 +260,12 @@ void Serial::setDTR(bool level) {
     this->serial_port->set_option(DTRControl(level));
 }
 
-bool Serial::getCTS() {
+const bool Serial::getCTS() {
     throw(boost::asio::error::operation_not_supported);
     return false;
 }
 
-bool Serial::getDSR() {
+const bool Serial::getDSR() {
     throw(boost::asio::error::operation_not_supported);
     return false;
 }
@@ -286,7 +286,7 @@ void Serial::setTimeoutMilliseconds(long timeout) {
         this->nonblocking = false;
 }
 
-long Serial::getTimeoutMilliseconds() {
+const long Serial::getTimeoutMilliseconds() {
     return this->timeout->total_milliseconds();
 }
 
@@ -294,7 +294,7 @@ void Serial::setBaudrate(int baudrate) {
     this->baudrate = boost::asio::serial_port_base::baud_rate(baudrate);
 }
 
-int Serial::getBaudrate() {
+const int Serial::getBaudrate() {
     return this->baudrate.value();
 }
 
@@ -318,7 +318,7 @@ void Serial::setBytesize(bytesize_t bytesize) {
     }
 }
 
-bytesize_t Serial::getBytesize() {
+const bytesize_t Serial::getBytesize() {
     return bytesize_t(this->bytesize.value());
 }
 
@@ -339,7 +339,7 @@ void Serial::setParity(parity_t parity) {
     }
 }
 
-parity_t Serial::getParity() {
+const parity_t Serial::getParity() {
     switch(this->parity.value()) {
         case boost::asio::serial_port_base::parity::none:
             return parity_t(PARITY_NONE);
@@ -369,7 +369,7 @@ void Serial::setStopbits(stopbits_t stopbits) {
     }
 }
 
-stopbits_t Serial::getStopbits() {
+const stopbits_t Serial::getStopbits() {
     switch(this->stopbits.value()) {
         case boost::asio::serial_port_base::stop_bits::one:
             return stopbits_t(STOPBITS_ONE);
@@ -399,7 +399,7 @@ void Serial::setFlowcontrol(flowcontrol_t flowcontrol) {
     }
 }
 
-flowcontrol_t Serial::getFlowcontrol() {
+const flowcontrol_t Serial::getFlowcontrol() {
     switch(this->flowcontrol.value()) {
         case boost::asio::serial_port_base::flow_control::none:
             return flowcontrol_t(FLOWCONTROL_NONE);

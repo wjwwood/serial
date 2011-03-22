@@ -47,6 +47,12 @@
 #include <boost/bind.hpp>
 #include <boost/thread.hpp>
 
+// A macro to disallow the copy constructor and operator= functions
+// This should be used in the private: declarations for a class
+#define DISALLOW_COPY_AND_ASSIGN(TypeName) \
+  TypeName(const TypeName&);               \
+  void operator=(const TypeName&)
+
 // DEFINES
 #define DEFAULT_BAUDRATE 9600
 #define DEFAULT_TIMEOUT 0.0
@@ -132,7 +138,7 @@ public:
     * 
     * @return An integer representing the number of bytes read.
     */
-    int read(char* buffer, int size = 1);
+    const int read(char* buffer, int size = 1);
     
     /** Read size bytes from the serial port.
     * If a timeout is set it may return less characters than requested. With no timeout
@@ -142,7 +148,7 @@ public:
     * 
     * @return A std::string containing the data read.
     */
-    std::string read(int size = 1);
+    const std::string read(int size = 1);
     
     /** Write length bytes from buffer to the serial port.
     * 
@@ -152,7 +158,7 @@ public:
     * 
     * @return An integer representing the number of bytes written.
     */
-    int write(char data[], int length);
+    const int write(char data[], int length);
     
     /** Write a string to the serial port.
     * 
@@ -160,7 +166,7 @@ public:
     * 
     * @return An integer representing the number of bytes written to the serial port.
     */
-    int write(std::string data);
+    const int write(std::string data);
     
     /** Sets the logic level of the RTS line.
     * 
@@ -178,13 +184,13 @@ public:
     * 
     * @return A boolean value that represents the current logic level of the CTS line.
     */
-    bool getCTS();
+    const bool getCTS();
     
     /** Gets the status of the DSR line.
     * 
     * @return A boolean value that represents the current logic level of the DSR line.
     */
-    bool getDSR();
+    const bool getDSR();
     
     /** Sets the timeout for reads in seconds.
     * 
@@ -206,7 +212,7 @@ public:
     *        zero (-1) will result in infinite blocking behaviour, i.e. the serial port will
     *        block until either size bytes have been read or an exception has occured.
     */
-    long getTimeoutMilliseconds();
+    const long getTimeoutMilliseconds();
     
     /** Sets the baudrate for the serial port.
     * 
@@ -218,7 +224,7 @@ public:
     * 
     * @return An integer that sets the baud rate for the serial port.
     */
-    int getBaudrate();
+    const int getBaudrate();
     
     /** Sets the bytesize for the serial port.
     * 
@@ -238,7 +244,7 @@ public:
     * 
     * @throw InvalidBytesizeException
     */
-    bytesize_t getBytesize();
+    const bytesize_t getBytesize();
     
     /** Sets the parity for the serial port.
     * 
@@ -256,7 +262,7 @@ public:
     * 
     * @throw InvalidParityException
     */
-    parity_t getParity();
+    const parity_t getParity();
     
     /** Sets the stopbits for the serial port.
     * 
@@ -274,7 +280,7 @@ public:
     * 
     * @throw InvalidStopbitsException
     */
-    stopbits_t getStopbits();
+    const stopbits_t getStopbits();
     
     /** Sets the flow control for the serial port.
     * 
@@ -292,8 +298,9 @@ public:
     * 
     * @throw InvalidFlowcontrolException
     */
-    flowcontrol_t getFlowcontrol();
+    const flowcontrol_t getFlowcontrol();
 private:
+    DISALLOW_COPY_AND_ASSIGN(Serial);
     void init();
     void read_complete(const boost::system::error_code& error, std::size_t bytes_transferred);
     void timeout_callback(const boost::system::error_code& error);
