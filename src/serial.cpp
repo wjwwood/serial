@@ -324,13 +324,13 @@ const bytesize_t Serial::getBytesize() {
 
 void Serial::setParity(parity_t parity) {
     switch(parity) {
-        case PARITY_NONE:
+        case NONE:
             this->parity = boost::asio::serial_port_base::parity(boost::asio::serial_port_base::parity::none);
             break;
-        case PARITY_ODD:
+        case ODD:
             this->parity = boost::asio::serial_port_base::parity(boost::asio::serial_port_base::parity::odd);
             break;
-        case PARITY_EVEN:
+        case EVEN:
             this->parity = boost::asio::serial_port_base::parity(boost::asio::serial_port_base::parity::even);
             break;
         default:
