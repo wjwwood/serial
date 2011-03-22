@@ -55,11 +55,13 @@
 #define DEFAULT_STOPBITS STOPBITS_ONE
 #define DEFAULT_FLOWCONTROL FLOWCONTROL_NONE
 
+namespace serial {
+
 // Serial Port settings CONSTANTS
-enum { FIVEBITS, SIXBITS, SEVENBITS, EIGHTBITS };
-enum { PARITY_NONE, PARITY_ODD, PARITY_EVEN };
-enum { STOPBITS_ONE, STOPBITS_ONE_POINT_FIVE, STOPBITS_TWO };
-enum { FLOWCONTROL_NONE, FLOWCONTROL_SOFTWARE, FLOWCONTROL_HARDWARE };
+enum bytesize_t { FIVEBITS = 5, SIXBITS = 6, SEVENBITS = 7, EIGHTBITS = 8 };
+enum parity_t { PARITY_NONE, PARITY_ODD, PARITY_EVEN };
+enum stopbits_t { STOPBITS_ONE, STOPBITS_ONE_POINT_FIVE, STOPBITS_TWO };
+enum flowcontrol_t { FLOWCONTROL_NONE, FLOWCONTROL_SOFTWARE, FLOWCONTROL_HARDWARE };
 
 class Serial {
 public:
@@ -75,9 +77,12 @@ public:
     * 
     * @param baudrate An integer that represents the buadrate
     * 
-    * @param timeout A double that represents the time (in seconds) until a 
-    *        timeout on reads occur.  Setting this to a number less than or 
-    *        equal to zero will silently disable the timeout on reads.
+    * @param timeout A long that represents the time (in milliseconds) until a 
+    *        timeout on reads occur.  Setting this to zero (0) will cause reading
+    *        to be non-blocking, i.e. the available data will be returned immediately,
+    *        but it will not block to wait for more.  Setting this to a number less than
+    *        zero (-1) will result in infinite blocking behaviour, i.e. the serial port will
+    *        block until either size bytes have been read or an exception has occured.
     * 
     * @param bytesize Size of each byte in the serial transmission of data, 
     *        default is EIGHTBITS, possible values are: FIVEBITS, 
@@ -97,11 +102,11 @@ public:
     */
     Serial(std::string port,
            int baudrate = DEFAULT_BAUDRATE,
-           double timeout = DEFAULT_TIMEOUT,
-           int bytesize = DEFAULT_BYTESIZE,
-           int parity = DEFAULT_PARITY,
-           int stopbits = DEFAULT_STOPBITS,
-           int flowcontrol = DEFAULT_FLOWCONTROL);
+           long timeout = DEFAULT_TIMEOUT,
+           bytesize_t bytesize = DEFAULT_BYTESIZE,
+           parity_t parity = DEFAULT_PARITY,
+           stopbits_t stopbits = DEFAULT_STOPBITS,
+           flowcontrol_t flowcontrol = DEFAULT_FLOWCONTROL);
     
     /** Destructor */
     ~Serial();
@@ -183,13 +188,23 @@ public:
     
     /** Sets the timeout for reads in seconds.
     * 
-    * @param timeout A long that specifies how long the read timeout is in seconds.
+    * @param timeout A long that represents the time (in milliseconds) until a 
+    *        timeout on reads occur.  Setting this to zero (0) will cause reading
+    *        to be non-blocking, i.e. the available data will be returned immediately,
+    *        but it will not block to wait for more.  Setting this to a number less than
+    *        zero (-1) will result in infinite blocking behaviour, i.e. the serial port will
+    *        block until either size bytes have been read or an exception has occured.
     */
     void setTimeoutMilliseconds(long timeout);
     
     /** Gets the timeout for reads in seconds.
     * 
-    * @return A long that specifies how long the read timeout is in seconds.
+    * @param timeout A long that represents the time (in milliseconds) until a 
+    *        timeout on reads occur.  Setting this to zero (0) will cause reading
+    *        to be non-blocking, i.e. the available data will be returned immediately,
+    *        but it will not block to wait for more.  Setting this to a number less than
+    *        zero (-1) will result in infinite blocking behaviour, i.e. the serial port will
+    *        block until either size bytes have been read or an exception has occured.
     */
     long getTimeoutMilliseconds();
     
@@ -210,58 +225,74 @@ public:
     * @param bytesize Size of each byte in the serial transmission of data, 
     *        default is EIGHTBITS, possible values are: FIVEBITS, 
     *        SIXBITS, SEVENBITS, EIGHTBITS
+    * 
+    * @throw InvalidBytesizeException
     */
-    void setBytesize(int bytesize);
+    void setBytesize(bytesize_t bytesize);
     
     /** Gets the bytesize for the serial port.
     * 
     * @return Size of each byte in the serial transmission of data, 
     *         default is EIGHTBITS, possible values are: FIVEBITS, 
     *         SIXBITS, SEVENBITS, EIGHTBITS
+    * 
+    * @throw InvalidBytesizeException
     */
-    int getBytesize();
+    bytesize_t getBytesize();
     
     /** Sets the parity for the serial port.
     * 
     * @param parity Method of parity, default is PARITY_NONE, possible values
     *        are: PARITY_NONE, PARITY_ODD, PARITY_EVEN
+    * 
+    * @throw InvalidParityException
     */
-    void setParity(int parity);
+    void setParity(parity_t parity);
     
     /** Gets the parity for the serial port.
     * 
     * @return Method of parity, default is PARITY_NONE, possible values
     *         are: PARITY_NONE, PARITY_ODD, PARITY_EVEN
+    * 
+    * @throw InvalidParityException
     */
-    int getParity();
+    parity_t getParity();
     
     /** Sets the stopbits for the serial port.
     * 
     * @param stopbits Number of stop bits used, default is STOPBITS_ONE, possible 
     *        values are: STOPBITS_ONE, STOPBITS_ONE_POINT_FIVE, STOPBITS_TWO
+    * 
+    * @throw InvalidStopbitsException
     */
-    void setStopbits(int stopbits);
+    void setStopbits(stopbits_t stopbits);
     
     /** Gets the stopbits for the serial port.
     * 
     * @return Number of stop bits used, default is STOPBITS_ONE, possible 
     *         values are: STOPBITS_ONE, STOPBITS_ONE_POINT_FIVE, STOPBITS_TWO
+    * 
+    * @throw InvalidStopbitsException
     */
-    int getStopbits();
+    stopbits_t getStopbits();
     
     /** Sets the flow control for the serial port.
     * 
     * @param flowcontrol Type of flowcontrol used, default is FLOWCONTROL_NONE, possible
     *        values are: FLOWCONTROL_NONE, FLOWCONTROL_SOFTWARE, FLOWCONTROL_HARDWARE
+    * 
+    * @throw InvalidFlowcontrolException
     */
-    void setFlowcontrol(int flowcontrol);
+    void setFlowcontrol(flowcontrol_t flowcontrol);
     
     /** Gets the flow control for the serial port.
     * 
     * @return Type of flowcontrol used, default is FLOWCONTROL_NONE, possible
     *         values are: FLOWCONTROL_NONE, FLOWCONTROL_SOFTWARE, FLOWCONTROL_HARDWARE
+    * 
+    * @throw InvalidFlowcontrolException
     */
-    int getFlowcontrol();
+    flowcontrol_t getFlowcontrol();
 private:
     void init();
     void read_complete(const boost::system::error_code& error, std::size_t bytes_transferred);
@@ -269,23 +300,24 @@ private:
     
     boost::asio::io_service io_service;
     
-    boost::asio::io_service::work * work;
+    boost::asio::io_service::work work;
     
     boost::asio::serial_port * serial_port;
     
-    boost::asio::deadline_timer * timeout_timer;
+    boost::asio::deadline_timer timeout_timer;
     
     std::string port;
-    boost::asio::serial_port_base::baud_rate * baudrate;
+    boost::asio::serial_port_base::baud_rate baudrate;
     boost::posix_time::time_duration * timeout;
-    boost::asio::serial_port_base::character_size * bytesize;
-    boost::asio::serial_port_base::parity * parity;
-    boost::asio::serial_port_base::stop_bits * stopbits;
-    boost::asio::serial_port_base::flow_control * flowcontrol;
+    boost::asio::serial_port_base::character_size bytesize;
+    boost::asio::serial_port_base::parity parity;
+    boost::asio::serial_port_base::stop_bits stopbits;
+    boost::asio::serial_port_base::flow_control flowcontrol;
     
     int bytes_read;
     int bytes_to_read;
     bool reading;
+    bool nonblocking;
 };
 
 class SerialPortAlreadyOpenException : public std::exception {
@@ -359,5 +391,7 @@ public:
         return ss.str().c_str();
     }
 };
+
+} // namespace serial
 
 #endif
