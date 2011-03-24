@@ -46,6 +46,7 @@
 #include <boost/asio/serial_port.hpp>
 #include <boost/bind.hpp>
 #include <boost/thread.hpp>
+#include <boost/scoped_ptr.hpp>
 
 // A macro to disallow the copy constructor and operator= functions
 // This should be used in the private: declarations for a class
@@ -54,12 +55,24 @@
   void operator=(const TypeName&)
 
 // DEFINES
+#ifndef DEFAULT_BAUDRATE
 #define DEFAULT_BAUDRATE 9600
+#endif
+#ifndef DEFAULT_TIMEOUT
 #define DEFAULT_TIMEOUT 0.0
+#endif
+#ifndef DEFAULT_BYTESIZE
 #define DEFAULT_BYTESIZE EIGHTBITS
+#endif
+#ifndef DEFAULT_PARITY
 #define DEFAULT_PARITY NONE
+#endif
+#ifndef DEFAULT_STOPBITS
 #define DEFAULT_STOPBITS STOPBITS_ONE
+#endif 
+#ifndef DEFAULT_FLOWCONTROL
 #define DEFAULT_FLOWCONTROL FLOWCONTROL_NONE
+#endif
 
 namespace serial {
 
@@ -184,13 +197,13 @@ public:
     * 
     * @return A boolean value that represents the current logic level of the CTS line.
     */
-    const bool getCTS();
+    const bool getCTS() const;
     
     /** Gets the status of the DSR line.
     * 
     * @return A boolean value that represents the current logic level of the DSR line.
     */
-    const bool getDSR();
+    const bool getDSR() const;
     
     /** Sets the timeout for reads in seconds.
     * 
@@ -212,7 +225,7 @@ public:
     *        zero (-1) will result in infinite blocking behaviour, i.e. the serial port will
     *        block until either size bytes have been read or an exception has occured.
     */
-    const long getTimeoutMilliseconds();
+    const long getTimeoutMilliseconds() const;
     
     /** Sets the baudrate for the serial port.
     * 
@@ -224,7 +237,7 @@ public:
     * 
     * @return An integer that sets the baud rate for the serial port.
     */
-    const int getBaudrate();
+    const int getBaudrate() const;
     
     /** Sets the bytesize for the serial port.
     * 
@@ -244,7 +257,7 @@ public:
     * 
     * @throw InvalidBytesizeException
     */
-    const bytesize_t getBytesize();
+    const bytesize_t getBytesize() const;
     
     /** Sets the parity for the serial port.
     * 
@@ -262,7 +275,7 @@ public:
     * 
     * @throw InvalidParityException
     */
-    const parity_t getParity();
+    const parity_t getParity() const;
     
     /** Sets the stopbits for the serial port.
     * 
@@ -280,7 +293,7 @@ public:
     * 
     * @throw InvalidStopbitsException
     */
-    const stopbits_t getStopbits();
+    const stopbits_t getStopbits() const;
     
     /** Sets the flow control for the serial port.
     * 
@@ -298,7 +311,7 @@ public:
     * 
     * @throw InvalidFlowcontrolException
     */
-    const flowcontrol_t getFlowcontrol();
+    const flowcontrol_t getFlowcontrol() const;
 private:
     DISALLOW_COPY_AND_ASSIGN(Serial);
     void init();
@@ -309,13 +322,13 @@ private:
     
     boost::asio::io_service::work work;
     
-    boost::asio::serial_port * serial_port;
+    boost::scoped_ptr<boost::asio::serial_port> serial_port;
     
     boost::asio::deadline_timer timeout_timer;
     
     std::string port;
     boost::asio::serial_port_base::baud_rate baudrate;
-    boost::posix_time::time_duration * timeout;
+    boost::posix_time::time_duration timeout;
     boost::asio::serial_port_base::character_size bytesize;
     boost::asio::serial_port_base::parity parity;
     boost::asio::serial_port_base::stop_bits stopbits;
