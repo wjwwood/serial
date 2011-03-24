@@ -47,4 +47,20 @@ INSTALL(TARGETS serial
 
 INSTALL(FILES include/serial.h DESTINATION include)
 
-# INSTALL(FILES ../Findserial.cmake DESTINATION ${CMAKE_ROOT}/Modules/)
+INSTALL(FILES Findserial.cmake DESTINATION ${CMAKE_ROOT}/Modules/)
+
+ADD_CUSTOM_TARGET (uninstall @echo uninstall package)
+
+IF (UNIX)
+  ADD_CUSTOM_COMMAND(
+    COMMENT "uninstall package"
+    COMMAND xargs ARGS rm < install_manifest.txt
+
+    TARGET  uninstall
+  )
+ELSE(UNIX)
+  ADD_CUSTOM_COMMAND(
+    COMMENT "uninstall only implemented in unix"
+    TARGET  uninstall
+  )
+ENDIF(UNIX)

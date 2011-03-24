@@ -1,4 +1,12 @@
-all:
+all: serial
+
+install:
+	cd build && make install
+
+uninstall:
+	cd build && make uninstall
+
+serial:
 	@mkdir -p build
 	-mkdir -p bin
 	cd build && cmake $(CMAKE_FLAGS) ..
