@@ -40,8 +40,6 @@
 #include <sstream>
 #include <string>
 
-// #define BOOST_ASIO_DISABLE_KQUEUE
-
 #include <boost/asio.hpp>
 #include <boost/asio/serial_port.hpp>
 #include <boost/bind.hpp>
@@ -55,15 +53,9 @@
   void operator=(const TypeName&)
 
 // If on Windows undefine the PARITY_* defines that are in winbase.h
-#ifdef PARTIY_NONE
+#ifdef _WIN32
     #undef PARITY_NONE
-#endif
-
-#ifdef PARTIY_ODD
     #undef PARITY_ODD
-#endif
-
-#ifdef PARTIY_EVEN
     #undef PARITY_EVEN
 #endif
 
@@ -72,7 +64,7 @@
 #define DEFAULT_BAUDRATE 9600
 #endif
 #ifndef DEFAULT_TIMEOUT
-#define DEFAULT_TIMEOUT 0.0
+#define DEFAULT_TIMEOUT 0
 #endif
 #ifndef DEFAULT_BYTESIZE
 #define DEFAULT_BYTESIZE EIGHTBITS
@@ -91,7 +83,7 @@ namespace serial {
 
 // Serial Port settings CONSTANTS
 enum bytesize_t { FIVEBITS = 5, SIXBITS = 6, SEVENBITS = 7, EIGHTBITS = 8 };
-enum parity_t { NONE, ODD, EVEN };
+enum parity_t { PARITY_NONE, PARITY_ODD, PARITY_EVEN };
 enum stopbits_t { STOPBITS_ONE, STOPBITS_ONE_POINT_FIVE, STOPBITS_TWO };
 enum flowcontrol_t { FLOWCONTROL_NONE, FLOWCONTROL_SOFTWARE, FLOWCONTROL_HARDWARE };
 
