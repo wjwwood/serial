@@ -159,6 +159,8 @@ void Serial::init() {
 
 Serial::~Serial() {
     this->close();
+    if(this->timeout != NULL)
+        delete this->timeout;
 }
 
 void Serial::open() {
@@ -185,8 +187,11 @@ void Serial::open() {
 void Serial::close() {
     // Cancel the current timeout timer and async reads
     this->timeout_timer.cancel();
-    this->serial_port->cancel();
-    this->serial_port->close();
+    if(this->serial_port != NULL) {
+        this->serial_port->cancel();
+        this->serial_port->close();
+        delete this->serial_port;
+    }
 }
 
 static const boost::posix_time::time_duration timeout_zero_comparison(boost::posix_time::milliseconds(0));
@@ -326,13 +331,13 @@ const bytesize_t Serial::getBytesize() const {
 
 void Serial::setParity(parity_t parity) {
     switch(parity) {
-        case NONE:
+        case PARITY_NONE:
             this->parity = boost::asio::serial_port_base::parity(boost::asio::serial_port_base::parity::none);
             break;
-        case ODD:
+        case PARITY_ODD:
             this->parity = boost::asio::serial_port_base::parity(boost::asio::serial_port_base::parity::odd);
             break;
-        case EVEN:
+        case PARITY_EVEN:
             this->parity = boost::asio::serial_port_base::parity(boost::asio::serial_port_base::parity::even);
             break;
         default:
@@ -344,11 +349,11 @@ void Serial::setParity(parity_t parity) {
 const parity_t Serial::getParity() const {
     switch(this->parity.value()) {
         case boost::asio::serial_port_base::parity::none:
-            return parity_t(NONE);
+            return parity_t(PARITY_NONE);
         case boost::asio::serial_port_base::parity::odd:
-            return parity_t(ODD);
+            return parity_t(PARITY_ODD);
         case boost::asio::serial_port_base::parity::even:
-            return parity_t(EVEN);
+            return parity_t(PARITY_EVEN);
         default:
             throw(InvalidParityException(this->parity.value()));
     }

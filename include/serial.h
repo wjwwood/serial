@@ -54,6 +54,19 @@
   TypeName(const TypeName&);               \
   void operator=(const TypeName&)
 
+// If on Windows undefine the PARITY_* defines that are in winbase.h
+#ifdef PARTIY_NONE
+    #undef PARITY_NONE
+#endif
+
+#ifdef PARTIY_ODD
+    #undef PARITY_ODD
+#endif
+
+#ifdef PARTIY_EVEN
+    #undef PARITY_EVEN
+#endif
+
 // DEFINES
 #ifndef DEFAULT_BAUDRATE
 #define DEFAULT_BAUDRATE 9600
