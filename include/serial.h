@@ -1,6 +1,7 @@
 /**
  * @file serial.h
  * @author  William Woodall <wjwwood@gmail.com>
+ * @author  John Harrison   <ash.gti@gmail.com>
  * @version 0.1
  *
  * @section LICENSE
@@ -142,6 +143,12 @@ public:
     * @throw SerialPortFailedToOpenException
     */
     void open();
+    
+    /** Gets the status of the serial port.
+    * 
+    * @return A boolean value that represents whether or not the serial port is open.
+    */
+    const bool isOpen();
     
     /** Closes the serial port and terminates threads. */
     void close();

@@ -182,6 +182,12 @@ void Serial::open() {
     }
 }
 
+const bool Serial::isOpen() {
+    if(this->serial_port != NULL)
+        return this->serial_port->is_open();
+    return false;
+}
+
 void Serial::close() {
     // Cancel the current timeout timer and async reads
     this->timeout_timer.cancel();
