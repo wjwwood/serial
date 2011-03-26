@@ -217,6 +217,22 @@ public:
     */
     const bool getDSR() const;
     
+    /** Sets the serial port identifier.
+    * 
+    * @param port A std::string containing the address of the serial port,
+    *        which would be something like 'COM1' on Windows and '/dev/ttyS0'
+    *        on Linux.
+    */
+    void setPort(std::string port);
+    
+    /** Gets the serial port identifier.
+    * 
+    * @return A std::string containing the address of the serial port,
+    *         which would be something like 'COM1' on Windows and '/dev/ttyS0'
+    *         on Linux.
+    */
+    const std::string getPort() const;
+    
     /** Sets the timeout for reads in seconds.
     * 
     * @param timeout A long that represents the time (in milliseconds) until a 

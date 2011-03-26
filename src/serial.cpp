@@ -281,6 +281,14 @@ const bool Serial::getDSR() const {
     return false;
 }
 
+void Serial::setPort(std::string port) {
+    this->port = port;
+}
+
+const std::string Serial::getPort() const {
+    return this->port;
+}
+
 void Serial::setTimeoutMilliseconds(long timeout) {
     // If timeout > 0 then read until size or timeout occurs
     // If timeout == 0 then read nonblocking, return data available immediately up to size
