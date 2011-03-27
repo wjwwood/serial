@@ -202,28 +202,26 @@ static const boost::posix_time::time_duration timeout_zero_comparison(boost::pos
 
 const int Serial::read(char* buffer, int size) {
     this->reading = true;
-    if(this->nonblocking) // Do not wait for data
-        boost::asio::async_read(*this->serial_port, boost::asio::buffer(buffer, size),
-                                boost::bind(&Serial::read_complete, this,
-                                boost::asio::placeholders::error,
-                                boost::asio::placeholders::bytes_transferred));
-    else                  // Wait for data until size is read or timeout occurs
+    if(this->nonblocking) {// Do not wait for data
+        return this->serial_port->read_some(boost::asio::buffer(buffer, size));
+    } else {               // Wait for data until size is read or timeout occurs
         boost::asio::async_read(*this->serial_port, boost::asio::buffer(buffer, size), transfer_at_least_ignore_invalid_argument(size),
                                 boost::bind(&Serial::read_complete, this,
                                 boost::asio::placeholders::error,
                                 boost::asio::placeholders::bytes_transferred));
-    if(this->timeout > timeout_zero_comparison) { // Only set a timeout_timer if there is a valid timeout
-        this->timeout_timer.expires_from_now(this->timeout);
-        this->timeout_timer.async_wait(boost::bind(&Serial::timeout_callback, this,
-                                 boost::asio::placeholders::error));
+        if(this->timeout > timeout_zero_comparison) { // Only set a timeout_timer if there is a valid timeout
+            this->timeout_timer.expires_from_now(this->timeout);
+            this->timeout_timer.async_wait(boost::bind(&Serial::timeout_callback, this,
+                                     boost::asio::placeholders::error));
+        }
+        
+        while(this->reading)
+            this->io_service.run_one();
+        
+        this->bytes_to_read = size;
+        
+        return this->bytes_read;
     }
-    
-    while(this->reading)
-        this->io_service.run_one();
-    
-    this->bytes_to_read = size;
-    
-    return this->bytes_read;
 }
 
 const std::string Serial::read(int size) {
