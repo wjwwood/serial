@@ -175,6 +175,9 @@ public:
     */
     const std::string read(int size = 1);
     
+    std::string read_until(char delim, size_t size = -1);
+    std::string read_until(std::string delim, size_t size = -1);
+    
     /** Write length bytes from buffer to the serial port.
     * 
     * @param data A char[] with data to be written to the serial port.
