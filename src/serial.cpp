@@ -1,4 +1,5 @@
 #include "serial.h"
+#include <iostream>
 
 using namespace serial;
 
@@ -241,60 +242,30 @@ const std::string Serial::read(int size) {
 
 std::string 
 Serial::read_until(char delim, size_t size) {
-    this->reading = true;
-    boost::asio::streambuf b(size == -1 ? size : (std::numeric_limits< std::size_t >::max)());
-    boost::asio::async_read_until(*this->serial_port, b, delim,
-                                  boost::bind(&Serial::read_complete, this,
-                                  boost::asio::placeholders::error,
-                                  boost::asio::placeholders::bytes_transferred));
-    if(this->timeout > timeout_zero_comparison) { // Only set a timeout_timer if there is a valid timeout
-        this->timeout_timer.expires_from_now(this->timeout);
-        this->timeout_timer.async_wait(boost::bind(&Serial::timeout_callback, this,
-                                 boost::asio::placeholders::error));
-    } else if(this->nonblocking) {
-        this->timeout_timer.expires_from_now(boost::posix_time::milliseconds(1));
-        this->timeout_timer.async_wait(boost::bind(&Serial::timeout_callback, this,
-                                 boost::asio::placeholders::error));
+    using namespace std;
+    string r = "";
+    
+    while (r.find(delim) == string::npos) {
+        string s = read(1);
+        if (s.length() > 0) 
+            r += s;
     }
     
-    while(this->reading)
-        this->io_service.run_one();
-    
-    b.commit(bytes_read);
-    
-    std::istream is(&b);
-    std::string s;
-    is >> s;
-    return s;
+    return r;
 }
 
 std::string 
 Serial::read_until(std::string delim, size_t size) {
-    this->reading = true;
-    boost::asio::streambuf b(size == -1 ? size : (std::numeric_limits< std::size_t >::max)());
-    boost::asio::async_read_until(*this->serial_port, b, delim,
-                                  boost::bind(&Serial::read_complete, this,
-                                  boost::asio::placeholders::error,
-                                  boost::asio::placeholders::bytes_transferred));
-    if(this->timeout > timeout_zero_comparison) { // Only set a timeout_timer if there is a valid timeout
-        this->timeout_timer.expires_from_now(this->timeout);
-        this->timeout_timer.async_wait(boost::bind(&Serial::timeout_callback, this,
-                                 boost::asio::placeholders::error));
-    } else if(this->nonblocking) {
-        this->timeout_timer.expires_from_now(boost::posix_time::milliseconds(1));
-        this->timeout_timer.async_wait(boost::bind(&Serial::timeout_callback, this,
-                                 boost::asio::placeholders::error));
+    using namespace std;
+    string r = "";
+    
+    while (r.find(delim) == string::npos) {
+        string s = read(1);
+        if (s.length() > 0) 
+            r += s;
     }
     
-    while(this->reading)
-        this->io_service.run_one();
-    
-    b.commit(bytes_read);
-    
-    std::istream is(&b);
-    std::string s;
-    is >> s;
-    return s;
+    return r;
 }
 
 void Serial::read_complete(const boost::system::error_code& error, std::size_t bytes_transferred) {
