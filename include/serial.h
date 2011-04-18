@@ -148,7 +148,7 @@ public:
     * 
     * @return A boolean value that represents whether or not the serial port is open.
     */
-    const bool isOpen();
+    bool isOpen();
     
     /** Closes the serial port and terminates threads. */
     void close();
@@ -163,7 +163,7 @@ public:
     * 
     * @return An integer representing the number of bytes read.
     */
-    const int read(char* buffer, int size = 1);
+    int read(char* buffer, int size = 1);
     
     /** Read size bytes from the serial port.
     * If a timeout is set it may return less characters than requested. With no timeout
@@ -173,7 +173,7 @@ public:
     * 
     * @return A std::string containing the data read.
     */
-    const std::string read(int size = 1);
+    std::string read(int size = 1);
     
     std::string read_until(char delim, size_t size = -1);
     std::string read_until(std::string delim, size_t size = -1);
@@ -186,7 +186,7 @@ public:
     * 
     * @return An integer representing the number of bytes written.
     */
-    const int write(char data[], int length);
+    int write(char data[], int length);
     
     /** Write a string to the serial port.
     * 
@@ -194,7 +194,7 @@ public:
     * 
     * @return An integer representing the number of bytes written to the serial port.
     */
-    const int write(std::string data);
+    int write(std::string data);
     
     /** Sets the logic level of the RTS line.
     * 
@@ -212,13 +212,13 @@ public:
     * 
     * @return A boolean value that represents the current logic level of the CTS line.
     */
-    const bool getCTS() const;
+    bool getCTS() const;
     
     /** Gets the status of the DSR line.
     * 
     * @return A boolean value that represents the current logic level of the DSR line.
     */
-    const bool getDSR() const;
+    bool getDSR() const;
     
     /** Sets the serial port identifier.
     * 
@@ -234,7 +234,7 @@ public:
     *         which would be something like 'COM1' on Windows and '/dev/ttyS0'
     *         on Linux.
     */
-    const std::string getPort() const;
+    std::string getPort() const;
     
     /** Sets the timeout for reads in seconds.
     * 
@@ -256,7 +256,7 @@ public:
     *        zero (-1) will result in infinite blocking behaviour, i.e. the serial port will
     *        block until either size bytes have been read or an exception has occured.
     */
-    const long getTimeoutMilliseconds() const;
+    long getTimeoutMilliseconds() const;
     
     /** Sets the baudrate for the serial port.
     * 
@@ -268,7 +268,7 @@ public:
     * 
     * @return An integer that sets the baud rate for the serial port.
     */
-    const int getBaudrate() const;
+    int getBaudrate() const;
     
     /** Sets the bytesize for the serial port.
     * 
@@ -288,7 +288,7 @@ public:
     * 
     * @throw InvalidBytesizeException
     */
-    const bytesize_t getBytesize() const;
+    bytesize_t getBytesize() const;
     
     /** Sets the parity for the serial port.
     * 
@@ -306,7 +306,7 @@ public:
     * 
     * @throw InvalidParityException
     */
-    const parity_t getParity() const;
+    parity_t getParity() const;
     
     /** Sets the stopbits for the serial port.
     * 
@@ -324,7 +324,7 @@ public:
     * 
     * @throw InvalidStopbitsException
     */
-    const stopbits_t getStopbits() const;
+    stopbits_t getStopbits() const;
     
     /** Sets the flow control for the serial port.
     * 
@@ -342,7 +342,7 @@ public:
     * 
     * @throw InvalidFlowcontrolException
     */
-    const flowcontrol_t getFlowcontrol() const;
+    flowcontrol_t getFlowcontrol() const;
 private:
     DISALLOW_COPY_AND_ASSIGN(Serial);
     void init();

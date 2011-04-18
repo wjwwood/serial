@@ -183,7 +183,7 @@ void Serial::open() {
     }
 }
 
-const bool Serial::isOpen() {
+bool Serial::isOpen() {
     if(this->serial_port != NULL)
         return this->serial_port->is_open();
     return false;
@@ -201,7 +201,7 @@ void Serial::close() {
 
 static const boost::posix_time::time_duration timeout_zero_comparison(boost::posix_time::milliseconds(0));
 
-const int Serial::read(char* buffer, int size) {
+int Serial::read(char* buffer, int size) {
     this->reading = true;
     if(this->nonblocking) {// Do not wait for data
         this->serial_port->async_read_some(boost::asio::buffer(buffer, size),
@@ -232,7 +232,7 @@ const int Serial::read(char* buffer, int size) {
     return this->bytes_read;
 }
 
-const std::string Serial::read(int size) {
+std::string Serial::read(int size) {
     char *serial_buffer = new char[size];
     int bytes_read_ = this->read(serial_buffer, size);
     std::string return_str(serial_buffer, (std::size_t)bytes_read_);
@@ -285,11 +285,11 @@ void Serial::timeout_callback(const boost::system::error_code& error) {
     }
 }
 
-const int Serial::write(char data[], int length) {
+int Serial::write(char data[], int length) {
     return boost::asio::write(*this->serial_port, boost::asio::buffer(data, length), boost::asio::transfer_all());
 }
 
-const int Serial::write(std::string data) {
+int Serial::write(std::string data) {
     char *cstr = new char[data.size()+1];
     std::strcpy(cstr, data.c_str());
     int bytes_wrote = this->write(cstr, data.length());
@@ -305,12 +305,12 @@ void Serial::setDTR(bool level) {
     this->serial_port->set_option(DTRControl(level));
 }
 
-const bool Serial::getCTS() const {
+bool Serial::getCTS() const {
     throw(boost::asio::error::operation_not_supported);
     return false;
 }
 
-const bool Serial::getDSR() const {
+bool Serial::getDSR() const {
     throw(boost::asio::error::operation_not_supported);
     return false;
 }
@@ -319,7 +319,7 @@ void Serial::setPort(std::string port) {
     this->port = port;
 }
 
-const std::string Serial::getPort() const {
+std::string Serial::getPort() const {
     return this->port;
 }
 
@@ -339,7 +339,7 @@ void Serial::setTimeoutMilliseconds(long timeout) {
         this->nonblocking = false;
 }
 
-const long Serial::getTimeoutMilliseconds() const {
+long Serial::getTimeoutMilliseconds() const {
     return this->timeout.total_milliseconds();
 }
 
@@ -347,7 +347,7 @@ void Serial::setBaudrate(int baudrate) {
     this->baudrate = boost::asio::serial_port_base::baud_rate(baudrate);
 }
 
-const int Serial::getBaudrate() const {
+int Serial::getBaudrate() const {
     return this->baudrate.value();
 }
 
@@ -371,7 +371,7 @@ void Serial::setBytesize(bytesize_t bytesize) {
     }
 }
 
-const bytesize_t Serial::getBytesize() const {
+bytesize_t Serial::getBytesize() const {
     return bytesize_t(this->bytesize.value());
 }
 
@@ -392,7 +392,7 @@ void Serial::setParity(parity_t parity) {
     }
 }
 
-const parity_t Serial::getParity() const {
+parity_t Serial::getParity() const {
     switch(this->parity.value()) {
         case boost::asio::serial_port_base::parity::none:
             return parity_t(PARITY_NONE);
@@ -422,7 +422,7 @@ void Serial::setStopbits(stopbits_t stopbits) {
     }
 }
 
-const stopbits_t Serial::getStopbits() const {
+stopbits_t Serial::getStopbits() const {
     switch(this->stopbits.value()) {
         case boost::asio::serial_port_base::stop_bits::one:
             return stopbits_t(STOPBITS_ONE);
@@ -452,7 +452,7 @@ void Serial::setFlowcontrol(flowcontrol_t flowcontrol) {
     }
 }
 
-const flowcontrol_t Serial::getFlowcontrol() const {
+flowcontrol_t Serial::getFlowcontrol() const {
     switch(this->flowcontrol.value()) {
         case boost::asio::serial_port_base::flow_control::none:
             return flowcontrol_t(FLOWCONTROL_NONE);
