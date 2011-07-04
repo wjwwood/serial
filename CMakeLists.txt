@@ -49,6 +49,9 @@ set(SERIAL_LINK_LIBS ${Boost_SYSTEM_LIBRARY}
 # Compile the Library
 add_library(serial ${SERIAL_SRCS} ${SERIAL_HEADERS})
 target_link_libraries(serial ${SERIAL_LINK_LIBS})
+IF( WIN32 )
+	target_link_libraries(serial wsock32)
+ENDIF( )
 
 # Check for OS X and if so disable kqueue support in asio
 IF(CMAKE_SYSTEM_NAME MATCHES Darwin)
