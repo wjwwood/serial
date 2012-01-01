@@ -50,9 +50,9 @@ Setup workspace (skip if you already have one):
     cd some_ros_workspace
     source setup.bash
     
-Add the rosinstall entry for this library:
+Add the rosinstall entry for this stack:
     
-    echo "" >> .rosinstall
+    echo "-git: {local-name: serial, uri: 'https://github.com/wjwwood/serial.git', version: 'master'}" >> .rosinstall
     
 Rerun rosinstall:
     
