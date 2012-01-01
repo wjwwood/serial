@@ -1,11 +1,15 @@
 cmake_minimum_required(VERSION 2.4.6)
 
-if(DEFINED $ENV{ROS_ROOT})
+set(ROS_ROOT $ENV{ROS_ROOT})
+
+if(DEFINED ROS_ROOT)
   # Build with ROS
   include(serial_ros.cmake)
+  message("Building with ROS")
   build_serial()
-else(DEFINED $ENV{ROS_ROOT})
+else(DEFINED ROS_ROOT)
   # Build normally
   include(serial.cmake)
+  message("Building stand alone")
   build_serial()
-endif(DEFINED $ENV{ROS_ROOT})
+endif(DEFINED ROS_ROOT)

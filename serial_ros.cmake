@@ -32,4 +32,7 @@ rosbuild_link_boost(${PROJECT_NAME} system filesystem thread)
 # Build example
 rosbuild_add_executable(serial_example examples/serial_example.cpp)
 target_link_libraries(serial_example ${PROJECT_NAME})
+
+message(here)
+
 endmacro(build_serial)
