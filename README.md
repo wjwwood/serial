@@ -41,6 +41,32 @@ Build the documentation:
 
     Comming Soon!
 
+## Using within ROS workspace
+
+Setup workspace (skip if you already have one):
+
+    mkdir some_ros_workspace
+    rosws init some_ros_workspace
+    cd some_ros_workspace
+    source setup.bash
+    
+Add the rosinstall entry for this library:
+    
+    echo "" >> .rosinstall
+    
+Rerun rosinstall:
+    
+    rosinstall .
+    source setup.bash
+
+Build the unary stack:
+
+    rosmake serial --rosdep-install
+
+Run the example:
+
+    rosrun serial serial_example
+
 ## License
 
 The BSD License
