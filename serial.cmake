@@ -95,7 +95,7 @@ IF(NOT SERIAL_DONT_CONFIGURE_INSTALL)
       ARCHIVE DESTINATION lib
     )
     
-    INSTALL(FILES include/serial.h DESTINATION include)
+    INSTALL(FILES include/serial/serial.h DESTINATION include/serial)
     
     IF(NOT CMAKE_FIND_INSTALL_PATH)
         set(CMAKE_FIND_INSTALL_PATH ${CMAKE_ROOT})
