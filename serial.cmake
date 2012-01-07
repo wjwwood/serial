@@ -10,6 +10,11 @@ project(Serial)
 
 ## Configurations
 
+# Use clang if available
+IF(EXISTS /usr/bin/clang)
+  set(CMAKE_CXX_COMPILER /usr/bin/clang++)
+ENDIF(EXISTS /usr/bin/clang)
+
 option(SERIAL_BUILD_TESTS "Build all of the Serial tests." OFF)
 option(SERIAL_BUILD_EXAMPLES "Build all of the Serial examples." OFF)
 
@@ -33,9 +38,9 @@ ENDIF(NOT DEFINED(LIBRARY_OUTPUT_PATH))
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
 # Add default source files
-set(SERIAL_SRCS src/serial.cpp)
+set(SERIAL_SRCS src/serial.cc src/serial_listener.cc)
 # Add default header files
-set(SERIAL_HEADERS include/serial/serial.h)
+set(SERIAL_HEADERS include/serial/serial.h include/serial/serial_listener.h)
 
 # Find Boost, if it hasn't already been found
 IF(NOT Boost_FOUND OR NOT Boost_SYSTEM_FOUND OR NOT Boost_FILESYSTEM_FOUND OR NOT Boost_THREAD_FOUND)
@@ -67,17 +72,33 @@ ENDIF(CMAKE_SYSTEM_NAME MATCHES Darwin)
 
 # If asked to
 IF(SERIAL_BUILD_EXAMPLES)
-    # Compile the Test program
-    add_executable(serial_example examples/serial_example.cpp)
+    # Compile the Serial Test program
+    add_executable(serial_example examples/serial_example.cc)
     # Link the Test program to the Serial library
     target_link_libraries(serial_example serial)
+    
+    # Compile the Serial Listener Test program
+    add_executable(serial_listener_example 
+                   examples/serial_listener_example.cc)
+    # Link the Test program to the Serial library
+    target_link_libraries(serial_listener_example serial)
 ENDIF(SERIAL_BUILD_EXAMPLES)
 
 ## Build tests
 
 # If asked to
 IF(SERIAL_BUILD_TESTS)
-    # none yet...
+    # Find Google Test
+    enable_testing()
+    find_package(GTest REQUIRED)
+    include_directories(${GTEST_INCLUDE_DIRS})
+
+    # Compile the Serial Listener Test program
+    add_executable(serial_listener_tests tests/serial_listener_tests.cc)
+    # Link the Test program to the serial library
+    target_link_libraries(serial_listener_tests ${GTEST_BOTH_LIBRARIES} 
+                                                serial)
+    add_test(AllTestsIntest_serial serial_listener_tests)
 ENDIF(SERIAL_BUILD_TESTS)
 
 ## Setup install and uninstall
@@ -95,7 +116,9 @@ IF(NOT SERIAL_DONT_CONFIGURE_INSTALL)
       ARCHIVE DESTINATION lib
     )
     
-    INSTALL(FILES include/serial/serial.h DESTINATION include/serial)
+    INSTALL(FILES include/serial/serial.h
+                  include/serial/serial_listener.h
+            DESTINATION include/serial)
     
     IF(NOT CMAKE_FIND_INSTALL_PATH)
         set(CMAKE_FIND_INSTALL_PATH ${CMAKE_ROOT})

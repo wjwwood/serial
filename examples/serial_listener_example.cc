@@ -25,14 +25,14 @@ int main(void) {
   SerialListener listener;
   // Set the time to live for messages to 1 second
   listener.setTimeToLive(1000);
-  listener.startListening(serial);
+  listener.startListening(&serial);
 
   listener.listenFor(comparator, callback);
 
   serial.write("?$1E\r");
-  if (!listener.listenForOnce("?$1E")) {
+  if (!listener.listenForStringOnce("?$1E")) {
     std::cerr << "Didn't get conformation of device version!" << std::endl;
-    return;
+    return 1;
   }
 
 }

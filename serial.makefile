@@ -30,4 +30,4 @@ ifneq ($(MAKE),)
 else
 	cd build && make
 endif
-    # cd bin && ./serial_tests
+	cd bin && ./serial_listener_tests
