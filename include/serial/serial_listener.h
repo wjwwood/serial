@@ -140,15 +140,6 @@ _delimeter_tokenizer (std::string &data, std::vector<std::string> &tokens,
  * 
  * \see SerialListener::setTokenizer, serial::TokenizerType
  */
-class delimeter_tokenizer
-{
-public:
-  delimeter_tokenizer ();
-  virtual ~delimeter_tokenizer ();
-
-private:
-  /* data */
-};
 TokenizerType
 delimeter_tokenizer (std::string delimeter);
 

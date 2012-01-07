@@ -31,7 +31,8 @@ _delimeter_tokenizer (std::string &data, std::vector<std::string> &tokens,
 
 TokenizerType
 delimeter_tokenizer (std::string delimeter) {
-  return boost::bind(_delimeter_tokenizer, _1, _2, delimeter);
+  TokenizerType temp = boost::bind(_delimeter_tokenizer, _1, _2, delimeter);
+  return temp;
 }
 
 /***** Listener Class Functions *****/

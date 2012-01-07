@@ -12,6 +12,7 @@
 */tmp/*
 *.hwm*
 *.cfg
+*.out
 .svn
 build
 bin
