@@ -13,6 +13,7 @@ project(Serial)
 # Use clang if available
 IF(EXISTS /usr/bin/clang)
   set(CMAKE_CXX_COMPILER /usr/bin/clang++)
+  set(CMAKE_CXX_FLAGS -ferror-limit=5)
 ENDIF(EXISTS /usr/bin/clang)
 
 option(SERIAL_BUILD_TESTS "Build all of the Serial tests." OFF)

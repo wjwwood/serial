@@ -13,7 +13,7 @@ static size_t global_count, global_listen_count;
 
 void default_handler(std::string line) {
   global_count++;
-  // std::cout << "default_handler got: " << line << std::endl;
+  std::cout << "default_handler got: " << line << std::endl;
 }
 
 namespace {
@@ -21,33 +21,55 @@ namespace {
 class SerialListenerTests : public ::testing::Test {
 protected:
   virtual void SetUp() {
+    listener.listening = true;
+    listener.setTimeToLive(10);
     listener.default_handler = default_handler;
+    listener.callback_thread =
+     boost::thread(boost::bind(&SerialListener::callback, &listener));
+  }
+
+  virtual void TearDown() {
+    listener.listening = false;
+    listener.callback_thread.join();
+  }
+
+  void stopCallbackThread() {
+    while (true) {
+      boost::this_thread::sleep(boost::posix_time::milliseconds(1));
+      boost::mutex::scoped_lock lock(listener.callback_queue.the_mutex);
+      if (listener.callback_queue.the_queue.empty())
+        break;
+    }
+    listener.listening = false;
+    listener.callback_thread.join();
   }
 
   void execute_listenForStringOnce() {
     listener.listenForStringOnce("?$1E", 1000);
   }
 
+  void simulate_loop(std::string input_str) {
+    std::vector<std::string> new_tokens;
+    listener.tokenize(input_str, new_tokens);
+    std::vector<uuid_type> new_uuids;
+    listener.addNewTokens(new_tokens, new_uuids, listener.data_buffer);
+    listener.filterNewTokens(new_uuids);
+    boost::this_thread::sleep(boost::posix_time::milliseconds(11));
+    listener.pruneTokens();
+  }
+
   SerialListener listener;
 
 };
 
-TEST_F(SerialListenerTests, ignoresEmptyString) {
+TEST_F(SerialListenerTests, handlesPartialMessage) {
   global_count = 0;
+  std::string input_str = "?$1E\r$1E=Robo";
 
-  listener.listenOnce("");
-  boost::this_thread::sleep(boost::posix_time::milliseconds(11));
-  listener.listenOnce("");
+  simulate_loop(input_str);
 
-  ASSERT_TRUE(global_count == 0);
-}
-
-TEST_F(SerialListenerTests, ignoresPartialMessage) {
-  global_count = 0;
-
-  listener.listenOnce("?$1E\r$1E=Robo");
-  boost::this_thread::sleep(boost::posix_time::milliseconds(11));
-  listener.listenOnce("");
+  // give some time for the callback thread to finish
+  stopCallbackThread();
 
   ASSERT_EQ(global_count, 1);
 }
@@ -60,16 +82,17 @@ TEST_F(SerialListenerTests, listenForOnceWorks) {
 
   boost::this_thread::sleep(boost::posix_time::milliseconds(100));
 
-  listener.listenOnce("\r+\r?$1E\r$1E=Robo");
-  boost::this_thread::sleep(boost::posix_time::milliseconds(11));
-  listener.listenOnce("");
+  simulate_loop("\r+\r?$1E\r$1E=Robo");
 
   ASSERT_TRUE(t.timed_join(boost::posix_time::milliseconds(1500)));
 
   // Make sure the filters are getting deleted
   ASSERT_EQ(listener.filters.size(), 0);
 
-  ASSERT_EQ(global_count, 1);
+  // give some time for the callback thread to finish
+  stopCallbackThread();
+
+  ASSERT_EQ(global_count, 2);
 }
 
 // lookForOnce should not find it, but timeout after 1000ms, so it should 
@@ -82,11 +105,12 @@ TEST_F(SerialListenerTests, listenForOnceTimesout) {
 
   boost::this_thread::sleep(boost::posix_time::milliseconds(100));
 
-  listener.listenOnce("\r+\r?$1ENOTRIGHT\r$1E=Robo");
-  boost::this_thread::sleep(boost::posix_time::milliseconds(11));
-  listener.listenOnce("");
+  simulate_loop("\r+\r?$1ENOTRIGHT\r$1E=Robo");
 
   ASSERT_TRUE(t.timed_join(boost::posix_time::milliseconds(1500)));
+
+  // give some time for the callback thread to finish
+  stopCallbackThread();
 
   ASSERT_EQ(global_count, 2);
 }
@@ -109,9 +133,10 @@ TEST_F(SerialListenerTests, listenForWorks) {
   boost::uuids::uuid filt_uuid = 
     listener.listenFor(listenForComparator, listenForCallback);
 
-  listener.listenOnce("\r+\rV=05:06\r?$1E\rV=06:05\r$1E=Robo");
-  boost::this_thread::sleep(boost::posix_time::milliseconds(11));
-  listener.listenOnce("");
+  simulate_loop("\r+\rV=05:06\r?$1E\rV=06:05\r$1E=Robo");
+
+  // give some time for the callback thread to finish
+  stopCallbackThread();
 
   ASSERT_EQ(global_count, 2);
   ASSERT_EQ(global_listen_count, 2);
