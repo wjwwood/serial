@@ -83,6 +83,9 @@ public:
   void setFlowcontrol (flowcontrol_t flowcontrol);
   flowcontrol_t getFlowcontrol () const;
 
+private:
+  int fd;
+
 };
 
 }

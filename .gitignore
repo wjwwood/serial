@@ -7,7 +7,6 @@
 *.pyc
 *.pyo
 *.zip
-*.cc
 */files/*
 */tmp/*
 *.hwm*
