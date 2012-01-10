@@ -1,21 +1,21 @@
-/**
- * @file serial.h
- * @author  William Woodall <wjwwood@gmail.com>
- * @author  John Harrison   <ash.gti@gmail.com>
- * @version 0.1
+/*!
+ * \file serial/serial.h
+ * \author  William Woodall <wjwwood@gmail.com>
+ * \author  John Harrison   <ash.gti@gmail.com>
+ * \version 0.1
  *
- * @section LICENSE
+ * \section LICENSE
  *
  * The MIT License
  *
  * Copyright (c) 2011 William Woodall
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * Permission is hereby granted, free of charge, to any person obtaining a 
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
@@ -24,11 +24,11 @@
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+ * DEALINGS IN THE SOFTWARE.
  *
- * @section DESCRIPTION
+ * \section DESCRIPTION
  *
  * This provides a cross platform interface for interacting with Serial Ports.
  */
@@ -37,356 +37,345 @@
 #ifndef SERIAL_H
 #define SERIAL_H
 
-#include <iostream>
-#include <sstream>
-#include <string>
-
-#include <boost/asio.hpp>
-#include <boost/asio/serial_port.hpp>
-#include <boost/bind.hpp>
-#include <boost/thread.hpp>
-#include <boost/scoped_ptr.hpp>
-
-// A macro to disallow the copy constructor and operator= functions
-// This should be used in the private: declarations for a class
-#define DISALLOW_COPY_AND_ASSIGN(TypeName) \
-  TypeName(const TypeName&);               \
-  void operator=(const TypeName&)
-
-// If on Windows undefine the PARITY_* defines that are in winbase.h
-#ifdef _WIN32
-    #undef PARITY_NONE
-    #undef PARITY_ODD
-    #undef PARITY_EVEN
-#endif
-
-// DEFINES
-#ifndef DEFAULT_BAUDRATE
-#define DEFAULT_BAUDRATE 9600
-#endif
-#ifndef DEFAULT_TIMEOUT
-#define DEFAULT_TIMEOUT 0
-#endif
-#ifndef DEFAULT_BYTESIZE
-#define DEFAULT_BYTESIZE EIGHTBITS
-#endif
-#ifndef DEFAULT_PARITY
-#define DEFAULT_PARITY PARITY_NONE
-#endif
-#ifndef DEFAULT_STOPBITS
-#define DEFAULT_STOPBITS STOPBITS_ONE
-#endif 
-#ifndef DEFAULT_FLOWCONTROL
-#define DEFAULT_FLOWCONTROL FLOWCONTROL_NONE
-#endif
-
 namespace serial {
 
-// Serial Port settings CONSTANTS
-enum bytesize_t { FIVEBITS = 5, SIXBITS = 6, SEVENBITS = 7, EIGHTBITS = 8 };
-enum parity_t { PARITY_NONE, PARITY_ODD, PARITY_EVEN };
-enum stopbits_t { STOPBITS_ONE, STOPBITS_ONE_POINT_FIVE, STOPBITS_TWO };
-enum flowcontrol_t { FLOWCONTROL_NONE, FLOWCONTROL_SOFTWARE, FLOWCONTROL_HARDWARE };
+/*!
+ * Enumeration defines the possible bytesizes for the serial port.
+ */
+typedef enum {
+  FIVEBITS = 5,
+  SIXBITS = 6,
+  SEVENBITS = 7,
+  EIGHTBITS = 8
+} bytesize_t;
 
+/*!
+ * Enumeration defines the possible parity types for the serial port.
+ */
+typedef enum {
+  PARITY_NONE = 0,
+  PARITY_ODD = 1,
+  PARITY_EVEN = 2
+} parity_t;
+
+/*!
+ * Enumeration defines the possible stopbit types for the serial port.
+ */
+typedef enum {
+  STOPBITS_ONE = 1,
+  STOPBITS_ONE_POINT_FIVE,
+  STOPBITS_TWO = 2
+} stopbits_t;
+
+/*!
+ * Enumeration defines the possible flowcontrol types for the serial port.
+ */
+typedef enum {
+  FLOWCONTROL_NONE = 0,
+  FLOWCONTROL_SOFTWARE,
+  FLOWCONTROL_HARDWARE
+} flowcontrol_t;
+
+/*!
+ * Class that provides a portable serial port interface.
+ */
 class Serial {
 public:
-    /** Constructor, Creates a Serial object but doesn't open the serial port. */
-    Serial();
-    
-    /**
-    * Constructor, creates a SerialPortBoost object and opens the port.
-    * 
-    * @param port A std::string containing the address of the serial port,
-    *        which would be something like 'COM1' on Windows and '/dev/ttyS0'
-    *        on Linux.
-    * 
-    * @param baudrate An integer that represents the buadrate
-    * 
-    * @param timeout A long that represents the time (in milliseconds) until a 
-    *        timeout on reads occur.  Setting this to zero (0) will cause reading
-    *        to be non-blocking, i.e. the available data will be returned immediately,
-    *        but it will not block to wait for more.  Setting this to a number less than
-    *        zero (-1) will result in infinite blocking behaviour, i.e. the serial port will
-    *        block until either size bytes have been read or an exception has occured.
-    * 
-    * @param bytesize Size of each byte in the serial transmission of data, 
-    *        default is EIGHTBITS, possible values are: FIVEBITS, 
-    *        SIXBITS, SEVENBITS, EIGHTBITS
-    * 
-    * @param parity Method of parity, default is PARITY_NONE, possible values
-    *        are: PARITY_NONE, PARITY_ODD, PARITY_EVEN
-    * 
-    * @param stopbits Number of stop bits used, default is STOPBITS_ONE, possible 
-    *        values are: STOPBITS_ONE, STOPBITS_ONE_POINT_FIVE, STOPBITS_TWO
-    * 
-    * @param flowcontrol Type of flowcontrol used, default is FLOWCONTROL_NONE, possible
-    *        values are: FLOWCONTROL_NONE, FLOWCONTROL_SOFTWARE, FLOWCONTROL_HARDWARE
-    * 
-    * @throw SerialPortAlreadyOpenException
-    * @throw SerialPortFailedToOpenException
-    */
-    Serial(std::string port,
-           int baudrate = DEFAULT_BAUDRATE,
-           long timeout = DEFAULT_TIMEOUT,
-           bytesize_t bytesize = DEFAULT_BYTESIZE,
-           parity_t parity = DEFAULT_PARITY,
-           stopbits_t stopbits = DEFAULT_STOPBITS,
-           flowcontrol_t flowcontrol = DEFAULT_FLOWCONTROL);
-    
-    /** Destructor */
-    ~Serial();
-    
-    /** 
-    * Opens the serial port as long as the portname is set and the port isn't alreay open.
-    * 
-    * @throw SerialPortAlreadyOpenException
-    * @throw SerialPortFailedToOpenException
-    */
-    void open();
-    
-    /** Gets the status of the serial port.
-    * 
-    * @return A boolean value that represents whether or not the serial port is open.
-    */
-    bool isOpen();
-    
-    /** Closes the serial port and terminates threads. */
-    void close();
-    
-    /** Read size bytes from the serial port.
-    * If a timeout is set it may return less characters than requested. With no timeout
-    * it will block until the requested number of bytes have been read.
-    * 
-    * @param buffer A char[] of length >= the size parameter to hold incoming data.
-    * 
-    * @param size An integer defining how many bytes to be read.
-    * 
-    * @return An integer representing the number of bytes read.
-    */
-    int read(char* buffer, int size = 1);
-    
-    /** Read size bytes from the serial port.
-    * If a timeout is set it may return less characters than requested. With no timeout
-    * it will block until the requested number of bytes have been read.
-    * 
-    * @param size An integer defining how many bytes to be read.
-    * 
-    * @return A std::string containing the data read.
-    */
-    std::string read(int size = 1);
-    
-    std::string read_until(char delim, size_t size = -1);
-    std::string read_until(std::string delim, size_t size = -1);
-    
-    /** Write length bytes from buffer to the serial port.
-    * 
-    * @param data A char[] with data to be written to the serial port.
-    * 
-    * @param length An integer representing the number of bytes to be written.
-    * 
-    * @return An integer representing the number of bytes written.
-    */
-    int write(char data[], int length);
-    
-    /** Write a string to the serial port.
-    * 
-    * @param data A std::string to be written to the serial port. (must be null terminated)
-    * 
-    * @return An integer representing the number of bytes written to the serial port.
-    */
-    int write(std::string data);
-    
-    /** Sets the logic level of the RTS line.
-    * 
-    * @param level The logic level to set the RTS to. Defaults to true.
-    */
-    void setRTS(bool level = true);
-    
-    /** Sets the logic level of the DTR line.
-    * 
-    * @param level The logic level to set the DTR to. Defaults to true.
-    */
-    void setDTR(bool level = true);
-    
-    /** Gets the status of the CTS line.
-    * 
-    * @return A boolean value that represents the current logic level of the CTS line.
-    */
-    bool getCTS() const;
-    
-    /** Gets the status of the DSR line.
-    * 
-    * @return A boolean value that represents the current logic level of the DSR line.
-    */
-    bool getDSR() const;
-    
-    /** Sets the serial port identifier.
-    * 
-    * @param port A std::string containing the address of the serial port,
-    *        which would be something like 'COM1' on Windows and '/dev/ttyS0'
-    *        on Linux.
-    */
-    void setPort(std::string port);
-    
-    /** Gets the serial port identifier.
-    * 
-    * @return A std::string containing the address of the serial port,
-    *         which would be something like 'COM1' on Windows and '/dev/ttyS0'
-    *         on Linux.
-    */
-    std::string getPort() const;
-    
-    /** Sets the timeout for reads in seconds.
-    * 
-    * @param timeout A long that represents the time (in milliseconds) until a 
-    *        timeout on reads occur.  Setting this to zero (0) will cause reading
-    *        to be non-blocking, i.e. the available data will be returned immediately,
-    *        but it will not block to wait for more.  Setting this to a number less than
-    *        zero (-1) will result in infinite blocking behaviour, i.e. the serial port will
-    *        block until either size bytes have been read or an exception has occured.
-    */
-    void setTimeoutMilliseconds(long timeout);
-    
-    /** Gets the timeout for reads in seconds.
-    * 
-    * @param timeout A long that represents the time (in milliseconds) until a 
-    *        timeout on reads occur.  Setting this to zero (0) will cause reading
-    *        to be non-blocking, i.e. the available data will be returned immediately,
-    *        but it will not block to wait for more.  Setting this to a number less than
-    *        zero (-1) will result in infinite blocking behaviour, i.e. the serial port will
-    *        block until either size bytes have been read or an exception has occured.
-    */
-    long getTimeoutMilliseconds() const;
-    
-    /** Sets the baudrate for the serial port.
-    * 
-    * @param baudrate An integer that sets the baud rate for the serial port.
-    */
-    void setBaudrate(int baudrate);
-    
-    /** Gets the baudrate for the serial port.
-    * 
-    * @return An integer that sets the baud rate for the serial port.
-    */
-    int getBaudrate() const;
-    
-    /** Sets the bytesize for the serial port.
-    * 
-    * @param bytesize Size of each byte in the serial transmission of data, 
-    *        default is EIGHTBITS, possible values are: FIVEBITS, 
-    *        SIXBITS, SEVENBITS, EIGHTBITS
-    * 
-    * @throw InvalidBytesizeException
-    */
-    void setBytesize(bytesize_t bytesize);
-    
-    /** Gets the bytesize for the serial port.
-    * 
-    * @return Size of each byte in the serial transmission of data, 
-    *         default is EIGHTBITS, possible values are: FIVEBITS, 
-    *         SIXBITS, SEVENBITS, EIGHTBITS
-    * 
-    * @throw InvalidBytesizeException
-    */
-    bytesize_t getBytesize() const;
-    
-    /** Sets the parity for the serial port.
-    * 
-    * @param parity Method of parity, default is PARITY_NONE, possible values
-    *        are: PARITY_NONE, PARITY_ODD, PARITY_EVEN
-    * 
-    * @throw InvalidParityException
-    */
-    void setParity(parity_t parity);
-    
-    /** Gets the parity for the serial port.
-    * 
-    * @return Method of parity, default is PARITY_NONE, possible values
-    *         are: PARITY_NONE, PARITY_ODD, PARITY_EVEN
-    * 
-    * @throw InvalidParityException
-    */
-    parity_t getParity() const;
-    
-    /** Sets the stopbits for the serial port.
-    * 
-    * @param stopbits Number of stop bits used, default is STOPBITS_ONE, possible 
-    *        values are: STOPBITS_ONE, STOPBITS_ONE_POINT_FIVE, STOPBITS_TWO
-    * 
-    * @throw InvalidStopbitsException
-    */
-    void setStopbits(stopbits_t stopbits);
-    
-    /** Gets the stopbits for the serial port.
-    * 
-    * @return Number of stop bits used, default is STOPBITS_ONE, possible 
-    *         values are: STOPBITS_ONE, STOPBITS_ONE_POINT_FIVE, STOPBITS_TWO
-    * 
-    * @throw InvalidStopbitsException
-    */
-    stopbits_t getStopbits() const;
-    
-    /** Sets the flow control for the serial port.
-    * 
-    * @param flowcontrol Type of flowcontrol used, default is FLOWCONTROL_NONE, possible
-    *        values are: FLOWCONTROL_NONE, FLOWCONTROL_SOFTWARE, FLOWCONTROL_HARDWARE
-    * 
-    * @throw InvalidFlowcontrolException
-    */
-    void setFlowcontrol(flowcontrol_t flowcontrol);
-    
-    /** Gets the flow control for the serial port.
-    * 
-    * @return Type of flowcontrol used, default is FLOWCONTROL_NONE, possible
-    *         values are: FLOWCONTROL_NONE, FLOWCONTROL_SOFTWARE, FLOWCONTROL_HARDWARE
-    * 
-    * @throw InvalidFlowcontrolException
-    */
-    flowcontrol_t getFlowcontrol() const;
+  /*!
+  * Constructor, creates a SerialPortBoost object and opens the port.
+  * 
+  * \param port A std::string containing the address of the serial port,
+  *        which would be something like 'COM1' on Windows and '/dev/ttyS0'
+  *        on Linux.
+  * 
+  * \param baudrate An integer that represents the buadrate
+  * 
+  * \param timeout A long that represents the time (in milliseconds) until a 
+  * timeout on reads occur. Setting this to zero (0) will cause reading to
+  * be non-blocking, i.e. the available data will be returned immediately,
+  * but it will not block to wait for more. Setting this to a number less
+  * than zero (-1) will result in infinite blocking behaviour, i.e. the
+  * serial port will block until either size bytes have been read or an
+  * exception has occured.
+  * 
+  * \param bytesize Size of each byte in the serial transmission of data, 
+  * default is EIGHTBITS, possible values are: FIVEBITS, SIXBITS, SEVENBITS, 
+  * EIGHTBITS
+  * 
+  * \param parity Method of parity, default is PARITY_NONE, possible values
+  * are: PARITY_NONE, PARITY_ODD, PARITY_EVEN
+  * 
+  * \param stopbits Number of stop bits used, default is STOPBITS_ONE, 
+  * possible values are: STOPBITS_ONE, STOPBITS_ONE_POINT_FIVE, STOPBITS_TWO
+  * 
+  * \param flowcontrol Type of flowcontrol used, default is  
+  * FLOWCONTROL_NONE, possible values are: FLOWCONTROL_NONE, 
+  * FLOWCONTROL_SOFTWARE, FLOWCONTROL_HARDWARE
+  * 
+  * \throw PortNotOpenedException
+  */
+  Serial (const std::string &port = "",
+          int baudrate = 9600,
+          long timeout = 0,
+          bytesize_t bytesize = EIGHTBITS,
+          parity_t parity = PARITY_NONE,
+          stopbits_t stopbits = STOPBITS_ONE,
+          flowcontrol_t flowcontrol = FLOWCONTROL_NONE);
+
+  /*! Destructor */
+  virtual ~Serial ();
+
+  /*!
+  * Opens the serial port as long as the portname is set and the port isn't
+  * alreay open.
+  * 
+  * If the port is provided to the constructor then an explicit call to open 
+  * is not needed.
+  * 
+  * \see Serial::Serial
+  * 
+  * \throw PortNotOpenedException
+  */
+  void
+  open ();
+
+  /*! Gets the open status of the serial port.
+  * 
+  * \return Returns true if the port is open, false otherwise.
+  */
+  bool
+  isOpen ();
+
+  /*! Closes the serial port. */
+  void
+  close ();
+
+  /*! Read a given amount of bytes from the serial port.
+  * 
+  * If a timeout is set it may return less characters than requested. With
+  * no timeout it will block until the requested number of bytes have been
+  * read or until an exception occurs.
+  * 
+  * \param buffer An unsigned char array large enough to hold incoming data 
+  * up to the requested size.
+  * 
+  * \param size A size_t defining how many bytes to be read.
+  * 
+  * \return A size_t representing the number of bytes actually read.
+  */
+  size_t
+  read (unsigned char* buffer, size_t size = 1);
+
+  /*! Read a given amount of bytes from the serial port.
+  * 
+  * If a timeout is set it may return less characters than requested. With
+  * no timeout it will block until the requested number of bytes have been
+  * read or until an exception occurs.
+  * 
+  * \param size A size_t defining how many bytes to be read.
+  * 
+  * \return A std::string containing the data read.
+  */
+  std::string
+  read (size_t size = 1);
+
+  /*! Read a given amount of bytes from the serial port.
+  * 
+  * Reads into a std::string by reference rather than returning it.
+  * 
+  * \param buffer A std::string reference for reading to.
+  * \param size A size_t defining how many bytes to be read.
+  * 
+  * \return A size_t that represents how many bytes were read.
+  * 
+  * \see Serial::read(size_t)
+  */
+  size_t
+  read (const std::string &buffer, size_t size = 1);
+
+  /*! Write bytes from the data to the serial port by given length.
+  * 
+  * \param data An unsigned char array containing data to be written to the
+  * serial port.
+  * 
+  * \param length A size_t representing the number of bytes to be written.
+  * 
+  * \return A size_t representing the number of bytes actually written.
+  */
+  size_t
+  write (unsigned char* data, size_t length);
+
+  /*! Write a string to the serial port.
+  * 
+  * \param data A const std::string reference containg the data to be written 
+  * to the serial port.
+  * 
+  * \return A size_t representing the number of bytes actually written to
+  * the serial port.
+  */
+  size_t
+  write (const std::string &data);
+
+  /*! Sets the serial port identifier.
+  * 
+  * \param port A const std::string reference containing the address of the 
+  * serial port, which would be something like 'COM1' on Windows and 
+  * '/dev/ttyS0' on Linux.
+  * 
+  * \throw InvalidConfigurationException
+  */
+  void
+  setPort (const std::string &port);
+
+  /*! Gets the serial port identifier.
+  * 
+  * \see Serial::setPort
+  * 
+  * \throw InvalidConfigurationException
+  */
+  std::string
+  getPort () const;
+
+  /*! Sets the timeout for reads in milliseconds.
+  * 
+  * \param timeout A long that represents the time (in milliseconds) until a
+  * timeout on reads occur.  Setting this to zero (0) will cause reading to be
+  * non-blocking, i.e. the available data will be returned immediately, but it
+  * will not block to wait for more.  Setting this to a number less than
+  * zero (-1) will result in infinite blocking behaviour, i.e. the serial port 
+  * will block until either size bytes have been read or an exception has 
+  * occured.
+  */
+  void
+  setTimeout (long timeout);
+
+  /*! Gets the timeout for reads in seconds.
+  * 
+  * \see Serial::setTimeout
+  */
+  long
+  getTimeout () const;
+
+  /*! Sets the baudrate for the serial port.
+  * 
+  * Possible baudrates depends on the system but some safe baudrates include:
+  * 110, 300, 600, 1200, 2400, 4800, 9600, 14400, 19200, 28800, 38400, 56000,
+  * 57600, 115200
+  * Some other baudrates that are supported by some comports:
+  * 128000, 153600, 230400, 256000, 460800, 921600
+  * 
+  * \param baudrate An integer that sets the baud rate for the serial port.
+  * 
+  * \throw InvalidConfigurationException
+  */
+  void
+  setBaudrate (int baudrate);
+
+  /*! Gets the baudrate for the serial port.
+  * 
+  * \return An integer that sets the baud rate for the serial port.
+  * 
+  * \see Serial::setBaudrate
+  * 
+  * \throw InvalidConfigurationException
+  */
+  int
+  getBaudrate () const;
+
+  /*! Sets the bytesize for the serial port.
+  * 
+  * \param bytesize Size of each byte in the serial transmission of data, 
+  * default is EIGHTBITS, possible values are: FIVEBITS, SIXBITS, SEVENBITS, 
+  * EIGHTBITS
+  * 
+  * \throw InvalidConfigurationException
+  */
+  void
+  setBytesize (bytesize_t bytesize);
+
+  /*! Gets the bytesize for the serial port.
+  * 
+  * \see Serial::setBytesize
+  * 
+  * \throw InvalidConfigurationException
+  */
+  bytesize_t
+  getBytesize () const;
+
+  /*! Sets the parity for the serial port.
+  * 
+  * \param parity Method of parity, default is PARITY_NONE, possible values 
+  * are: PARITY_NONE, PARITY_ODD, PARITY_EVEN
+  * 
+  * \throw InvalidConfigurationException
+  */
+  void
+  setParity (parity_t parity);
+
+  /*! Gets the parity for the serial port.
+  * 
+  * \see Serial::setParity
+  * 
+  * \throw InvalidConfigurationException
+  */
+  parity_t
+  getParity () const;
+
+  /*! Sets the stopbits for the serial port.
+  * 
+  * \param stopbits Number of stop bits used, default is STOPBITS_ONE, 
+  * possible values are: STOPBITS_ONE, STOPBITS_ONE_POINT_FIVE, STOPBITS_TWO
+  * 
+  * \throw InvalidConfigurationException
+  */
+  void
+  setStopbits (stopbits_t stopbits);
+
+  /*! Gets the stopbits for the serial port.
+  * 
+  * \see Serial::setStopbits
+  * 
+  * \throw InvalidConfigurationException
+  */
+  stopbits_t
+  getStopbits () const;
+
+  /*! Sets the flow control for the serial port.
+  * 
+  * \param flowcontrol Type of flowcontrol used, default is FLOWCONTROL_NONE, 
+  * possible values are: FLOWCONTROL_NONE, FLOWCONTROL_SOFTWARE, 
+  * FLOWCONTROL_HARDWARE
+  * 
+  * \throw InvalidConfigurationException
+  */
+  void
+  setFlowcontrol (flowcontrol_t flowcontrol);
+
+  /*! Gets the flow control for the serial port.
+  * 
+  * \see Serial::setFlowcontrol
+  * 
+  * \throw InvalidConfigurationException
+  */
+  flowcontrol_t
+  getFlowcontrol () const;
+
 private:
-    DISALLOW_COPY_AND_ASSIGN(Serial);
-    void init();
-    void read_complete(const boost::system::error_code& error, std::size_t bytes_transferred);
-    void timeout_callback(const boost::system::error_code& error);
-    
-    boost::asio::io_service io_service;
-    
-    boost::asio::io_service::work work;
-    
-    boost::scoped_ptr<boost::asio::serial_port> serial_port;
-    
-    boost::asio::deadline_timer timeout_timer;
-    
-    std::string port;
-    boost::asio::serial_port_base::baud_rate baudrate;
-    boost::posix_time::time_duration timeout;
-    boost::asio::serial_port_base::character_size bytesize;
-    boost::asio::serial_port_base::parity parity;
-    boost::asio::serial_port_base::stop_bits stopbits;
-    boost::asio::serial_port_base::flow_control flowcontrol;
-    
-    int bytes_read;
-    int bytes_to_read;
-    bool reading;
-    bool nonblocking;
+  // Disable copy constructors
+  Serial(const Serial&);
+  void operator=(const Serial&);
+  const Serial& operator=(Serial);
+
+  // Pimpl idiom, d_pointer
+  class Serial_pimpl;
+  std::shared_ptr<Serial_pimpl> pimpl;
+
 };
 
-class SerialPortAlreadyOpenException : public std::exception {
-    const char * port;
-public:
-    SerialPortAlreadyOpenException(const char * port) {this->port = port;}
-    
-    virtual const char* what() const throw() {
-        std::stringstream ss;
-        ss << "Serial Port already open: " << this->port;
-        return ss.str().c_str();
-    }
-};
-
-class SerialPortFailedToOpenException : public std::exception {
+class IOException : public std::exception {
     const char * e_what;
 public:
-    SerialPortFailedToOpenException(const char * e_what) {this->e_what = e_what;}
+    IOException(const char * e_what) {this->e_what = e_what;}
     
     virtual const char* what() const throw() {
         std::stringstream ss;
@@ -395,50 +384,26 @@ public:
     }
 };
 
-class InvalidBytesizeException : public std::exception {
+class PortNotOpenedException : public std::exception {
+    const char * e_what;
+public:
+    PortNotOpenedException(const char * e_what) {this->e_what = e_what;}
+    
+    virtual const char* what() const throw() {
+        std::stringstream ss;
+        ss << "Serial Port failed to open: " << this->e_what;
+        return ss.str().c_str();
+    }
+};
+
+class InvalidConfigurationException : public std::exception {
     int bytesize;
 public:
-    InvalidBytesizeException(int bytesize) {this->bytesize = bytesize;}
+    InvalidConfigurationException(int bytesize) {this->bytesize = bytesize;}
     
     virtual const char* what() const throw() {
         std::stringstream ss;
-        ss << "Invalid bytesize provided: " << this->bytesize;
-        return ss.str().c_str();
-    }
-};
-
-class InvalidParityException : public std::exception {
-    int parity;
-public:
-    InvalidParityException(int parity) {this->parity = parity;}
-    
-    virtual const char* what() const throw() {
-        std::stringstream ss;
-        ss << "Invalid parity provided: " << this->parity;
-        return ss.str().c_str();
-    }
-};
-
-class InvalidStopbitsException : public std::exception {
-    int stopbits;
-public:
-    InvalidStopbitsException(int stopbits) {this->stopbits = stopbits;}
-    
-    virtual const char* what() const throw() {
-        std::stringstream ss;
-        ss << "Invalid stopbits provided: " << this->stopbits;
-        return ss.str().c_str();
-    }
-};
-
-class InvalidFlowcontrolException : public std::exception {
-    int flowcontrol;
-public:
-    InvalidFlowcontrolException(int flowcontrol) {this->flowcontrol = flowcontrol;}
-    
-    virtual const char* what() const throw() {
-        std::stringstream ss;
-        ss << "Invalid flowcontrol provided: " << this->flowcontrol;
+        ss << "Invalid configuration provided: " << this->bytesize;
         return ss.str().c_str();
     }
 };

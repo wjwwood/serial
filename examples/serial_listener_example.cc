@@ -13,7 +13,7 @@ void callback(std::string line) {
   std::cout << "callback got a: " << line << std::endl;
 }
 
-#if 0
+#if 1
 int main(void) {
   Serial serial("/dev/tty.usbmodemfd1231", 115200);
 
@@ -41,6 +41,7 @@ int main(void) {
 }
 #endif
 
+#if 0
 int main(void) {
   Serial serial("/dev/tty.usbmodemfd1231", 115200);
 
@@ -59,3 +60,4 @@ int main(void) {
   }
 
 }
+#endif

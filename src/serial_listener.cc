@@ -146,7 +146,7 @@ SerialListener::determineAmountToRead() {
   // TODO: Make a more intelligent method based on the length of the things 
   //  filters are looking for.  i.e.: if the filter is looking for 'V=XX\r' 
   //  make the read amount at least 5.
-  return 1024;
+  return 5;
 }
 
 void
