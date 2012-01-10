@@ -170,7 +170,8 @@ void Serial::open() {
     
     // Try to open the serial port
     try {
-        this->serial_port.reset(new boost::asio::serial_port(this->io_service, this->port));
+        this->serial_port.reset(
+              new boost::asio::serial_port(this->io_service, this->port));
         
         this->serial_port->set_option(this->baudrate);
         this->serial_port->set_option(this->flowcontrol);
@@ -199,7 +200,8 @@ void Serial::close() {
     }
 }
 
-static const boost::posix_time::time_duration timeout_zero_comparison(boost::posix_time::milliseconds(0));
+static const boost::posix_time::time_duration 
+timeout_zero_comparison(boost::posix_time::milliseconds(0));
 
 int Serial::read(char* buffer, int size) {
     this->reading = true;

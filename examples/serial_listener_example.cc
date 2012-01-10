@@ -13,21 +13,16 @@ void callback(std::string line) {
   std::cout << "callback got a: " << line << std::endl;
 }
 
-bool comparator(std::string line) {
-  if (line.substr(0,2) == "V=")
-    return true;
-  return false;
-}
-
+#if 0
 int main(void) {
   Serial serial("/dev/tty.usbmodemfd1231", 115200);
 
   SerialListener listener;
-  // Set the time to live for messages to 1 second
-  listener.setTimeToLive(1000);
-  listener.startListening(&serial);
+  // Set the time to live for messages to 10 milliseconds
+  listener.setTimeToLive(10);
+  listener.startListening(serial);
 
-  listener.listenFor(comparator, callback);
+  listener.listenFor(SerialListener::startsWith("V="), callback);
 
   serial.write("?$1E\r");
   if (!listener.listenForStringOnce("?$1E")) {
@@ -35,12 +30,32 @@ int main(void) {
     return 1;
   }
 
+  serial.write("?V\r");
+  serial.write("# 1\r");
+
+  while (true) {
+    // Sleep 100 ms
+    SerialListener::sleep(100);
+  }
+
 }
+#endif
 
-/*
-TODO:
+int main(void) {
+  Serial serial("/dev/tty.usbmodemfd1231", 115200);
 
-listenForOnce -> listenForStringOnce
-listenForOnce(ComparatorType comparator, std::string& result, size_t timeout)
+  serial.write("?$1E\r");
+  SerialListener::sleep(10);
+  // if ("?$1E\r" != serial.read(5)) {
+  //   std::cerr << "Didn't get conformation of device version!" << std::endl;
+  //   return 1;
+  // }
 
-*/
+  serial.write("?V\r");
+  serial.write("# 1\r");
+
+  while (true) {
+    std::cout << serial.read(5) << std::endl;
+  }
+
+}

@@ -280,7 +280,7 @@ public:
    * \param serial_port Pointer to a serial::Serial object that is used to 
    * retrieve new data.
    */
-  void startListening (serial::Serial * serial_port);
+  void startListening (serial::Serial &serial_port);
 
   /*!
    * Stops the listening thread and blocks until it completely stops.
@@ -305,6 +305,20 @@ public:
    * if the token was not heard and the timeout occured.
    */
   bool listenForStringOnce (std::string token, size_t timeout = 1000);
+
+  /*!
+   * Blocks until the comparator returns true or until the timeout occurs.
+   * 
+   * \param comparator ComparatorType function that should return true if the
+   * given std::string matches otherwise false.
+   * 
+   * \param timeout in milliseconds before timing out and returning false.
+   * Defaults to 1000 milliseconds or 1 second.
+   * 
+   * \return bool If true then the token was detected before the token, false 
+   * if the token was not heard and the timeout occured.
+   */
+  bool listenForOnce (ComparatorType comparator, size_t timeout = 1000);
 
   /*!
    * Setups up a filter that calls a callback when a comparator returns true.
@@ -448,6 +462,16 @@ public:
 /***** Static Functions ******/
 
   /*!
+   * Sleeps for a given number of milliseconds.
+   * 
+   * \param ms number of milliseconds to sleep.
+   */
+  static void
+  sleep (size_t ms) {
+    boost::this_thread::sleep(boost::posix_time::milliseconds(ms));
+  }
+
+  /*!
    * This returns a tokenizer that splits on a given delimeter.
    * 
    * The delimeter is passed into the function and a TokenizerType is returned 
@@ -455,28 +479,155 @@ public:
    * 
    * Example:
    * <pre>
-   *   my_listener.setTokenizer(delimeter_tokenizer("\r"));
+   *   my_listener.setTokenizer(SerialListener::delimeter_tokenizer("\r"));
    * <\pre>
+   * 
+   * \param delimeter A std::string that is used as a delimeter when 
+   * tokenizing data.
+   * 
+   * \return TokenizerType A tokenizer function type that can be passed to 
+   * SerialListener::setTokenizer.
    * 
    * \see SerialListener::setTokenizer, serial::TokenizerType
    */
   static TokenizerType
   delimeter_tokenizer (std::string delimeter);
 
-  // tokenizer functions
+  // delimeter tokenizer function
   static void
   _delimeter_tokenizer (std::string &data, std::vector<std::string> &tokens,
                         std::string delimeter);
+
+  /*!
+   * This returns a comparator that matches only the exact string given.
+   * 
+   * This can be used with listenFor or listenForOnce:
+   * 
+   * Example:
+   * <pre>
+   *   my_listener.listenFor(SerialListener::exactly("my_string"),
+   *                         my_callback);
+   * <\pre>
+   * 
+   * \param exact_str A std::string that is used as the exact string to match 
+   * when comparing tokens for matching.
+   * 
+   * \return ComparatorType A comparator function type that can be passed to 
+   * SerialListener::listenFor or SerialListener::listenForOnce.
+   *
+   * \see SerialListener::listenFor, SerialListener::listenForOnce, 
+   * serial::ComparatorType
+   */
+  static ComparatorType
+  exactly (std::string exact_str);
+
+  // exact comparator function
+  static bool
+  _exactly (const std::string&, std::string);
+
+  /*!
+   * This returns a comparator that looks for a given prefix.
+   * 
+   * This can be used with listenFor or listenForOnce:
+   * 
+   * Example:
+   * <pre>
+   *   my_listener.listenFor(SerialListener::startsWith("V="), my_callback);
+   * <\pre>
+   * 
+   * \param prefix A std::string that is used as the prefix string to match 
+   * when comparing tokens for matching.
+   * 
+   * \return ComparatorType A comparator function type that can be passed to 
+   * SerialListener::listenFor or SerialListener::listenForOnce.
+   *
+   * \see SerialListener::listenFor, SerialListener::listenForOnce, 
+   * serial::ComparatorType
+   */
+  static ComparatorType
+  startsWith (std::string prefix) {
+    return boost::bind(&SerialListener::_startsWith, _1, prefix);
+  }
+
+  // exact comparator function
+  static bool
+  _startsWith (const std::string& token, std::string prefix) {
+    return token.substr(0,prefix.length()) == prefix;
+  }
+
+  /*!
+   * This returns a comparator that looks for a given postfix.
+   * 
+   * This can be used with listenFor or listenForOnce:
+   * 
+   * Example:
+   * <pre>
+   *   my_listener.listenFor(SerialListener::endsWith(";"), my_callback);
+   * <\pre>
+   * 
+   * \param postfix A std::string that is used as the postfix string to match 
+   * when comparing tokens for matching.
+   * 
+   * \return ComparatorType A comparator function type that can be passed to 
+   * SerialListener::listenFor or SerialListener::listenForOnce.
+   *
+   * \see SerialListener::listenFor, SerialListener::listenForOnce, 
+   * serial::ComparatorType
+   */
+  static ComparatorType
+  endsWith (std::string postfix) {
+    return boost::bind(&SerialListener::_endsWith, _1, postfix);
+  }
+
+  // endswith comparator function
+  static bool
+  _endsWith (const std::string& token, std::string postfix) {
+    return token.substr(token.length()-postfix.length()) == postfix;
+  }
+
+  /*!
+   * This returns a comparator that looks for a given substring in the token.
+   * 
+   * This can be used with listenFor or listenForOnce:
+   * 
+   * Example:
+   * <pre>
+   *   my_listener.listenFor(SerialListener::contains("some string"),
+   *                         my_callback);
+   * <\pre>
+   * 
+   * \param substr A std::string that is used as the search substring to match 
+   * when comparing tokens for matching.
+   * 
+   * \return ComparatorType A comparator function type that can be passed to 
+   * SerialListener::listenFor or SerialListener::listenForOnce.
+   *
+   * \see SerialListener::listenFor, SerialListener::listenForOnce, 
+   * serial::ComparatorType
+   */
+  static ComparatorType
+  contains (std::string substr) {
+    return boost::bind(&SerialListener::_contains, _1, substr);
+  }
+
+  // contains comparator function
+  static bool
+  _contains (const std::string& token, std::string substr) {
+    return token.find(substr) != std::string::npos;
+  }
 
 private:
   // Gets some data from the serial port
   void readSomeData (std::string&, size_t);
   // Takes newly tokenized data and processes them
   void addNewTokens(std::vector<std::string> &new_tokens,
-                    std::vector<uuid_type> new_uuids,
+                    std::vector<uuid_type> &new_uuids,
                     std::string &left_overs);
   // Runs the new tokens through the filters
-  void filter (std::vector<uuid_type> new_uuids);
+  void filterNewTokens (std::vector<uuid_type> new_uuids);
+  // Runs a list of tokens through one filter
+  std::vector<std::pair<uuid_type,uuid_type> >
+  filter(uuid_type filter_uuid, std::vector<uuid_type> &token_uuids);
   // Function that loops while listening is true
   void listen ();
   // Target of callback thread
@@ -489,8 +640,9 @@ private:
   void eraseTokens (std::vector<uuid_type>&);
   // Determines how much to read on each loop of listen
   size_t determineAmountToRead ();
-  // Used in the look for string once function
-  bool listenForOnceComparator (std::string line);
+  // Hanlder for listen for once
+  typedef boost::shared_ptr<boost::condition_variable> shared_cond_var_ptr_t;
+  void notifyListenForOnce (shared_cond_var_ptr_t cond_ptr);
 
   // Tokenizer
   TokenizerType tokenize;
@@ -512,34 +664,30 @@ private:
   boost::thread listen_thread;
   std::string data_buffer;
   boost::mutex token_mux;
-  std::map<const uuid_type,std::string> tokens;
-  std::map<const uuid_type,boost::posix_time::ptime> ttls;
+  std::map<const uuid_type, std::string> tokens;
+  std::map<const uuid_type, boost::posix_time::ptime> ttls;
 
   // Callback related variables
-  // uuid and true for default handler, false for normal callback
-  ConcurrentQueue<std::pair<uuid_type,bool> > callback_queue;
+  // filter uuid, token uuid
+  ConcurrentQueue<std::pair<uuid_type,uuid_type> > callback_queue;
   boost::thread callback_thread;
 
   // For generating random uuids
   boost::uuids::random_generator random_generator;
+  boost::uuids::nil_generator nil_generator;
 
   // Setting for ttl on messages
   boost::posix_time::time_duration ttl;
 
   // map<uuid, filter type (blocking/non-blocking)>
-  std::map<const uuid_type,filter_type::FilterType> filters;
+  std::vector<uuid_type> filters;
   // map<uuid, comparator>
-  std::map<const uuid_type,ComparatorType> comparators;
+  std::map<const uuid_type, ComparatorType> comparators;
   // map<uuid, callback>
-  std::map<const uuid_type,DataCallback> callbacks;
-  // map<uuid, conditional_variables>
-  std::map<const uuid_type,boost::condition_variable*> condition_vars;
+  std::map<const uuid_type, DataCallback> callbacks;
   // Mutex for locking use of filters
   boost::mutex filter_mux;
   boost::mutex callback_mux;
-
-  // Used as temporary storage for listenForStringOnce
-  std::string current_listen_for_one_target;
 };
 
 }

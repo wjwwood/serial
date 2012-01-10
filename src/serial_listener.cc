@@ -48,34 +48,37 @@ SerialListener::~SerialListener() {
 void
 SerialListener::callback() {
   try {
-    std::pair<uuid_type,bool> pair;
+    // <filter uuid, token uuid>
+    std::pair<uuid_type,uuid_type> pair;
     DataCallback _callback;
     while (this->listening) {
       if (this->callback_queue.timed_wait_and_pop(pair, 10)) {
         if (this->listening) {
-          std::cout << "After pop (" << pair.second << "): ";
-          std::cout << this->tokens[pair.first] << std::endl;
           try {
             // If default handler
-            if (pair.second) {
+            if (pair.first.is_nil()) {
               if (this->default_handler)
-                this->default_handler(this->tokens[pair.first]);
+                this->default_handler(this->tokens[pair.second]);
             // Else use provided callback
             } else {
+              bool go = false;
               // Grab the callback as to not hold the mutex while executing
               {
                 boost::mutex::scoped_lock l(callback_mux);
-                _callback = this->callbacks[pair.first];
+                // Make sure the filter hasn't been removed
+                if ((go = (this->callbacks.count(pair.first) > 0)))
+                  _callback = this->callbacks[pair.first];
               }
               // Execute callback
-              _callback(this->tokens[pair.first]);
+              if (go)
+                _callback(this->tokens[pair.second]);
             }
           } catch (std::exception &e) {
             this->handle_exc(e);
           }// try callback
         } // if listening
         // Erase the used and executed callback
-        this->eraseToken(pair.first);
+        this->eraseToken(pair.second);
       } // if popped
     } // while (this->listening)
   } catch (std::exception &e) {
@@ -90,14 +93,14 @@ SerialListener::setTimeToLive(size_t ms) {
 }
 
 void
-SerialListener::startListening(Serial * serial_port) {
+SerialListener::startListening(Serial &serial_port) {
   if (this->listening) {
     throw(SerialListenerException("Already listening."));
     return;
   }
   this->listening = true;
   
-  this->serial_port = serial_port;
+  this->serial_port = &serial_port;
   if (!this->serial_port->isOpen()) {
     throw(SerialListenerException("Serial port not open."));
     return;
@@ -131,11 +134,11 @@ SerialListener::stopListening() {
 void
 SerialListener::stopListeningForAll() {
   boost::mutex::scoped_lock l(filter_mux);
-  boost::mutex::scoped_lock l2(callback_mux);
   filters.clear();
   comparators.clear();
-  condition_vars.clear();
+  boost::mutex::scoped_lock l2(callback_mux);
   callbacks.clear();
+  callback_queue.clear();
 }
 
 size_t
@@ -143,7 +146,7 @@ SerialListener::determineAmountToRead() {
   // TODO: Make a more intelligent method based on the length of the things 
   //  filters are looking for.  i.e.: if the filter is looking for 'V=XX\r' 
   //  make the read amount at least 5.
-  return 5;
+  return 1024;
 }
 
 void
@@ -161,14 +164,11 @@ SerialListener::readSomeData(std::string &temp, size_t this_many) {
 
 void
 SerialListener::addNewTokens(std::vector<std::string> &new_tokens,
-                             std::vector<uuid_type> new_uuids,
+                             std::vector<uuid_type> &new_uuids,
                              std::string &left_overs)
 {
-  std::cout << "Inside SerialListener::addNewTokens:" << std::endl;
-  // Iterate through new tokens and add times to them
   std::vector<std::string>::iterator it_new;
   for (it_new=new_tokens.begin(); it_new != new_tokens.end(); it_new++) {
-    std::cout << "  Token (" << (*it_new).length() << "): " << (*it_new) << std::endl;
     // The last token needs to be put back in the buffer always:
     //  (in the case that the delimeter is \r)...
     //  In the case that the string ends with \r the last element will be 
@@ -180,6 +180,9 @@ SerialListener::addNewTokens(std::vector<std::string> &new_tokens,
       left_overs = (*it_new);
       continue;
     }
+    // If the token is empty ignore it
+    if ((*it_new).length() == 0)
+      continue;
     // Create a new uuid
     uuid_type uuid = random_generator();
     // Put the new uuid in the list of new uuids
@@ -219,59 +222,40 @@ SerialListener::eraseTokens(std::vector<uuid_type> &uuids) {
 void
 SerialListener::filterNewTokens(std::vector<uuid_type> new_uuids) {
   // Iterate through the filters, checking each against new tokens
+  std::vector<std::pair<uuid_type,uuid_type> > tbd;
   boost::mutex::scoped_lock l(filter_mux);
-  std::map<const uuid_type,filter_type::FilterType>::iterator it;
+  std::vector<uuid_type>::iterator it;
   for (it=filters.begin(); it!=filters.end(); it++) {
-    this->filter((*it).first, new_uuids);
+    std::vector<std::pair<uuid_type,uuid_type> > temp =
+      this->filter((*it), new_uuids);
+    if (temp.size() > 0)
+      tbd.insert(tbd.end(), temp.begin(), temp.end());
   } // for (it=filters.begin(); it!=filters.end(); it++)
-  // Get the filter lock
-  boost::mutex::scoped_lock l(filter_mux);
-  std::vector<uuid_type> to_be_erased;
-  // Iterate through the tokens checking for a match
-  std::vector<uuid_type>::iterator it_uuids;
-  for (it_uuids=new_uuids.begin(); it_uuids!=new_uuids.end(); it_uuids++) {
-    bool matched = false;
-    uuid_type uuid = (*it_uuids);
-    // If the line is empty, continue
-    if (tokens[uuid].length() == 0) {
-      continue;
-    }
-    // Iterate through each filter
-    std::map<const uuid_type,filter_type::FilterType>::iterator it;
-    for (it=filters.begin(); it!=filters.end(); it++) {
-      // If comparator matches line
-      if (comparators[(*it).first](tokens[uuid])) {
-        // If non-blocking run the callback
-        if ((*it).second == filter_type::nonblocking) {
-          callback_queue.push(std::pair<uuid_type,bool>(uuid,false));
-        // If blocking then notify the waiting call to continue
-        } else if ((*it).second == filter_type::blocking) {
-          condition_vars[(*it).first]->notify_all();
-          to_be_erased.push_back(uuid);
-        }
-        matched = true;
-        break; // It matched, continue to next line
-      }
-    } // for(it=filters.begin(); it!=filters.end(); it++)
-  } // for(it_lines=lines.begin(); it_lines!=lines.end(); it_lines++)
-  // Remove any lines that need to be erased
-  //  (this must be done outside the iterator to prevent problems incrementing
-  //   the iterator)
-  this->eraseTokens(to_be_erased);
+  // Dispatch
+  std::vector<std::pair<uuid_type,uuid_type> >::iterator it_tbd;
+  for (it_tbd = tbd.begin(); it_tbd != tbd.end(); it_tbd++) {
+    callback_queue.push((*it_tbd));
+  }
 }
 
-void
-filter(uuid_type filter_uuid, std::vector<uuid_type> token_uuids) {
+// <filter,token>
+std::vector<std::pair<uuid_type,uuid_type> >
+SerialListener::filter(uuid_type filter_uuid,
+                       std::vector<uuid_type> &token_uuids)
+{
   std::vector<uuid_type> to_be_erased;
+  std::vector<std::pair<uuid_type,uuid_type> > to_be_dispatched;
   // Iterate through the token uuids and run each against the filter
-  std::vector<uuid_type>::iterator it_uuids;
-  for (it_uuids=new_uuids.begin(); it_uuids!=new_uuids.end(); it_uuids++) {
-    
+  std::vector<uuid_type>::iterator it;
+  for (it=token_uuids.begin(); it!=token_uuids.end(); it++) {
+    bool matched = false;
+    uuid_type token_uuid = (*it);
+    if (this->comparators[filter_uuid](this->tokens[token_uuid])) {
+      matched = true;
+      to_be_dispatched.push_back(std::make_pair(filter_uuid,token_uuid));
+    }
   }
-  // Remove any lines that need to be erased
-  //  (this must be done outside the iterator to prevent problems incrementing
-  //   the iterator)
-  this->eraseTokens(to_be_erased);
+  return to_be_dispatched;
 }
 
 void
@@ -288,12 +272,10 @@ SerialListener::pruneTokens() {
       // If the current time - the creation time is greater than the ttl, 
       //  then prune it
       if (ptime(microsec_clock::local_time())-this->ttls[uuid] > this->ttl) {
-        std::cout << "Pruning (" << this->tokens[uuid].length();
-        std::cout << "): " << this->tokens[uuid] << std::endl;
         // If there is a default handler pass it on
         if (this->default_handler) {
           boost::mutex::scoped_lock l(callback_mux);
-          callback_queue.push(std::pair<uuid_type,bool>(uuid,true));
+          callback_queue.push(std::make_pair(nil_generator(),uuid));
         } else {
           // Otherwise delete it
           to_be_erased.push_back(uuid);
@@ -339,49 +321,80 @@ SerialListener::listen() {
 }
 
 bool
-SerialListener::listenForOnceComparator(std::string token) {
-  if (token == current_listen_for_one_target)
-    return true;
-  return false;
+SerialListener::listenForStringOnce(std::string token, size_t milliseconds) {
+  return this->listenForOnce(exactly(token), milliseconds);
+}
+
+void
+SerialListener::notifyListenForOnce(shared_cond_var_ptr_t cond_ptr) {
+  cond_ptr->notify_all();
 }
 
 bool
-SerialListener::listenForStringOnce(std::string token, size_t milliseconds) {
-  boost::condition_variable cond;
+SerialListener::listenForOnce(ComparatorType comparator, size_t ms)
+{
+  shared_cond_var_ptr_t cond_ptr(new boost::condition_variable());
   boost::mutex mut;
-  current_listen_for_one_target = token;
 
   // Create blocking filter
-  uuid_type uuid = random_generator();
-  std::pair<const uuid_type,filter_type::FilterType>
-   filter_pair(uuid, filter_type::blocking);
-  std::pair<const uuid_type,ComparatorType>
-   comparator_pair(uuid,
-    boost::bind(&SerialListener::listenForOnceComparator, this, _1));
-  std::pair<const uuid_type,boost::condition_variable*>
-   condition_pair(uuid, &cond);
+  const uuid_type uuid = random_generator();
   {
     boost::mutex::scoped_lock l(filter_mux);
-    filters.insert(filter_pair);
-    comparators.insert(comparator_pair);
-    condition_vars.insert(condition_pair);
+    filters.push_back(uuid);
+    comparators.insert(std::make_pair(uuid,comparator));
+  }
+  {
+    boost::mutex::scoped_lock l(callback_mux);
+    callbacks.insert(std::make_pair(uuid,
+      boost::bind(&SerialListener::notifyListenForOnce, this, cond_ptr)));
   }
 
-  this->processNewFilter(uuid);
+  // Run this filter through all tokens onces
+  std::vector<uuid_type> token_uuids;
+  std::map<const uuid_type,std::string>::iterator it;
+  for (it = tokens.begin(); it != tokens.end(); it++)
+    token_uuids.push_back((*it).first);
+  std::vector<std::pair<uuid_type,uuid_type> > pairs =
+    this->filter(uuid, token_uuids);
+
+  // If there is at least one
+  if (pairs.size() > 0) {
+    // If there is more than one find the oldest
+    size_t index = 0;
+    if (pairs.size() > 1) {
+      using namespace boost::posix_time;
+      ptime oldest_time = ttls[pairs[index].second];
+      size_t i = 0;
+      std::vector<std::pair<uuid_type,uuid_type> >::iterator it;
+      for (it = pairs.begin(); it != pairs.end(); it++) {
+        if (ttls[(*it).second] < oldest_time) {
+          oldest_time = ttls[(*it).second];
+          index = i;
+        }
+        i++;
+      }
+    }
+    // Either way put the final index into the callback queue
+    callback_queue.push(pairs[index]);
+  }
 
   bool result = false;
 
   // Wait
   boost::unique_lock<boost::mutex> lock(mut);
-  if (cond.timed_wait(lock, boost::posix_time::milliseconds(milliseconds)))
+  using namespace boost::posix_time;
+  if (cond_ptr->timed_wait(lock, milliseconds(ms)))
     result = true;
 
   // Destroy the filter
   {
     boost::mutex::scoped_lock l(filter_mux);
-    filters.erase(uuid);
+    filters.erase(std::find(filters.begin(),filters.end(),uuid));
     comparators.erase(uuid);
-    condition_vars.erase(uuid);
+  }
+  {
+    boost::mutex::scoped_lock l(callback_mux);
+    callbacks.erase(uuid);
   }
 
   return result;
@@ -392,8 +405,6 @@ SerialListener::listenFor(ComparatorType comparator, DataCallback callback)
 {
   // Create Filter
   uuid_type uuid = random_generator();
-  std::pair<const uuid_type,filter_type::FilterType>
-   filter_pair(uuid, filter_type::nonblocking);
   std::pair<const uuid_type,ComparatorType>
    comparator_pair(uuid, comparator);
   std::pair<const uuid_type,DataCallback>
@@ -401,12 +412,26 @@ SerialListener::listenFor(ComparatorType comparator, DataCallback callback)
 
   {
     boost::mutex::scoped_lock l(filter_mux);
-    filters.insert(filter_pair);
+    filters.push_back(uuid);
     comparators.insert(comparator_pair);
   }
   {
     boost::mutex::scoped_lock l(callback_mux);
     callbacks.insert(callback_pair);
+  }
+
+  // Run this filter through all tokens onces
+  std::vector<uuid_type> token_uuids;
+  std::map<const uuid_type,std::string>::iterator it;
+  for (it = tokens.begin(); it != tokens.end(); it++)
+    token_uuids.push_back((*it).first);
+  std::vector<std::pair<uuid_type,uuid_type> > pairs =
+    this->filter(uuid, token_uuids);
+
+  // Dispatch
+  std::vector<std::pair<uuid_type,uuid_type> >::iterator it_cb;
+  for (it_cb = pairs.begin(); it_cb != pairs.end(); it_cb++) {
+    callback_queue.push((*it_cb));
   }
 
   return uuid;
@@ -416,8 +441,9 @@ void
 SerialListener::stopListeningFor(uuid_type filter_uuid) {
   // Delete filter
   boost::mutex::scoped_lock l(filter_mux);
-  filters.erase(filter_uuid);
+  filters.erase(std::find(filters.begin(),filters.end(),filter_uuid));
   comparators.erase(filter_uuid);
+  boost::mutex::scoped_lock l2(callback_mux);
   callbacks.erase(filter_uuid);
 }
 
@@ -433,5 +459,15 @@ SerialListener::_delimeter_tokenizer (std::string &data,
                                       std::string delimeter)
 {
   boost::split(tokens, data, boost::is_any_of(delimeter));
+}
+
+ComparatorType
+SerialListener::exactly(std::string exact_str) {
+  return boost::bind(&SerialListener::_exactly, _1, exact_str);
+}
+
+bool
+SerialListener::_exactly(const std::string &token, std::string exact_str) {
+  return token == exact_str;
 }
 

@@ -13,7 +13,7 @@ static size_t global_count, global_listen_count;
 
 void default_handler(std::string line) {
   global_count++;
-  std::cout << "default_handler got: " << line << std::endl;
+  // std::cout << "default_handler got: " << line << std::endl;
 }
 
 namespace {
@@ -45,7 +45,7 @@ protected:
   }
 
   void execute_listenForStringOnce() {
-    listener.listenForStringOnce("?$1E", 1000);
+    listener.listenForStringOnce("?$1E", 50);
   }
 
   void simulate_loop(std::string input_str) {
@@ -80,11 +80,11 @@ TEST_F(SerialListenerTests, listenForOnceWorks) {
   boost::thread t(
     boost::bind(&SerialListenerTests::execute_listenForStringOnce, this));
 
-  boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+  boost::this_thread::sleep(boost::posix_time::milliseconds(5));
 
   simulate_loop("\r+\r?$1E\r$1E=Robo");
 
-  ASSERT_TRUE(t.timed_join(boost::posix_time::milliseconds(1500)));
+  ASSERT_TRUE(t.timed_join(boost::posix_time::milliseconds(60)));
 
   // Make sure the filters are getting deleted
   ASSERT_EQ(listener.filters.size(), 0);
@@ -92,7 +92,7 @@ TEST_F(SerialListenerTests, listenForOnceWorks) {
   // give some time for the callback thread to finish
   stopCallbackThread();
 
-  ASSERT_EQ(global_count, 2);
+  ASSERT_EQ(global_count, 1);
 }
 
 // lookForOnce should not find it, but timeout after 1000ms, so it should 
@@ -103,11 +103,11 @@ TEST_F(SerialListenerTests, listenForOnceTimesout) {
   boost::thread t(
     boost::bind(&SerialListenerTests::execute_listenForStringOnce, this));
 
-  boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+  boost::this_thread::sleep(boost::posix_time::milliseconds(55));
 
   simulate_loop("\r+\r?$1ENOTRIGHT\r$1E=Robo");
 
-  ASSERT_TRUE(t.timed_join(boost::posix_time::milliseconds(1500)));
+  ASSERT_TRUE(t.timed_join(boost::posix_time::milliseconds(60)));
 
   // give some time for the callback thread to finish
   stopCallbackThread();
@@ -116,6 +116,7 @@ TEST_F(SerialListenerTests, listenForOnceTimesout) {
 }
 
 bool listenForComparator(std::string line) {
+  // std::cout << "In listenForComparator(" << line << ")" << std::endl;
   if (line.substr(0,2) == "V=") {
     return true;
   }
@@ -123,6 +124,7 @@ bool listenForComparator(std::string line) {
 }
 
 void listenForCallback(std::string line) {
+  // std::cout << "In listenForCallback(" << line << ")" << std::endl;
   global_listen_count++;
 }
 
