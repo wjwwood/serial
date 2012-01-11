@@ -37,6 +37,15 @@
 #ifndef SERIAL_H
 #define SERIAL_H
 
+#include <string>
+#include <sstream>
+
+#ifdef CXX_11
+#include <memory>
+#else
+// #include <tr1/boost_shared_ptr.h>
+#endif
+
 namespace serial {
 
 /*!
@@ -191,7 +200,7 @@ public:
   * \see Serial::read(size_t)
   */
   size_t
-  read (const std::string &buffer, size_t size = 1);
+  read (std::string &buffer, size_t size = 1);
 
   /*! Write bytes from the data to the serial port by given length.
   * 
@@ -367,9 +376,9 @@ private:
   const Serial& operator=(Serial);
 
   // Pimpl idiom, d_pointer
-  class Serial_pimpl;
-  std::shared_ptr<Serial_pimpl> pimpl;
-
+  class SerialImpl;
+  // std::shared_ptr<Serial_pimpl> pimpl;
+  SerialImpl *pimpl;
 };
 
 class IOException : public std::exception {

@@ -6,127 +6,134 @@
 #include "serial/impl/unix.h"
 #endif
 
-Serial::Serial (const std::string &port, int baudrate, 
+using serial::Serial;
+using serial::bytesize_t;
+using serial::parity_t;
+using serial::stopbits_t;
+using serial::flowcontrol_t;
+using std::string;
+
+Serial::Serial (const string &port, int baudrate, 
                             long timeout, bytesize_t bytesize,
                             parity_t parity, stopbits_t stopbits,
                             flowcontrol_t flowcontrol)
-: impl(new Serial_pimpl(port,baudrate,timeout,bytesize,parity,stopbits,
+: pimpl(new SerialImpl(port,baudrate,timeout,bytesize,parity,stopbits,
                         flowcontrol))
 {
   
 }
 
 Serial::~Serial () {
-  delete impl;
+  delete pimpl;
 }
 
 void
 Serial::open () {
-  this->impl->open ();
+  this->pimpl->open ();
 }
 
 void
 Serial::close () {
-  this->impl->close ();
+  this->pimpl->close ();
 }
 bool
 Serial::isOpen () {
-  return this->impl->isOpen ();
+  return this->pimpl->isOpen ();
 }
 
 size_t
-Serial::read (unsigned char* buffer, size_t size = 1) {
-  return this->impl->read (buffer, size);
+Serial::read (unsigned char* buffer, size_t size) {
+ // return this->pimpl->read (buffer, size);
 }
 
-std::string
-Serial::read (size_t size = 1) {
-  return this->impl->read (size);
-}
-
-size_t
-Serial::read (std::string &buffer, size_t size = 1) {
-  return this->impl->read (buffer, size);
+string
+Serial::read (size_t size) {
+  return this->pimpl->read (size);
 }
 
 size_t
-Serial::write (unsigned char* data, size_t length) {
-  return this->impl->write (data, length);
+Serial::read (string &buffer, size_t size) {
+//  return this->pimpl->read (buffer, size);
 }
 
+//size_t
+//Serial::write (unsigned char* data, size_t length) {
+//  return this->pimpl->write (data, length);
+//}
+
 size_t
-Serial::write (const std::string &data) {
-  return this->impl->write (data);
+Serial::write (const string &data) {
+  return this->pimpl->write (data);
 }
 
 void
-Serial::setPort (const std::string &port) {
-  this->impl->setPort (port);
+Serial::setPort (const string &port) {
+  this->pimpl->setPort (port);
 }
 
-std::string
+string
 Serial::getPort () const {
-  return this->impl->getPort ();
+  return this->pimpl->getPort ();
 }
 
 void
 Serial::setTimeout (long timeout) {
-  this->impl->setTimeout (timeout);
+  this->pimpl->setTimeout (timeout);
 }
 
 long
 Serial::getTimeout () const {
-  return this->impl->getTimeout ();
+  return this->pimpl->getTimeout ();
 }
 
 void
 Serial::setBaudrate (int baudrate) {
-  this->impl->setBaudrate (baudrate);
+  this->pimpl->setBaudrate (baudrate);
 }
 
 int
 Serial::getBaudrate () const {
-  return this->impl->getBaudrate ();
+  return this->pimpl->getBaudrate ();
 }
 
 void
 Serial::setBytesize (bytesize_t bytesize) {
-  this->impl->setBytesize (bytesize);
+  this->pimpl->setBytesize (bytesize);
 }
 
 bytesize_t
 Serial::getBytesize () const {
-  return this->impl->getBytesize ();
+  return this->pimpl->getBytesize ();
 }
 
 void
 Serial::setParity (parity_t parity) {
-  this->impl->setParity (parity);
+  this->pimpl->setParity (parity);
 }
 
 parity_t
 Serial::getParity () const {
-  return this->impl->getParity ();
+  return this->pimpl->getParity ();
 }
 
 void
 Serial::setStopbits (stopbits_t stopbits) {
-  this->impl->setStopbits (stopbits);
+  this->pimpl->setStopbits (stopbits);
 }
 
 stopbits_t
 Serial::getStopbits () const {
-  return this->impl->getStopbits ();
+  return this->pimpl->getStopbits ();
 }
 
 void
 Serial::setFlowcontrol (flowcontrol_t flowcontrol) {
-  this->impl->setFlowcontrol (flowcontrol);
+  this->pimpl->setFlowcontrol (flowcontrol);
 }
 
 flowcontrol_t
 Serial::getFlowcontrol () const {
-  return this->impl->getFlowcontrol ();
+  return this->pimpl->getFlowcontrol ();
 }
 
 

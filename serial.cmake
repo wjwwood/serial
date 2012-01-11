@@ -13,7 +13,7 @@ project(Serial)
 # Use clang if available
 IF(EXISTS /usr/bin/clang)
   set(CMAKE_CXX_COMPILER /usr/bin/clang++)
-  set(CMAKE_CXX_FLAGS -ferror-limit=5)
+  set(CMAKE_CXX_FLAGS "-ferror-limit=5 -std=c++0x -stdlib=libc++")
 ENDIF(EXISTS /usr/bin/clang)
 
 option(SERIAL_BUILD_TESTS "Build all of the Serial tests." OFF)
@@ -39,7 +39,7 @@ ENDIF(NOT DEFINED(LIBRARY_OUTPUT_PATH))
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
 # Add default source files
-set(SERIAL_SRCS src/serial.cc src/serial_listener.cc)
+set(SERIAL_SRCS src/serial.cc src/impl/unix.cc) # src/serial_listener.cc)
 # Add default header files
 set(SERIAL_HEADERS include/serial/serial.h include/serial/serial_listener.h)
 
