@@ -373,6 +373,18 @@ public:
   flowcontrol_t
   getFlowcontrol () const;
 
+  void flush();
+  void flushInput();
+  void flushOutput();
+  void sendBreak(int duration);
+  void setBreak(bool level = true);
+  void setRTS(bool level = true);
+  void setDTR(bool level = true);
+  bool getCTS();
+  bool getDSR();
+  bool getRI();
+  bool getCD();
+
 private:
   // Disable copy constructors
   Serial(const Serial&);

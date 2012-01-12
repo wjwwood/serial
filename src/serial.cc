@@ -23,7 +23,6 @@ Serial::Serial (const string &port, int baudrate,
 : pimpl(new SerialImpl(port,baudrate,timeout,bytesize,parity,stopbits,
                         flowcontrol))
 {
-  
 }
 
 Serial::~Serial () {
@@ -62,12 +61,12 @@ Serial::read (size_t size) {
 string
 Serial::readline(size_t size, string eol) {
   size_t leneol = eol.length();
-  string line;
+  string line = "";
   while (true) {
-    string c = read(1);
-    if (c.empty()) {
-      line += c;
-      if (line.substr(line.length() - leneol, leneol) == eol) {
+    string c = pimpl->read(1);
+    if (!c.empty()) {
+      line.append(c);
+      if (line.length() > leneol && line.substr(line.length() - leneol, leneol) == eol) {
         break;
       }
       if (line.length() >= size) {
@@ -186,6 +185,39 @@ Serial::getFlowcontrol () const {
   return this->pimpl->getFlowcontrol ();
 }
 
+void Serial::flush() {
+  this->pimpl->flush();
+}
+void Serial::flushInput() {
+  this->pimpl->flushInput();
+}
+void Serial::flushOutput() {
+  this->pimpl->flushOutput();
+}
+void Serial::sendBreak(int duration) {
+  this->pimpl->sendBreak(duration);
+}
+void Serial::setBreak(bool level) {
+  this->pimpl->setBreak(level);
+}
+void Serial::setRTS(bool level) {
+  this->pimpl->setRTS(level);
+}
+void Serial::setDTR(bool level) {
+  this->pimpl->setDTR(level);
+}
+bool Serial::getCTS() {
+  return this->pimpl->getCTS();
+}
+bool Serial::getDSR() {
+  return this->pimpl->getDSR();
+}
+bool Serial::getRI() {
+  return this->pimpl->getRI();
+}
+bool Serial::getCD() {
+  return this->pimpl->getCD();
+}
 
 
 

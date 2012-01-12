@@ -58,22 +58,22 @@ public:
   void close ();
   bool isOpen ();
 
-	size_t available ();
+  size_t available ();
   string read (size_t size = 1);
   size_t write (const string &data);
-	
-	void flush ();
-	void flushInput ();
-	void flushOutput ();
+  
+  void flush ();
+  void flushInput ();
+  void flushOutput ();
 
-	void sendBreak();
-	void setBreak();
-	void setRTS();
-	void setDTR();
-	void getCTS();
-	void getDSR();
-	void getRI();
-	void getCD();
+  void sendBreak(int duration);
+  void setBreak(bool level);
+  void setRTS(bool level);
+  void setDTR(bool level);
+  bool getCTS();
+  bool getDSR();
+  bool getRI();
+  bool getCD();
 
   void setPort (const string &port);
   string getPort () const;
@@ -97,25 +97,25 @@ public:
   flowcontrol_t getFlowcontrol () const;
 
 protected:
-	void reconfigurePort ();
+  void reconfigurePort ();
 
 private:
   int fd_; // The current file descriptor.
 
-	bool isOpen_;
-	
-	int interCharTimeout_;
-	int writeTimeout_;
-	int xonxoff_;
-	int rtscts_;
+  bool isOpen_;
+  
+  int interCharTimeout_;
+  int writeTimeout_;
+  int xonxoff_;
+  int rtscts_;
 
-	string port_;               // Path to the file descriptor
-	int baudrate_;              // Baudrate
-	long timeout_;              // Timeout for read operations
-	bytesize_t bytesize_;       // Size of the bytes
-	parity_t parity_;           // Parity
-	stopbits_t stopbits_;       // Stop Bits
-	flowcontrol_t flowcontrol_; // Flow Control
+  string port_;               // Path to the file descriptor
+  int baudrate_;              // Baudrate
+  long timeout_;              // Timeout for read operations
+  bytesize_t bytesize_;       // Size of the bytes
+  parity_t parity_;           // Parity
+  stopbits_t stopbits_;       // Stop Bits
+  flowcontrol_t flowcontrol_; // Flow Control
 };
 
 }
