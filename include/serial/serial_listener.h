@@ -814,12 +814,10 @@ private:
 class BlockingFilter
 {
 public:
-  BlockingFilter (ComparatorType comparator,
-                  boost::shared_ptr<SerialListener> listener)
-  : listener(listener)
-  {
+  BlockingFilter (ComparatorType comparator, SerialListener &listener) {
+    this->listener = &listener;
     DataCallback cb = boost::bind(&BlockingFilter::callback, this, _1);
-    this->filter_ptr = listener->createFilter(comparator, cb);
+    this->filter_ptr = this->listener->createFilter(comparator, cb);
   }
 
   virtual ~BlockingFilter () {
@@ -851,7 +849,7 @@ public:
   }
 
 private:
-  boost::shared_ptr<SerialListener> listener;
+  SerialListener * listener;
   boost::condition_variable cond;
   boost::mutex mutex;
   std::string result;
@@ -877,12 +875,13 @@ private:
 class BufferedFilter
 {
 public:
-  BufferedFilter (ComparatorType comparator, size_t buffer_size,
-                  boost::shared_ptr<SerialListener> listener)
-  : listener(listener), buffer_size(buffer_size)
+  BufferedFilter (ComparatorType comparator, size_t buffer_size, 
+                  SerialListener &listener)
+  : buffer_size(buffer_size)
   {
+    this->listener = &listener;
     DataCallback cb = boost::bind(&BufferedFilter::callback, this, _1);
-    this->filter_ptr = listener->createFilter(comparator, cb);
+    this->filter_ptr = this->listener->createFilter(comparator, cb);
   }
 
   virtual ~BufferedFilter () {
@@ -944,7 +943,7 @@ public:
 
 private:
   size_t buffer_size;
-  boost::shared_ptr<SerialListener> listener;
+  SerialListener * listener;
   ConcurrentQueue<std::string> queue;
   std::string result;
 

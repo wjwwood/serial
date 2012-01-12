@@ -16,6 +16,7 @@ IF(EXISTS /usr/bin/clang)
   set(CMAKE_OSX_DEPLOYMENT_TARGET "")
   # set(CMAKE_CXX_FLAGS "-ferror-limit=5 -std=c++0x -stdlib=libc++")
   set(CMAKE_CXX_FLAGS "-ferror-limit=5")
+  set(CMAKE_BUILD_TYPE Debug)
 ENDIF(EXISTS /usr/bin/clang)
 
 option(SERIAL_BUILD_TESTS "Build all of the Serial tests." OFF)

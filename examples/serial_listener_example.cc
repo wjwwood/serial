@@ -13,9 +13,9 @@ void callback(std::string token) {
   std::cout << "callback got a: " << token << std::endl;
 }
 
-int main(void) {
+int run() {
   // Assuming this device prints the string 'pre-substr-post\r' at 100Hz
-  Serial serial("/dev/tty.usbmodemfd1231", 115200);
+  Serial serial("/dev/tty.usbserial-A900cfJA", 115200);
 
   SerialListener listener;
   listener.startListening(serial);
@@ -40,7 +40,7 @@ int main(void) {
       listener.createBlockingFilter(SerialListener::endsWith("post"));
     for (size_t i = 0; i < 3; i++) {
       std::string token = f2->wait(100); // Wait for 100 ms or a matched token
-      if (token == "")
+      if (token != "")
         std::cout << "Found something ending with 'post'" << std::endl;
       else
         std::cout << "Did not find something ending with 'post'" << std::endl;
@@ -81,4 +81,13 @@ int main(void) {
 
   return 0;
 
+}
+
+int main(void) {
+  try {
+    return run();
+  } catch (std::exception &e) {
+    std::cerr << e.what() << std::endl;
+    return 1;
+  }
 }

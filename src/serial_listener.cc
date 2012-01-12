@@ -64,6 +64,8 @@ SerialListener::callback() {
     std::pair<FilterPtr,TokenPtr> pair;
     while (this->listening) {
       if (this->callback_queue.timed_wait_and_pop(pair, 10)) {
+        std::cout << "Got something off the callback queue: ";
+        std::cout << (*pair.second) << std::endl;
         if (this->listening) {
           try {
             pair.first->callback((*pair.second));
@@ -133,6 +135,7 @@ SerialListener::readSomeData(std::string &temp, size_t this_many) {
     this->handle_exc(SerialListenerException("Serial port not open."));
   }
   temp = this->serial_port->read(this_many);
+  std::cout << "Read(" << temp.length() << "): " << temp << std::endl;
 }
 
 void
@@ -199,7 +202,7 @@ SerialListener::createFilter(ComparatorType comparator, DataCallback callback)
 BlockingFilterPtr
 SerialListener::createBlockingFilter(ComparatorType comparator) {
   return BlockingFilterPtr(
-    new BlockingFilter(comparator, boost::shared_ptr<SerialListener>(this)));
+    new BlockingFilter(comparator, (*this)));
 }
 
 BufferedFilterPtr
@@ -207,9 +210,7 @@ SerialListener::createBufferedFilter(ComparatorType comparator,
                                      size_t buffer_size)
 {
   return BufferedFilterPtr(
-    new BufferedFilter(comparator,
-                       buffer_size,
-                       boost::shared_ptr<SerialListener>(this)));
+    new BufferedFilter(comparator, buffer_size, (*this)));
 }
 
 void
