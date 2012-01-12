@@ -33,9 +33,12 @@
  * This provides a cross platform interface for interacting with Serial Ports.
  */
 
-
 #ifndef SERIAL_H
 #define SERIAL_H
+
+#include <string>
+#include <memory> // std::shared_ptr
+#include <sstream>
 
 namespace serial {
 
@@ -191,7 +194,7 @@ public:
   * \see Serial::read(size_t)
   */
   size_t
-  read (const std::string &buffer, size_t size = 1);
+  read (std::string &buffer, size_t size = 1);
 
   /*! Write bytes from the data to the serial port by given length.
   * 
@@ -368,7 +371,7 @@ private:
 
   // Pimpl idiom, d_pointer
   class Serial_pimpl;
-  std::shared_ptr<Serial_pimpl> pimpl;
+  Serial_pimpl * pimpl;
 
 };
 

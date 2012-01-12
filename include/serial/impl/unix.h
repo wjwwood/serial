@@ -37,7 +37,7 @@
 
 #include "serial/serial.h"
 
-namespace {
+namespace serial {
 
 class Serial::Serial_pimpl {
 public:
@@ -84,7 +84,17 @@ public:
   flowcontrol_t getFlowcontrol () const;
 
 private:
+  // Serial handle
   int fd;
+  
+  // Parameters
+  std::string port;
+  int baudrate;
+  long timeout;
+  bytesize_t bytesize;
+  parity_t parity;
+  stopbits_t stopbits;
+  flowcontrol_t flowcontrol;
 
 };
 

@@ -5,59 +5,80 @@
 
 using namespace serial;
 
-void default_handler(std::string line) {
-  std::cout << "default_handler got a: " << line << std::endl;
+void default_handler(std::string token) {
+  std::cout << "default_handler got a: " << token << std::endl;
 }
 
-void callback(std::string line) {
-  std::cout << "callback got a: " << line << std::endl;
+void callback(std::string token) {
+  std::cout << "callback got a: " << token << std::endl;
 }
 
-#if 1
 int main(void) {
+  // Assuming this device prints the string 'pre-substr-post\r' at 100Hz
   Serial serial("/dev/tty.usbmodemfd1231", 115200);
 
   SerialListener listener;
-  // Set the time to live for messages to 10 milliseconds
-  listener.setTimeToLive(10);
   listener.startListening(serial);
 
-  listener.listenFor(SerialListener::startsWith("V="), callback);
+  // Set the tokenizer
+  //  This is the same as the default delimeter, so an explicit call to
+  //  setTokenizer is not necessary if your data is \r delimited.
+  //  You can create your own Tokenizer as well.
+  listener.setTokenizer(SerialListener::delimeter_tokenizer("\r"));
 
-  serial.write("?$1E\r");
-  if (!listener.listenForStringOnce("?$1E")) {
-    std::cerr << "Didn't get conformation of device version!" << std::endl;
-    return 1;
+  // Method #1:
+  //  comparator, callback - async
+  FilterPtr f1 =
+    listener.createFilter(SerialListener::startsWith("pre"), callback);
+  SerialListener::sleep(15); // Sleep 15ms, to let the data come in
+  listener.removeFilter(f1); // Not scoped, must be removed explicity
+
+  // Method #2:
+  //  comparator - blocking
+  {
+    BlockingFilter f2 =
+      listener.createBlockingFilter(SerialListener::endsWith("post"));
+    for (size_t i = 0; i < 3; i++) {
+      std::string token = f2.wait(100); // Wait for 100 ms or a matched token
+      if (token == "")
+        std::cout << "Found something ending with 'post'" << std::endl;
+      else
+        std::cout << "Did not find something ending with 'post'" << std::endl;
+    }
   }
+  // BlockingFilter is scoped and will remove itself, so no removeFilter
+  // required, but a call like `listener.removeFilter(BlockingFilter) will
+  // remove it from the filter list so wait will always timeout.
 
-  serial.write("?V\r");
-  serial.write("# 1\r");
-
-  while (true) {
-    // Sleep 100 ms
-    SerialListener::sleep(100);
+  // Method #3:
+  //  comparator, token buffer size - blocking
+  {
+    // Give it a comparator, then a buffer size of 10
+    BufferedFilter f3 =
+      listener.createBufferedFilter(SerialListener::contains("substr"), 10);
+    SerialListener::sleep(75); // Sleep 75ms, should have about 7
+    std::cout << "Caught " << f3.count();
+    std::cout << " tokens containing 'substr'" << std::endl;
+    for(size_t i = 0; i < 20; ++i) {
+      std::string token = f3.wait(5); // Pull message from the buffer
+      if (token == "") // If an empty string is returned, a timeout occured
+        break;
+    }
+    f3.clear(); // Empties the buffer
+    if (f3.wait(0) == "") // Non-blocking wait
+      std::cout << "We won the race condition!" << std::endl;
+    else
+      std::cout << "We lost the race condition..." << std::endl;
+    // The buffer is circular, so the oldest matches will be dropped first
   }
+  // BufferedFilter is scoped and will remove itself just like BlockingFilter.
+
+  // Method #4:
+  //  callback - async
+  // Gets called if a token doesn't match a filter
+  listener.setDefaultHandler(default_handler);
+  SerialListener::sleep(25); // Sleep 25 ms, so some default callbacks occur
+
+  return 0;
 
 }
-#endif
-
-#if 0
-int main(void) {
-  Serial serial("/dev/tty.usbmodemfd1231", 115200);
-
-  serial.write("?$1E\r");
-  SerialListener::sleep(10);
-  // if ("?$1E\r" != serial.read(5)) {
-  //   std::cerr << "Didn't get conformation of device version!" << std::endl;
-  //   return 1;
-  // }
-
-  serial.write("?V\r");
-  serial.write("# 1\r");
-
-  while (true) {
-    std::cout << serial.read(5) << std::endl;
-  }
-
-}
-#endif

@@ -13,7 +13,9 @@ project(Serial)
 # Use clang if available
 IF(EXISTS /usr/bin/clang)
   set(CMAKE_CXX_COMPILER /usr/bin/clang++)
-  set(CMAKE_CXX_FLAGS -ferror-limit=5)
+  set(CMAKE_OSX_DEPLOYMENT_TARGET "")
+  # set(CMAKE_CXX_FLAGS "-ferror-limit=5 -std=c++0x -stdlib=libc++")
+  set(CMAKE_CXX_FLAGS "-ferror-limit=5")
 ENDIF(EXISTS /usr/bin/clang)
 
 option(SERIAL_BUILD_TESTS "Build all of the Serial tests." OFF)
@@ -43,6 +45,13 @@ set(SERIAL_SRCS src/serial.cc src/serial_listener.cc)
 # Add default header files
 set(SERIAL_HEADERS include/serial/serial.h include/serial/serial_listener.h)
 
+IF(UNIX)
+  list(APPEND SERIAL_SRCS src/impl/unix.cc)
+  list(APPEND SERIAL_HEADERS include/serial/impl/unix.h)
+ELSE(UNIX)
+  
+ENDIF(UNIX)
+
 # Find Boost, if it hasn't already been found
 IF(NOT Boost_FOUND OR NOT Boost_SYSTEM_FOUND OR NOT Boost_FILESYSTEM_FOUND OR NOT Boost_THREAD_FOUND)
     find_package(Boost COMPONENTS system filesystem thread REQUIRED)
@@ -61,7 +70,7 @@ set(SERIAL_LINK_LIBS ${Boost_SYSTEM_LIBRARY}
 add_library(serial ${SERIAL_SRCS} ${SERIAL_HEADERS})
 target_link_libraries(serial ${SERIAL_LINK_LIBS})
 IF( WIN32 )
-	target_link_libraries(serial wsock32)
+  target_link_libraries(serial wsock32)
 ENDIF( )
 
 # Check for OS X and if so disable kqueue support in asio
@@ -97,8 +106,10 @@ IF(SERIAL_BUILD_TESTS)
     # Compile the Serial Listener Test program
     add_executable(serial_listener_tests tests/serial_listener_tests.cc)
     # Link the Test program to the serial library
-    target_link_libraries(serial_listener_tests ${GTEST_BOTH_LIBRARIES} 
-                                                serial)
+    target_link_libraries(serial_listener_tests ${GTEST_BOTH_LIBRARIES}
+                          serial)
+    # # See: http://code.google.com/p/googlemock/issues/detail?id=146
+    # add_definitions(-DGTEST_USE_OWN_TR1_TUPLE=1)
     add_test(AllTestsIntest_serial serial_listener_tests)
 ENDIF(SERIAL_BUILD_TESTS)
 
