@@ -16,13 +16,12 @@ using std::vector;
 using std::numeric_limits;
 using std::size_t;
 
-Serial::Serial (const string &port, int baudrate, 
-                            long timeout, bytesize_t bytesize,
-                            parity_t parity, stopbits_t stopbits,
-                            flowcontrol_t flowcontrol)
-: pimpl(new SerialImpl(port,baudrate,timeout,bytesize,parity,stopbits,
-                        flowcontrol))
+Serial::Serial (const string &port, int baudrate, long timeout,
+                bytesize_t bytesize, parity_t parity, stopbits_t stopbits,
+                flowcontrol_t flowcontrol)
 {
+  pimpl = new SerialImpl(port, baudrate, timeout, bytesize, parity,
+                           stopbits, flowcontrol);
 }
 
 Serial::~Serial () {
@@ -47,11 +46,6 @@ size_t
 Serial::available () {
   return this->pimpl->available();
 }
-
-//size_t
-//Serial::read (unsigned char* buffer, size_t size) {
- // return this->pimpl->read (buffer, size);
-//}
 
 string
 Serial::read (size_t size) {
@@ -104,11 +98,6 @@ Serial::readlines(string eol) {
 
   return lines;
 }
-
-//size_t
-//Serial::write (unsigned char* data, size_t length) {
-//  return this->pimpl->write (data, length);
-//}
 
 size_t
 Serial::write (const string &data) {

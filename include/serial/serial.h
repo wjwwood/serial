@@ -33,7 +33,6 @@
  * This provides a cross platform interface for interacting with Serial Ports.
  */
 
-
 #ifndef SERIAL_H
 #define SERIAL_H
 
@@ -189,7 +188,9 @@ public:
   std::string
   read (size_t size = 1);
 
-  std::string readline(size_t size = std::numeric_limits<std::size_t>::max(), std::string eol = "\n");
+  std::string readline(size_t size = std::numeric_limits<std::size_t>::max(),
+                       std::string eol = "\n");
+
   std::vector<std::string> readlines(std::string eol = "\n");
 
   /*! Read a given amount of bytes from the serial port.
@@ -393,7 +394,6 @@ private:
 
   // Pimpl idiom, d_pointer
   class SerialImpl;
-  // std::shared_ptr<Serial_pimpl> pimpl;
   SerialImpl *pimpl;
 };
 

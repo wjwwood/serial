@@ -22,21 +22,32 @@
 #endif
 #endif
 
+class UnhandledException : public std::exception {
+    const char * e_what;
+public:
+    UnhandledException(const char * e_what) {this->e_what = e_what;}
+    
+    virtual const char* what() const throw() {
+        std::stringstream ss;
+        ss << "Unhandled Exception: " << this->e_what;
+        return ss.str().c_str();
+    }
+};
+
+typedef UnhandledException e;
+
 using ::serial::Serial;
 using std::string;
 
 Serial::SerialImpl::SerialImpl (const string &port, int baudrate,
-                                    long timeout, bytesize_t bytesize,
-                                    parity_t parity, stopbits_t stopbits,
-                                    flowcontrol_t flowcontrol)
-: fd_(-1), isOpen_(false), interCharTimeout_(-1), port_(port), baudrate_(baudrate),
-  timeout_(timeout), bytesize_(bytesize), parity_(parity), stopbits_(stopbits),
-  flowcontrol_(flowcontrol)
+                                long timeout, bytesize_t bytesize,
+                                parity_t parity, stopbits_t stopbits,
+                                flowcontrol_t flowcontrol)
+: fd_(-1), isOpen_(false), interCharTimeout_(-1), port_(port),
+  baudrate_(baudrate), timeout_(timeout), bytesize_(bytesize),
+  parity_(parity), stopbits_(stopbits), flowcontrol_(flowcontrol)
 {
-  printf("Got port: %s\n", port.c_str());
-  if (!port_.empty()) {
-    this->open();
-  }
+  if (port_.empty() == false) this->open();
 }
 
 Serial::SerialImpl::~SerialImpl () {
@@ -47,11 +58,11 @@ void
 Serial::SerialImpl::open () {
   if (port_.empty()) {
     printf("Port was empty\n");
-    throw "error";
+    throw e("error");
   }
   if (isOpen_ == true) {
     printf("Port already opened\n");
-    throw "error";
+    throw e("error");
   }
   
   fd_ = ::open (port_.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK);
@@ -59,7 +70,7 @@ Serial::SerialImpl::open () {
   if (fd_ == -1) {
     printf("Error opening serial port %s - %s(%d).\n",
            port_.c_str(), strerror(errno), errno);
-    throw "Error"; // Error
+    throw e("error");
   }
 
   reconfigurePort();
@@ -69,12 +80,12 @@ Serial::SerialImpl::open () {
 void
 Serial::SerialImpl::reconfigurePort () {
   if (fd_ == -1) {
-    throw "Error"; // Can only operate on a valid file descriptor
+    throw e("Error"); // Can only operate on a valid file descriptor
   }
-  
+
   struct termios options; // The current options for the file descriptor
   struct termios originalTTYAttrs; // The orignal file descriptor options
-  
+
   uint8_t vmin = 0, vtime = 0;                // timeout is done via select
   if (interCharTimeout_ == -1) {
     vmin = 1;
@@ -82,11 +93,11 @@ Serial::SerialImpl::reconfigurePort () {
   }
   
   if (tcgetattr(fd_, &originalTTYAttrs) == -1) {
-    throw "Error";
+    throw e("Error");
   }
-  
+
   options = originalTTYAttrs;
-  
+
   // set up raw mode / no echo / binary
   options.c_cflag |=  (CLOCAL|CREAD);
   options.c_lflag &= ~(ICANON|ECHO|ECHOE|ECHOK|ECHONL|
@@ -116,7 +127,7 @@ Serial::SerialImpl::reconfigurePort () {
   else if (bytesize_ == FIVEBITS)
       options.c_cflag |= CS5;
   else
-      throw "ValueError(Invalid char len: %%r)";
+      throw e("ValueError(Invalid char len: %%r)");
   // setup stopbits
   if (stopbits_ == STOPBITS_ONE)
       options.c_cflag &= ~(CSTOPB);
@@ -125,7 +136,7 @@ Serial::SerialImpl::reconfigurePort () {
   else if (stopbits_ == STOPBITS_TWO)
       options.c_cflag |=  (CSTOPB);
   else 
-      throw "ValueError(Invalid stop bit specification:)";
+      throw e("ValueError(Invalid stop bit specification:)");
   // setup parity
   options.c_iflag &= ~(INPCK|ISTRIP);
   if (parity_ == PARITY_NONE) {
@@ -139,7 +150,7 @@ Serial::SerialImpl::reconfigurePort () {
     options.c_cflag |=  (PARENB|PARODD);
   }
   else {
-    throw "ValueError(Invalid parity:";
+    throw e("ValueError(Invalid parity:");
   }
   // setup flow control
   // xonxoff
@@ -206,14 +217,14 @@ Serial::SerialImpl::available () {
     return count;
   }
   else {
-    throw "Error";
+    throw e("Error");
   }
 }
 
 string
 Serial::SerialImpl::read (size_t size) {
   if (!isOpen_) {
-    throw "PortNotOpenError()"; //
+    throw e("PortNotOpenError()"); //
   }
   string message = "";
   char buf[1024]; // TODO(ash_gti): Should this be 1024? or...?
@@ -243,7 +254,7 @@ Serial::SerialImpl::read (size_t size) {
         // Disconnected devices, at least on Linux, show the
         // behavior that they are always ready to read immediately
         // but reading returns nothing.
-        throw "SerialException('device reports readiness to read but returned no data (device disconnected?)')";
+        throw e("SerialException('device reports readiness to read but returned no data (device disconnected?)')");
       }
       message.append(buf, bytes_read);
     }
@@ -257,12 +268,12 @@ Serial::SerialImpl::read (size_t size) {
 size_t
 Serial::SerialImpl::write (const string &data) {
   if (isOpen_ == false) {
-    throw "portNotOpenError";
+    throw e("portNotOpenError");
   }
   size_t t = data.length();
   size_t n = ::write(fd_, data.c_str(), data.length());
   if (n == -1) {
-    throw "Write error";
+    throw e("Write error");
   }
   return n;
 }

@@ -38,7 +38,7 @@
 
 #include "serial/serial.h"
 
-namespace {
+namespace serial {
 
 using std::string;
 
@@ -61,7 +61,7 @@ public:
   size_t available ();
   string read (size_t size = 1);
   size_t write (const string &data);
-  
+
   void flush ();
   void flushInput ();
   void flushOutput ();
