@@ -291,6 +291,7 @@ Serial::SerialImpl::getPort () const {
 void
 Serial::SerialImpl::setTimeout (long timeout) {
   timeout_ = timeout;
+  if (isOpen_) reconfigurePort();
 }
 
 long
@@ -301,7 +302,7 @@ Serial::SerialImpl::getTimeout () const {
 void
 Serial::SerialImpl::setBaudrate (int baudrate) {
   baudrate_ = baudrate;
-  reconfigurePort();
+  if (isOpen_) reconfigurePort();
 }
 
 int
@@ -312,6 +313,7 @@ Serial::SerialImpl::getBaudrate () const {
 void
 Serial::SerialImpl::setBytesize (serial::bytesize_t bytesize) {
   bytesize_ = bytesize;
+  if (isOpen_) reconfigurePort();
 }
 
 serial::bytesize_t
@@ -322,6 +324,7 @@ Serial::SerialImpl::getBytesize () const {
 void
 Serial::SerialImpl::setParity (serial::parity_t parity) {
   parity_ = parity;
+  if (isOpen_) reconfigurePort();
 }
 
 serial::parity_t
@@ -332,6 +335,7 @@ Serial::SerialImpl::getParity () const {
 void
 Serial::SerialImpl::setStopbits (serial::stopbits_t stopbits) {
   stopbits_ = stopbits;
+  if (isOpen_) reconfigurePort();
 }
 
 serial::stopbits_t
@@ -342,6 +346,7 @@ Serial::SerialImpl::getStopbits () const {
 void
 Serial::SerialImpl::setFlowcontrol (serial::flowcontrol_t flowcontrol) {
   flowcontrol_ = flowcontrol;
+  if (isOpen_) reconfigurePort();
 }
 
 serial::flowcontrol_t

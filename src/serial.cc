@@ -106,7 +106,10 @@ Serial::write (const string &data) {
 
 void
 Serial::setPort (const string &port) {
+  bool was_open = pimpl->isOpen();
+  if (was_open) this->close();
   this->pimpl->setPort (port);
+  if (was_open) this->open();
 }
 
 string
