@@ -20,7 +20,7 @@ Serial::Serial (const string &port, int baudrate, long timeout,
                 bytesize_t bytesize, parity_t parity, stopbits_t stopbits,
                 flowcontrol_t flowcontrol)
 {
-  pimpl = new Serial_pimpl(port, baudrate, timeout, bytesize, parity,
+  pimpl = new SerialImpl(port, baudrate, timeout, bytesize, parity,
                            stopbits, flowcontrol);
 }
 
