@@ -219,8 +219,8 @@ Serial::SerialImpl::read (size_t size) {
 		FD_ZERO(&readfds);
 		FD_SET(fd_, &readfds);
 		struct timeval timeout;
-		timeout.tv_sec = timeout_ / 1000000;
-		timeout.tv_usec = timeout_ % 1000000;
+		timeout.tv_sec = timeout_ / 1000;
+		timeout.tv_usec = timeout_ % 1000;
 		int r = select(1, &readfds, NULL, NULL, &timeout);
 	
 		if (r == -1 && errno == EINTR)
@@ -253,7 +253,15 @@ Serial::SerialImpl::read (size_t size) {
 
 size_t
 Serial::SerialImpl::write (const string &data) {
-  
+  if (isOpen_ == false) {
+		throw "portNotOpenError";
+	}
+  size_t t = data.length();
+	size_t n = ::write(fd_, data.c_str(), data.length());
+	if (n == -1) {
+		throw "Write error";
+	}
+  return n;
 }
 
 void
@@ -268,12 +276,12 @@ Serial::SerialImpl::getPort () const {
 
 void
 Serial::SerialImpl::setTimeout (long timeout) {
-  
+  timeout_ = timeout;
 }
 
 long
 Serial::SerialImpl::getTimeout () const {
-  
+  return timeout_;
 }
 
 void
@@ -289,42 +297,42 @@ Serial::SerialImpl::getBaudrate () const {
 
 void
 Serial::SerialImpl::setBytesize (serial::bytesize_t bytesize) {
-  
+	bytesize_ = bytesize;
 }
 
 serial::bytesize_t
 Serial::SerialImpl::getBytesize () const {
-  
+  return bytesize_;
 }
 
 void
 Serial::SerialImpl::setParity (serial::parity_t parity) {
-  
+  parity_ = parity;
 }
 
 serial::parity_t
 Serial::SerialImpl::getParity () const {
-  
+  return parity_;
 }
 
 void
 Serial::SerialImpl::setStopbits (serial::stopbits_t stopbits) {
-  
+  stopbits_ = stopbits;
 }
 
 serial::stopbits_t
 Serial::SerialImpl::getStopbits () const {
-  
+  return stopbits_;
 }
 
 void
 Serial::SerialImpl::setFlowcontrol (serial::flowcontrol_t flowcontrol) {
-  
+  flowcontrol_ = flowcontrol;
 }
 
 serial::flowcontrol_t
 Serial::SerialImpl::getFlowcontrol () const {
-  
+  return flowcontrol_;
 }
 
 

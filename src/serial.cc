@@ -12,6 +12,7 @@ using serial::parity_t;
 using serial::stopbits_t;
 using serial::flowcontrol_t;
 using std::string;
+using std::vector;
 
 Serial::Serial (const string &port, int baudrate, 
                             long timeout, bytesize_t bytesize,
@@ -42,18 +43,65 @@ Serial::isOpen () {
 }
 
 size_t
-Serial::read (unsigned char* buffer, size_t size) {
- // return this->pimpl->read (buffer, size);
+Serial::available () {
+  return this->pimpl->available();
 }
+
+//size_t
+//Serial::read (unsigned char* buffer, size_t size) {
+ // return this->pimpl->read (buffer, size);
+//}
 
 string
 Serial::read (size_t size) {
   return this->pimpl->read (size);
 }
 
-size_t
-Serial::read (string &buffer, size_t size) {
-//  return this->pimpl->read (buffer, size);
+string
+Serial::readline(size_t size, string eol) {
+  size_t leneol = eol.length();
+  string line;
+  while (true) {
+    string c = read(1);
+    if (c.empty()) {
+      line += c;
+      if (line.substr(line.length() - leneol, leneol) == eol) {
+        break;
+      }
+      if (line.length() >= size) {
+        break;
+      }
+    }
+    else {
+      // Timeout
+      break;
+    }
+  }
+
+  return line;
+}
+
+vector<string>
+Serial::readlines(string eol) {
+  if (this->pimpl->getTimeout() < 0) {
+    throw "Error, must be set for readlines";
+  }
+  size_t leneol = eol.length();
+  vector<string> lines;
+  while (true) {
+    string line = readline(std::numeric_limits<std::size_t>::max(), eol);
+    if (!line.empty()) {
+      lines.push_back(line);
+      if (line.substr(line.length() - leneol, leneol) == eol)
+        break;
+    }
+    else {
+      // Timeout
+      break;
+    }
+  }
+
+  return lines;
 }
 
 //size_t

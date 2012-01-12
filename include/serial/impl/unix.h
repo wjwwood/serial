@@ -105,6 +105,7 @@ private:
 	bool isOpen_;
 	
 	int interCharTimeout_;
+	int writeTimeout_;
 	int xonxoff_;
 	int rtscts_;
 
