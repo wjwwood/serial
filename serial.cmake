@@ -41,7 +41,7 @@ ENDIF(NOT DEFINED(LIBRARY_OUTPUT_PATH))
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
 # Add default source files
-set(SERIAL_SRCS src/serial.cc src/serial_listener.cc)
+set(SERIAL_SRCS src/serial.cc src/impl/unix.cc) # src/serial_listener.cc)
 # Add default header files
 set(SERIAL_HEADERS include/serial/serial.h include/serial/serial_listener.h)
 

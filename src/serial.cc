@@ -6,15 +6,22 @@
 #include "serial/impl/unix.h"
 #endif
 
-using namespace serial;
+using serial::Serial;
+using serial::bytesize_t;
+using serial::parity_t;
+using serial::stopbits_t;
+using serial::flowcontrol_t;
+using std::string;
+using std::vector;
+using std::numeric_limits;
+using std::size_t;
 
-Serial::Serial (const std::string &port, int baudrate, 
-                            long timeout, bytesize_t bytesize,
-                            parity_t parity, stopbits_t stopbits,
-                            flowcontrol_t flowcontrol)
+Serial::Serial (const string &port, int baudrate, long timeout,
+                bytesize_t bytesize, parity_t parity, stopbits_t stopbits,
+                flowcontrol_t flowcontrol)
 {
-  pimpl = new Serial_pimpl(port,baudrate,timeout,bytesize,parity,stopbits,
-                           flowcontrol);
+  pimpl = new Serial_pimpl(port, baudrate, timeout, bytesize, parity,
+                           stopbits, flowcontrol);
 }
 
 Serial::~Serial () {
@@ -36,36 +43,83 @@ Serial::isOpen () {
 }
 
 size_t
-Serial::read (unsigned char* buffer, size_t size) {
-  return this->pimpl->read (buffer, size);
+Serial::available () {
+  return this->pimpl->available();
 }
 
-std::string
+//size_t
+//Serial::read (unsigned char* buffer, size_t size) {
+ // return this->pimpl->read (buffer, size);
+//}
+
+string
 Serial::read (size_t size) {
   return this->pimpl->read (size);
 }
 
-size_t
-Serial::read (std::string &buffer, size_t size) {
-  return this->pimpl->read (buffer, size);
+string
+Serial::readline(size_t size, string eol) {
+  size_t leneol = eol.length();
+  string line;
+  while (true) {
+    string c = read(1);
+    if (c.empty()) {
+      line += c;
+      if (line.substr(line.length() - leneol, leneol) == eol) {
+        break;
+      }
+      if (line.length() >= size) {
+        break;
+      }
+    }
+    else {
+      // Timeout
+      break;
+    }
+  }
+
+  return line;
 }
 
-size_t
-Serial::write (unsigned char* data, size_t length) {
-  return this->pimpl->write (data, length);
+vector<string>
+Serial::readlines(string eol) {
+  if (this->pimpl->getTimeout() < 0) {
+    throw "Error, must be set for readlines";
+  }
+  size_t leneol = eol.length();
+  vector<string> lines;
+  while (true) {
+    string line = readline(numeric_limits<size_t>::max(), eol);
+    if (!line.empty()) {
+      lines.push_back(line);
+      if (line.substr(line.length() - leneol, leneol) == eol)
+        break;
+    }
+    else {
+      // Timeout
+      break;
+    }
+  }
+
+  return lines;
 }
 
+//size_t
+//Serial::write (unsigned char* data, size_t length) {
+//  return this->pimpl->write (data, length);
+//}
+
 size_t
-Serial::write (const std::string &data) {
+Serial::write (const string &data) {
   return this->pimpl->write (data);
 }
 
 void
-Serial::setPort (const std::string &port) {
+Serial::setPort (const string &port) {
   this->pimpl->setPort (port);
 }
 
-std::string
+string
 Serial::getPort () const {
   return this->pimpl->getPort ();
 }

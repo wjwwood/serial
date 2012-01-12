@@ -37,8 +37,9 @@
 #define SERIAL_H
 
 #include <string>
-#include <memory> // std::shared_ptr
 #include <sstream>
+#include <vector>
+#include <limits>
 
 namespace serial {
 
@@ -153,6 +154,11 @@ public:
   void
   close ();
 
+  /* Return the number of characters in the buffer.
+  */
+  size_t
+  available();
+
   /*! Read a given amount of bytes from the serial port.
   * 
   * If a timeout is set it may return less characters than requested. With
@@ -166,8 +172,8 @@ public:
   * 
   * \return A size_t representing the number of bytes actually read.
   */
-  size_t
-  read (unsigned char* buffer, size_t size = 1);
+  //size_t
+  //read (unsigned char* buffer, size_t size = 1);
 
   /*! Read a given amount of bytes from the serial port.
   * 
@@ -182,6 +188,11 @@ public:
   std::string
   read (size_t size = 1);
 
+  std::string readline(size_t size = std::numeric_limits<std::size_t>::max(),
+                       std::string eol = "\n");
+
+  std::vector<std::string> readlines(std::string eol = "\n");
+
   /*! Read a given amount of bytes from the serial port.
   * 
   * Reads into a std::string by reference rather than returning it.
@@ -193,8 +204,8 @@ public:
   * 
   * \see Serial::read(size_t)
   */
-  size_t
-  read (std::string &buffer, size_t size = 1);
+  //size_t
+  //read (std::string &buffer, size_t size = 1);
 
   /*! Write bytes from the data to the serial port by given length.
   * 
@@ -205,8 +216,8 @@ public:
   * 
   * \return A size_t representing the number of bytes actually written.
   */
-  size_t
-  write (unsigned char* data, size_t length);
+  //size_t
+  //write (unsigned char* data, size_t length);
 
   /*! Write a string to the serial port.
   * 
@@ -370,9 +381,8 @@ private:
   const Serial& operator=(Serial);
 
   // Pimpl idiom, d_pointer
-  class Serial_pimpl;
-  Serial_pimpl * pimpl;
-
+  class SerialImpl;
+  SerialImpl *pimpl;
 };
 
 class IOException : public std::exception {

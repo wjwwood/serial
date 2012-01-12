@@ -1,6 +1,7 @@
 /*!
  * \file serial/impl/unix.h
  * \author  William Woodall <wjwwood@gmail.com>
+ * \author  John Harrison <ash@greaterthaninfinity.com>
  * \version 0.1
  *
  * \section LICENSE
@@ -39,31 +40,43 @@
 
 namespace serial {
 
-class Serial::Serial_pimpl {
-public:
-  Serial_pimpl (const std::string &port,
-                int baudrate,
-                long timeout,
-                bytesize_t bytesize,
-                parity_t parity,
-                stopbits_t stopbits,
-                flowcontrol_t flowcontrol);
+using std::string;
 
-  virtual ~Serial_pimpl ();
+class serial::Serial::SerialImpl {
+public:
+  SerialImpl (const string &port,
+             int baudrate,
+             long timeout,
+             bytesize_t bytesize,
+             parity_t parity,
+             stopbits_t stopbits,
+             flowcontrol_t flowcontrol);
+
+  virtual ~SerialImpl ();
 
   void open ();
   void close ();
   bool isOpen ();
 
-  size_t read (unsigned char* buffer, size_t size = 1);
-  std::string read (size_t size = 1);
-  size_t read (std::string &buffer, size_t size = 1);
+  size_t available ();
+  string read (size_t size = 1);
+  size_t write (const string &data);
 
-  size_t write (unsigned char* data, size_t length);
-  size_t write (const std::string &data);
+  void flush ();
+  void flushInput ();
+  void flushOutput ();
 
-  void setPort (const std::string &port);
-  std::string getPort () const;
+  void sendBreak();
+  void setBreak();
+  void setRTS();
+  void setDTR();
+  void getCTS();
+  void getDSR();
+  void getRI();
+  void getCD();
+
+  void setPort (const string &port);
+  string getPort () const;
 
   void setTimeout (long timeout);
   long getTimeout () const;
@@ -83,19 +96,26 @@ public:
   void setFlowcontrol (flowcontrol_t flowcontrol);
   flowcontrol_t getFlowcontrol () const;
 
-private:
-  // Serial handle
-  int fd;
-  
-  // Parameters
-  std::string port;
-  int baudrate;
-  long timeout;
-  bytesize_t bytesize;
-  parity_t parity;
-  stopbits_t stopbits;
-  flowcontrol_t flowcontrol;
+protected:
+  void reconfigurePort ();
 
+private:
+  int fd_; // The current file descriptor.
+
+  bool isOpen_;
+  
+  int interCharTimeout_;
+  int writeTimeout_;
+  int xonxoff_;
+  int rtscts_;
+
+  string port_;               // Path to the file descriptor
+  int baudrate_;              // Baudrate
+  long timeout_;              // Timeout for read operations
+  bytesize_t bytesize_;       // Size of the bytes
+  parity_t parity_;           // Parity
+  stopbits_t stopbits_;       // Stop Bits
+  flowcontrol_t flowcontrol_; // Flow Control
 };
 
 }
