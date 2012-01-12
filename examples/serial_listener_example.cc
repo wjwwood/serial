@@ -36,10 +36,10 @@ int main(void) {
   // Method #2:
   //  comparator - blocking
   {
-    BlockingFilter f2 =
+    BlockingFilterPtr f2 =
       listener.createBlockingFilter(SerialListener::endsWith("post"));
     for (size_t i = 0; i < 3; i++) {
-      std::string token = f2.wait(100); // Wait for 100 ms or a matched token
+      std::string token = f2->wait(100); // Wait for 100 ms or a matched token
       if (token == "")
         std::cout << "Found something ending with 'post'" << std::endl;
       else
@@ -54,18 +54,18 @@ int main(void) {
   //  comparator, token buffer size - blocking
   {
     // Give it a comparator, then a buffer size of 10
-    BufferedFilter f3 =
+    BufferedFilterPtr f3 =
       listener.createBufferedFilter(SerialListener::contains("substr"), 10);
     SerialListener::sleep(75); // Sleep 75ms, should have about 7
-    std::cout << "Caught " << f3.count();
+    std::cout << "Caught " << f3->count();
     std::cout << " tokens containing 'substr'" << std::endl;
     for(size_t i = 0; i < 20; ++i) {
-      std::string token = f3.wait(5); // Pull message from the buffer
+      std::string token = f3->wait(5); // Pull message from the buffer
       if (token == "") // If an empty string is returned, a timeout occured
         break;
     }
-    f3.clear(); // Empties the buffer
-    if (f3.wait(0) == "") // Non-blocking wait
+    f3->clear(); // Empties the buffer
+    if (f3->wait(0) == "") // Non-blocking wait
       std::cout << "We won the race condition!" << std::endl;
     else
       std::cout << "We lost the race condition..." << std::endl;

@@ -111,7 +111,7 @@ SerialListener::stopListening() {
   this->serial_port = NULL;
 
   // Delete all the filters
-  this->stopListeningForAll();
+  this->removeAllFilters();
 }
 
 size_t
@@ -186,7 +186,8 @@ SerialListener::listen() {
 /***** Filter Functions *****/
 
 FilterPtr
-SerialListener::listenFor(ComparatorType comparator, DataCallback callback) {
+SerialListener::createFilter(ComparatorType comparator, DataCallback callback)
+{
   FilterPtr filter_ptr(new Filter(comparator, callback));
 
   boost::mutex::scoped_lock l(filter_mux);
@@ -195,50 +196,40 @@ SerialListener::listenFor(ComparatorType comparator, DataCallback callback) {
   return filter_ptr;
 }
 
-typedef boost::shared_ptr<boost::condition_variable> shared_cond_var_ptr_t;
+BlockingFilterPtr
+SerialListener::createBlockingFilter(ComparatorType comparator) {
+  return BlockingFilterPtr(
+    new BlockingFilter(comparator, boost::shared_ptr<SerialListener>(this)));
+}
 
-inline void
-listenForOnceCallback(const std::string &token,
-                      shared_cond_var_ptr_t cond,
-                      boost::shared_ptr<std::string> result)
+BufferedFilterPtr
+SerialListener::createBufferedFilter(ComparatorType comparator,
+                                     size_t buffer_size)
 {
-  (*result) = token;
-  cond->notify_all();
-}
-
-std::string
-SerialListener::listenForOnce(ComparatorType comparator, size_t ms) {
-  boost::shared_ptr<std::string> result(new std::string(""));
-
-  shared_cond_var_ptr_t cond(new boost::condition_variable());
-  boost::mutex mutex;
-
-  DataCallback callback = boost::bind(listenForOnceCallback,_1,cond,result);
-  FilterPtr filter_id = this->listenFor(comparator, callback);
-
-  boost::unique_lock<boost::mutex> lock(mutex);
-  cond->timed_wait(lock, boost::posix_time::milliseconds(ms)));
-
-  this->stopListeningFor(filter_id);
-
-  // If the callback never got called then result will be "" because tokens
-  // can never be ""
-  return (*result);
-}
-
-bool
-SerialListener::listenForStringOnce(std::string token, size_t milliseconds) {
-  return this->listenForOnce(exactly(token), milliseconds) == token;
+  return BufferedFilterPtr(
+    new BufferedFilter(comparator,
+                       buffer_size,
+                       boost::shared_ptr<SerialListener>(this)));
 }
 
 void
-SerialListener::stopListeningFor(FilterPtr filter_ptr) {
+SerialListener::removeFilter(FilterPtr filter_ptr) {
   boost::mutex::scoped_lock l(filter_mux);
   filters.erase(std::find(filters.begin(),filters.end(),filter_ptr));
 }
 
 void
-SerialListener::stopListeningForAll() {
+SerialListener::removeFilter(BlockingFilterPtr blocking_filter) {
+  this->removeFilter(blocking_filter->filter_ptr);
+}
+
+void
+SerialListener::removeFilter(BufferedFilterPtr buffered_filter) {
+  this->removeFilter(buffered_filter->filter_ptr);
+}
+
+void
+SerialListener::removeAllFilters() {
   boost::mutex::scoped_lock l(filter_mux);
   filters.clear();
   callback_queue.clear();
