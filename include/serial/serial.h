@@ -36,6 +36,7 @@
 #ifndef SERIAL_H
 #define SERIAL_H
 
+#include <stdexcept>
 #include <string>
 #include <sstream>
 #include <vector>
@@ -80,6 +81,42 @@ typedef enum {
   FLOWCONTROL_HARDWARE
 } flowcontrol_t;
 
+class SerialExecption : public std::exception {
+	const char * e_what;
+public:
+	SerialExecption(const char *description) {e_what=description;};
+	virtual const char* what() const throw() {
+        std::stringstream ss;
+        ss << "SerialException " << this->e_what << " failed.";
+        return ss.str().c_str();
+	}
+};
+
+class IOException : public std::exception {
+    const char * e_what;
+public:
+    IOException(const char * description) {this->e_what = description;}
+  
+    virtual const char* what() const throw() {
+        std::stringstream ss;
+        ss << "IO Exception " << this->e_what << " failed.";
+        return ss.str().c_str();
+    }
+};
+
+class PortNotOpenedException : public std::exception {
+	const char * e_what;
+public:
+    PortNotOpenedException(const char * description) {this->e_what = description;}
+  
+    virtual const char* what() const throw() {
+		std::stringstream ss;
+		ss << e_what << " called before port was opened.";
+        return ss.str().c_str();
+    }
+};
+
+
 /*!
  * Class that provides a portable serial port interface.
  */
@@ -119,7 +156,7 @@ public:
   * \throw PortNotOpenedException
   */
   Serial (const std::string &port = "",
-          int baudrate = 9600,
+          unsigned long baudrate = 9600,
           long timeout = 0,
           bytesize_t bytesize = EIGHTBITS,
           parity_t parity = PARITY_NONE,
@@ -138,7 +175,9 @@ public:
   * 
   * \see Serial::Serial
   * 
-  * \throw PortNotOpenedException
+  * \throw std::invalid_argument
+  * \throw serial::SerialExecption
+  * \throw serial::IOException
   */
   void
   open ();
@@ -148,7 +187,7 @@ public:
   * \return Returns true if the port is open, false otherwise.
   */
   bool
-  isOpen ();
+  isOpen () const;
 
   /*! Closes the serial port. */
   void
@@ -283,7 +322,7 @@ public:
   * \throw InvalidConfigurationException
   */
   void
-  setBaudrate (int baudrate);
+  setBaudrate (unsigned long baudrate);
 
   /*! Gets the baudrate for the serial port.
   * 
@@ -293,7 +332,7 @@ public:
   * 
   * \throw InvalidConfigurationException
   */
-  int
+  unsigned long
   getBaudrate () const;
 
   /*! Sets the bytesize for the serial port.
@@ -397,41 +436,18 @@ private:
   SerialImpl *pimpl;
 };
 
-class IOException : public std::exception {
-    const char * e_what;
-public:
-    IOException(const char * e_what) {this->e_what = e_what;}
-    
-    virtual const char* what() const throw() {
-        std::stringstream ss;
-        ss << "Serial Port failed to open: " << this->e_what;
-        return ss.str().c_str();
-    }
-};
-
-class PortNotOpenedException : public std::exception {
-    const char * e_what;
-public:
-    PortNotOpenedException(const char * e_what) {this->e_what = e_what;}
-    
-    virtual const char* what() const throw() {
-        std::stringstream ss;
-        ss << "Serial Port failed to open: " << this->e_what;
-        return ss.str().c_str();
-    }
-};
-
-class InvalidConfigurationException : public std::exception {
-    int bytesize;
-public:
-    InvalidConfigurationException(int bytesize) {this->bytesize = bytesize;}
-    
-    virtual const char* what() const throw() {
-        std::stringstream ss;
-        ss << "Invalid configuration provided: " << this->bytesize;
-        return ss.str().c_str();
-    }
-};
+// why not use std::invalid_argument?
+// class InvalidConfigurationException : public std::exception {
+//     int bytesize;
+// public:
+//     InvalidConfigurationException(int bytesize) {this->bytesize = bytesize;}
+//     
+//     virtual const char* what() const throw() {
+//         std::stringstream ss;
+//         ss << "Invalid configuration provided: " << this->bytesize;
+//         return ss.str().c_str();
+//     }
+// };
 
 } // namespace serial
 

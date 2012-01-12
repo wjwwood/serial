@@ -41,22 +41,25 @@
 namespace serial {
 
 using std::string;
+using std::invalid_argument;
+using serial::SerialExecption;
+using serial::IOException;
 
 class serial::Serial::SerialImpl {
 public:
   SerialImpl (const string &port,
-             int baudrate,
-             long timeout,
-             bytesize_t bytesize,
-             parity_t parity,
-             stopbits_t stopbits,
-             flowcontrol_t flowcontrol);
+              unsigned long baudrate,
+              long timeout,
+              bytesize_t bytesize,
+              parity_t parity,
+              stopbits_t stopbits,
+              flowcontrol_t flowcontrol);
 
   virtual ~SerialImpl ();
 
   void open ();
-  void close ();
-  bool isOpen ();
+  void close () ;
+  bool isOpen () const;
 
   size_t available ();
   string read (size_t size = 1);
@@ -81,8 +84,8 @@ public:
   void setTimeout (long timeout);
   long getTimeout () const;
 
-  void setBaudrate (int baudrate);
-  int getBaudrate () const;
+  void setBaudrate (unsigned long baudrate);
+  unsigned long getBaudrate () const;
 
   void setBytesize (bytesize_t bytesize);
   bytesize_t getBytesize () const;
@@ -100,20 +103,22 @@ protected:
   void reconfigurePort ();
 
 private:
-  int fd_; // The current file descriptor.
+  string port_;               // Path to the file descriptor
+  int fd_;                    // The current file descriptor.
 
-  bool isOpen_;
-  
   int interCharTimeout_;
   int writeTimeout_;
-  int xonxoff_;
-  int rtscts_;
+  bool isOpen_;
+  bool xonxoff_;
+  bool rtscts_;
+  
+  char ___; // lol padding
 
-  string port_;               // Path to the file descriptor
-  int baudrate_;              // Baudrate
   long timeout_;              // Timeout for read operations
-  bytesize_t bytesize_;       // Size of the bytes
+  unsigned long baudrate_;    // Baudrate
+  
   parity_t parity_;           // Parity
+  bytesize_t bytesize_;       // Size of the bytes  
   stopbits_t stopbits_;       // Stop Bits
   flowcontrol_t flowcontrol_; // Flow Control
 };

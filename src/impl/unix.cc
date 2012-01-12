@@ -22,30 +22,21 @@
 #endif
 #endif
 
-class UnhandledException : public std::exception {
-    const char * e_what;
-public:
-    UnhandledException(const char * e_what) {this->e_what = e_what;}
-    
-    virtual const char* what() const throw() {
-        std::stringstream ss;
-        ss << "Unhandled Exception: " << this->e_what;
-        return ss.str().c_str();
-    }
-};
-
-typedef UnhandledException e;
-
-using ::serial::Serial;
 using std::string;
+using std::invalid_argument;
+using serial::Serial;
+using serial::SerialExecption;
+using serial::PortNotOpenedException;
+using serial::IOException;
 
-Serial::SerialImpl::SerialImpl (const string &port, int baudrate,
+Serial::SerialImpl::SerialImpl (const string &port, unsigned long baudrate,
                                 long timeout, bytesize_t bytesize,
                                 parity_t parity, stopbits_t stopbits,
                                 flowcontrol_t flowcontrol)
-: fd_(-1), isOpen_(false), interCharTimeout_(-1), port_(port),
-  baudrate_(baudrate), timeout_(timeout), bytesize_(bytesize),
-  parity_(parity), stopbits_(stopbits), flowcontrol_(flowcontrol)
+: port_(port), fd_(-1), interCharTimeout_(-1), writeTimeout_(-1),
+  isOpen_(false), xonxoff_(false), rtscts_(false), ___(0), timeout_(timeout),
+  baudrate_(baudrate), parity_(parity), bytesize_(bytesize),
+  stopbits_(stopbits), flowcontrol_(flowcontrol)
 {
   if (port_.empty() == false) this->open();
 }
@@ -57,20 +48,16 @@ Serial::SerialImpl::~SerialImpl () {
 void
 Serial::SerialImpl::open () {
   if (port_.empty()) {
-    printf("Port was empty\n");
-    throw e("error");
+    throw invalid_argument("bad port specified");
   }
   if (isOpen_ == true) {
-    printf("Port already opened\n");
-    throw e("error");
+    throw SerialExecption("port already open");
   }
   
   fd_ = ::open (port_.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK);
 
   if (fd_ == -1) {
-    printf("Error opening serial port %s - %s(%d).\n",
-           port_.c_str(), strerror(errno), errno);
-    throw e("error");
+    throw IOException("invalid file descriptor");
   }
 
   reconfigurePort();
@@ -80,7 +67,8 @@ Serial::SerialImpl::open () {
 void
 Serial::SerialImpl::reconfigurePort () {
   if (fd_ == -1) {
-    throw e("Error"); // Can only operate on a valid file descriptor
+    // Can only operate on a valid file descriptor
+    throw IOException("invalid file descriptor");
   }
 
   struct termios options; // The current options for the file descriptor
@@ -89,27 +77,27 @@ Serial::SerialImpl::reconfigurePort () {
   uint8_t vmin = 0, vtime = 0;                // timeout is done via select
   if (interCharTimeout_ == -1) {
     vmin = 1;
-    vtime = int(interCharTimeout_ * 10);
+    vtime = uint8_t(interCharTimeout_ * 10);
   }
   
   if (tcgetattr(fd_, &originalTTYAttrs) == -1) {
-    throw e("Error");
+    throw IOException("::tcgetattr");
   }
 
   options = originalTTYAttrs;
 
   // set up raw mode / no echo / binary
-  options.c_cflag |=  (CLOCAL|CREAD);
-  options.c_lflag &= ~(ICANON|ECHO|ECHOE|ECHOK|ECHONL|
-                     ISIG|IEXTEN); //|ECHOPRT
+  options.c_cflag |= (unsigned long)(CLOCAL|CREAD);
+  options.c_lflag &= (unsigned long) ~(ICANON|ECHO|ECHOE|ECHOK
+	  								   |ECHONL|ISIG|IEXTEN); //|ECHOPRT
 
-  options.c_oflag &= ~(OPOST);
-  options.c_iflag &= ~(INLCR|IGNCR|ICRNL|IGNBRK);
+  options.c_oflag &= (unsigned long) ~(OPOST);
+  options.c_iflag &= (unsigned long) ~(INLCR|IGNCR|ICRNL|IGNBRK);
 #ifdef IUCLC
-  options.c_iflag &= ~IUCLC;
+  options.c_iflag &= (unsigned long) ~IUCLC;
 #endif
 #ifdef PARMRK
-  options.c_iflag &= ~PARMRK;
+  options.c_iflag &= (unsigned long) ~PARMRK;
 #endif
 
   // setup baud rate
@@ -117,7 +105,7 @@ Serial::SerialImpl::reconfigurePort () {
   cfsetspeed(&options, baudrate_);
 
   // setup char len
-  options.c_cflag &= ~CSIZE;
+  options.c_cflag &= (unsigned long) ~CSIZE;
   if (bytesize_ == EIGHTBITS)
       options.c_cflag |= CS8;
   else if (bytesize_ == SEVENBITS)
@@ -127,30 +115,30 @@ Serial::SerialImpl::reconfigurePort () {
   else if (bytesize_ == FIVEBITS)
       options.c_cflag |= CS5;
   else
-      throw e("ValueError(Invalid char len: %%r)");
+      throw invalid_argument("Invalid char len");
   // setup stopbits
   if (stopbits_ == STOPBITS_ONE)
-      options.c_cflag &= ~(CSTOPB);
+      options.c_cflag &= (unsigned long) ~(CSTOPB);
   else if (stopbits_ == STOPBITS_ONE_POINT_FIVE)
       options.c_cflag |=  (CSTOPB);  // XXX same as TWO.. there is no POSIX support for 1.5
   else if (stopbits_ == STOPBITS_TWO)
       options.c_cflag |=  (CSTOPB);
   else 
-      throw e("ValueError(Invalid stop bit specification:)");
+      throw invalid_argument("invalid stop bit");
   // setup parity
-  options.c_iflag &= ~(INPCK|ISTRIP);
+  options.c_iflag &= (unsigned long) ~(INPCK|ISTRIP);
   if (parity_ == PARITY_NONE) {
-    options.c_cflag &= ~(PARENB|PARODD);
+    options.c_cflag &= (unsigned long) ~(PARENB|PARODD);
   }
   else if (parity_ == PARITY_EVEN) {
-    options.c_cflag &= ~(PARODD);
+    options.c_cflag &= (unsigned long) ~(PARODD);
     options.c_cflag |=  (PARENB);
   } 
   else if (parity_ == PARITY_ODD) {
     options.c_cflag |=  (PARENB|PARODD);
   }
   else {
-    throw e("ValueError(Invalid parity:");
+    throw invalid_argument("invalid parity");
   }
   // setup flow control
   // xonxoff
@@ -158,24 +146,24 @@ Serial::SerialImpl::reconfigurePort () {
   if (xonxoff_)
     options.c_iflag |=  (IXON|IXOFF); //|IXANY)
   else
-    options.c_iflag &= ~(IXON|IXOFF|IXANY);
+    options.c_iflag &= (unsigned long) ~(IXON|IXOFF|IXANY);
 #else
   if (xonxoff_)
     options.c_iflag |=  (IXON|IXOFF);
   else
-    options.c_iflag &= ~(IXON|IXOFF);
+    options.c_iflag &= (unsigned long) ~(IXON|IXOFF);
 #endif
   // rtscts
 #ifdef CRTSCTS
   if (rtscts_)
     options.c_cflag |=  (CRTSCTS);
   else
-    options.c_cflag &= ~(CRTSCTS);
+    options.c_cflag &= (unsigned long) ~(CRTSCTS);
 #elif defined CNEW_RTSCTS
   if (rtscts_)
     options.c_cflag |=  (CNEW_RTSCTS);
   else
-    options.c_cflag &= ~(CNEW_RTSCTS);
+    options.c_cflag &= (unsigned long) ~(CNEW_RTSCTS);
 #else
 #error "OS Support seems wrong."
 #endif
@@ -194,7 +182,7 @@ void
 Serial::SerialImpl::close () {
   if (isOpen_ == true) {
     if (fd_ != -1) {
-      ::close(fd_);
+      ::close(fd_); // Ignoring the outcome
       fd_ = -1;
     }
     isOpen_ = false;
@@ -202,7 +190,7 @@ Serial::SerialImpl::close () {
 }
 
 bool
-Serial::SerialImpl::isOpen () {
+Serial::SerialImpl::isOpen () const {
   return isOpen_;
 }
 
@@ -214,17 +202,17 @@ Serial::SerialImpl::available () {
   int count = 0;
   int result = ioctl(fd_, TIOCINQ, &count);
   if (result == 0) {
-    return count;
+    return (size_t)count;
   }
   else {
-    throw e("Error");
+    throw IOException("ioctl");
   }
 }
 
 string
 Serial::SerialImpl::read (size_t size) {
   if (!isOpen_) {
-    throw e("PortNotOpenError()"); //
+    throw PortNotOpenedException("Serial::read");
   }
   string message = "";
   char buf[1024]; // TODO(ash_gti): Should this be 1024? or...?
@@ -233,8 +221,8 @@ Serial::SerialImpl::read (size_t size) {
     FD_ZERO(&readfds);
     FD_SET(fd_, &readfds);
     struct timeval timeout;
-    timeout.tv_sec = timeout_ / 1000;
-    timeout.tv_usec = timeout_ % 1000;
+    timeout.tv_sec =        timeout_ / 1000;
+    timeout.tv_usec = (int) timeout_ % 1000;
     int r = select(fd_ + 1, &readfds, NULL, NULL, &timeout);
 
     if (r == -1 && errno == EINTR)
@@ -247,16 +235,17 @@ Serial::SerialImpl::read (size_t size) {
 
     if (FD_ISSET(fd_, &readfds)) {
       memset(buf, 0, 1024);
-      size_t bytes_read = ::read(fd_, buf, size-strlen(buf));
+      ssize_t bytes_read = ::read(fd_, buf, size-strlen(buf));
       // read should always return some data as select reported it was
       // ready to read when we get to this point.
       if (bytes_read < 1) {
         // Disconnected devices, at least on Linux, show the
         // behavior that they are always ready to read immediately
         // but reading returns nothing.
-        throw e("SerialException('device reports readiness to read but returned no data (device disconnected?)')");
+        throw SerialExecption("device reports readiness to read but returned no "
+							  "data (device disconnected?)");
       }
-      message.append(buf, bytes_read);
+      message.append(buf, (size_t)bytes_read);
     }
     else {
       break; // Timeout
@@ -268,14 +257,13 @@ Serial::SerialImpl::read (size_t size) {
 size_t
 Serial::SerialImpl::write (const string &data) {
   if (isOpen_ == false) {
-    throw e("portNotOpenError");
+    throw PortNotOpenedException("Serial::write");
   }
-  size_t t = data.length();
-  size_t n = ::write(fd_, data.c_str(), data.length());
+  ssize_t n = ::write(fd_, data.c_str(), data.length());
   if (n == -1) {
-    throw e("Write error");
+    throw IOException("Write");
   }
-  return n;
+  return (size_t)n;
 }
 
 void
@@ -300,12 +288,12 @@ Serial::SerialImpl::getTimeout () const {
 }
 
 void
-Serial::SerialImpl::setBaudrate (int baudrate) {
+Serial::SerialImpl::setBaudrate (unsigned long baudrate) {
   baudrate_ = baudrate;
   if (isOpen_) reconfigurePort();
 }
 
-int
+unsigned long
 Serial::SerialImpl::getBaudrate () const {
   return baudrate_;
 }
@@ -357,32 +345,32 @@ Serial::SerialImpl::getFlowcontrol () const {
 
 void Serial::SerialImpl::flush () {
   if (isOpen_ == false) {
-    throw "portNotOpen";
+    throw PortNotOpenedException("Serial::flush");
   }
   tcdrain(fd_);
 }
 void Serial::SerialImpl::flushInput () {
   if (isOpen_ == false) {
-    throw "portNotOpen";
+    throw PortNotOpenedException("Serial::flushInput");
   }
   tcflush(fd_, TCIFLUSH);
 }
 void Serial::SerialImpl::flushOutput () {
   if (isOpen_ == false) {
-    throw "portNotOpen";
+    throw PortNotOpenedException("Serial::flushOutput");
   }
   tcflush(fd_, TCOFLUSH);
 }
 
 void Serial::SerialImpl::sendBreak(int duration) {
   if (isOpen_ == false) {
-    throw "portNotOpen";
+    throw PortNotOpenedException("Serial::sendBreak");
   }
   tcsendbreak(fd_, int(duration/4));
 }
 void Serial::SerialImpl::setBreak(bool level) {
   if (isOpen_ == false) {
-    throw "portNotOpen";
+    throw PortNotOpenedException("Serial::setBreak");
   }
   if (level) {
     ioctl(fd_, TIOCSBRK);
@@ -393,7 +381,7 @@ void Serial::SerialImpl::setBreak(bool level) {
 }
 void Serial::SerialImpl::setRTS(bool level) {
   if (isOpen_ == false) {
-    throw "portNotOpen";
+    throw PortNotOpenedException("Serial::setRTS");
   }
   if (level) {
     ioctl(fd_, TIOCMBIS, TIOCM_RTS);
@@ -404,7 +392,7 @@ void Serial::SerialImpl::setRTS(bool level) {
 }
 void Serial::SerialImpl::setDTR(bool level) {
   if (isOpen_ == false) {
-    throw "portNotOpen";
+    throw PortNotOpenedException("Serial::setDTR");
   }
   if (level) {
     ioctl(fd_, TIOCMBIS, TIOCM_DTR);
@@ -416,36 +404,29 @@ void Serial::SerialImpl::setDTR(bool level) {
 }
 bool Serial::SerialImpl::getCTS() {
   if (isOpen_ == false) {
-    throw "portNotOpen";
+    throw PortNotOpenedException("Serial::getCTS");
   }
   int s = ioctl(fd_, TIOCMGET, 0);
   return (s & TIOCM_CTS) != 0;
 }
 bool Serial::SerialImpl::getDSR() {
   if (isOpen_ == false) {
-    throw "portNotOpen";
+    throw PortNotOpenedException("Serial::getDSR");
   }
   int s = ioctl(fd_, TIOCMGET, 0);
   return (s & TIOCM_DSR) != 0;
 }
 bool Serial::SerialImpl::getRI() {
   if (isOpen_ == false) {
-    throw "portNotOpen";
+    throw PortNotOpenedException("Serial::getRI");
   }
   int s = ioctl(fd_, TIOCMGET, 0);
   return (s & TIOCM_RI) != 0;
 }
 bool Serial::SerialImpl::getCD() {
   if (isOpen_ == false) {
-    throw "portNotOpen";
+    throw PortNotOpenedException("Serial::getCD");
   }
   int s = ioctl(fd_, TIOCMGET, 0);
   return (s & TIOCM_CD) != 0;
 }
-
-
-
-
-
-
-

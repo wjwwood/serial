@@ -6,17 +6,20 @@
 #include "serial/impl/unix.h"
 #endif
 
-using serial::Serial;
-using serial::bytesize_t;
-using serial::parity_t;
-using serial::stopbits_t;
-using serial::flowcontrol_t;
 using std::string;
 using std::vector;
 using std::numeric_limits;
 using std::size_t;
+using std::invalid_argument;
+using serial::Serial;
+using serial::SerialExecption;
+using serial::IOException;
+using serial::bytesize_t;
+using serial::parity_t;
+using serial::stopbits_t;
+using serial::flowcontrol_t;
 
-Serial::Serial (const string &port, int baudrate, long timeout,
+Serial::Serial (const string &port, unsigned long baudrate, long timeout,
                 bytesize_t bytesize, parity_t parity, stopbits_t stopbits,
                 flowcontrol_t flowcontrol)
 {
@@ -38,7 +41,7 @@ Serial::close () {
   this->pimpl->close ();
 }
 bool
-Serial::isOpen () {
+Serial::isOpen () const {
   return this->pimpl->isOpen ();
 }
 
@@ -128,11 +131,11 @@ Serial::getTimeout () const {
 }
 
 void
-Serial::setBaudrate (int baudrate) {
+Serial::setBaudrate (unsigned long baudrate) {
   this->pimpl->setBaudrate (baudrate);
 }
 
-int
+unsigned long
 Serial::getBaudrate () const {
   return this->pimpl->getBaudrate ();
 }
@@ -210,6 +213,3 @@ bool Serial::getRI() {
 bool Serial::getCD() {
   return this->pimpl->getCD();
 }
-
-
-
