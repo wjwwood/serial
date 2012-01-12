@@ -13,6 +13,8 @@ using serial::stopbits_t;
 using serial::flowcontrol_t;
 using std::string;
 using std::vector;
+using std::numeric_limits;
+using std::size_t;
 
 Serial::Serial (const string &port, int baudrate, 
                             long timeout, bytesize_t bytesize,
@@ -89,7 +91,7 @@ Serial::readlines(string eol) {
   size_t leneol = eol.length();
   vector<string> lines;
   while (true) {
-    string line = readline(std::numeric_limits<std::size_t>::max(), eol);
+    string line = readline(numeric_limits<size_t>::max(), eol);
     if (!line.empty()) {
       lines.push_back(line);
       if (line.substr(line.length() - leneol, leneol) == eol)
