@@ -226,7 +226,7 @@ Serial::SerialImpl::read (size_t size) {
   fd_set readfds;
   memset(buf, 0, (size + 1) * sizeof(*buf));
   ssize_t bytes_read = 0;
-  while (bytes_read < size) {
+  while (bytes_read < (ssize_t)size) {
     if (timeout_ != -1) {
       FD_ZERO(&readfds);
       FD_SET(fd_, &readfds);
