@@ -159,11 +159,11 @@ class Filter
 {
 public:
   Filter (ComparatorType comparator, DataCallback callback)
-  : comparator(comparator), callback(callback) {}
+  : comparator_(comparator), callback_(callback) {}
   virtual ~Filter () {}
 
-  ComparatorType comparator;
-  DataCallback callback;
+  ComparatorType comparator_;
+  DataCallback callback_;
 };
 
 /*!
@@ -206,14 +206,14 @@ typedef boost::shared_ptr<BufferedFilter> BufferedFilterPtr;
  * \param e_what is a std::string that describes the cause of the error.
  */
 class SerialListenerException : public std::exception {
-  const std::string e_what;
+  const std::string e_what_;
 public:
-  SerialListenerException(const std::string e_what) : e_what(e_what) {}
+  SerialListenerException(const std::string e_what) : e_what_(e_what) {}
   ~SerialListenerException() throw() {std::exception::~exception();}
 
   virtual const char* what() const throw() {
     std::stringstream ss;
-    ss << "SerialListenerException: " << this->e_what;
+    ss << "SerialListenerException: " << this->e_what_;
     return ss.str().c_str();
   }
 };
@@ -250,7 +250,7 @@ public:
     return true;
   }
 
-  bool timed_wait_and_pop(Data& popped_value, size_t timeout) {
+  bool timed_wait_and_pop(Data& popped_value, long timeout) {
     using namespace boost::posix_time;
     bool result;
     boost::mutex::scoped_lock lock(the_mutex);
@@ -334,7 +334,7 @@ public:
    */
   void
   setChunkSize (size_t chunk_size) {
-    this->chunk_size = chunk_size;
+    this->chunk_size_ = chunk_size;
   }
 
 /***** Start and Stop Listening ******/
@@ -585,10 +585,11 @@ public:
   /*!
    * Sleeps for a given number of milliseconds.
    * 
-   * \param ms number of milliseconds to sleep.
+   * \param milliseconds number of milliseconds to sleep.
    */
   static void
-  sleep (size_t ms) {
+  sleep (long milliseconds) {
+    boost::int64_t ms(milliseconds);
     boost::this_thread::sleep(boost::posix_time::milliseconds(ms));
   }
 
@@ -787,10 +788,11 @@ private:
 
   // Persistent listening variables
   bool listening;
-  serial::Serial * serial_port;
+  char serial_port_padding[7];
+  serial::Serial * serial_port_;
   boost::thread listen_thread;
   std::string data_buffer;
-  size_t chunk_size;
+  size_t chunk_size_;
 
   // Callback related variables
   // filter id, token
@@ -821,13 +823,13 @@ class BlockingFilter
 {
 public:
   BlockingFilter (ComparatorType comparator, SerialListener &listener) {
-    this->listener = &listener;
+    this->listener_ = &listener;
     DataCallback cb = boost::bind(&BlockingFilter::callback, this, _1);
-    this->filter_ptr = this->listener->createFilter(comparator, cb);
+    this->filter_ptr = this->listener_->createFilter(comparator, cb);
   }
 
   virtual ~BlockingFilter () {
-    this->listener->removeFilter(filter_ptr);
+    this->listener_->removeFilter(filter_ptr);
     this->result = "";
     this->cond.notify_all();
   }
@@ -840,7 +842,7 @@ public:
    * 
    * \return std::string token that was matched or "" if none were matched.
    */
-  std::string wait(size_t ms) {
+ std::string wait(long ms) {
     this->result = "";
     boost::unique_lock<boost::mutex> lock(this->mutex);
     this->cond.timed_wait(lock, boost::posix_time::milliseconds(ms));
@@ -855,7 +857,7 @@ public:
   }
 
 private:
-  SerialListener * listener;
+  SerialListener * listener_;
   boost::condition_variable cond;
   boost::mutex mutex;
   std::string result;
@@ -883,15 +885,15 @@ class BufferedFilter
 public:
   BufferedFilter (ComparatorType comparator, size_t buffer_size, 
                   SerialListener &listener)
-  : buffer_size(buffer_size)
+  : buffer_size_(buffer_size)
   {
-    this->listener = &listener;
+    this->listener_ = &listener;
     DataCallback cb = boost::bind(&BufferedFilter::callback, this, _1);
-    this->filter_ptr = this->listener->createFilter(comparator, cb);
+    this->filter_ptr = this->listener_->createFilter(comparator, cb);
   }
 
   virtual ~BufferedFilter () {
-    this->listener->removeFilter(filter_ptr);
+    this->listener_->removeFilter(filter_ptr);
     this->queue.clear();
     this->result = "";
   }
@@ -907,7 +909,7 @@ public:
    * 
    * \return std::string token that was matched or "" if none were matched.
    */
-  std::string wait(size_t ms) {
+  std::string wait(long ms) {
     if (ms == 0)
       if (!this->queue.try_pop(this->result))
         this->result = "";
@@ -935,21 +937,21 @@ public:
    * Returns the capacity of the buffer.
    */
   size_t capacity() {
-    return buffer_size;
+    return buffer_size_;
   }
 
   FilterPtr filter_ptr;
 
   void callback(const std::string &token) {
     std::string throw_away;
-    if (this->queue.size() == buffer_size)
+    if (this->queue.size() == this->buffer_size_)
       this->queue.wait_and_pop(throw_away);
     this->queue.push(token);
   }
 
 private:
-  size_t buffer_size;
-  SerialListener * listener;
+  size_t buffer_size_;
+  SerialListener * listener_;
   ConcurrentQueue<std::string> queue;
   std::string result;
 

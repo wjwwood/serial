@@ -17,11 +17,10 @@ inline void defaultInfoCallback(const std::string& msg) {
 inline void defaultExceptionCallback(const std::exception &error) {
   std::cerr << "SerialListener Unhandled Exception: " << error.what();
   std::cerr << std::endl;
-  throw(error);
 }
 
 inline bool defaultComparator(const std::string &token) {
-  return true;
+  return token == token;
 }
 
 using namespace serial;
@@ -34,7 +33,7 @@ SerialListener::default_handler(const std::string &token) {
     this->_default_handler(token);
 }
 
-SerialListener::SerialListener() : listening(false), chunk_size(5) {
+SerialListener::SerialListener() : listening(false), chunk_size_(5) {
   // Set default callbacks
   this->handle_exc = defaultExceptionCallback;
   this->info = defaultInfoCallback;
@@ -68,7 +67,7 @@ SerialListener::callback() {
         std::cout << (*pair.second) << std::endl;
         if (this->listening) {
           try {
-            pair.first->callback((*pair.second));
+            pair.first->callback_((*pair.second));
           } catch (std::exception &e) {
             this->handle_exc(e);
           }// try callback
@@ -88,8 +87,8 @@ SerialListener::startListening(Serial &serial_port) {
   }
   this->listening = true;
   
-  this->serial_port = &serial_port;
-  if (!this->serial_port->isOpen()) {
+  this->serial_port_ = &serial_port;
+  if (!this->serial_port_->isOpen()) {
     throw(SerialListenerException("Serial port not open."));
     return;
   }
@@ -110,7 +109,7 @@ SerialListener::stopListening() {
   callback_thread.join();
 
   this->data_buffer = "";
-  this->serial_port = NULL;
+  this->serial_port_ = NULL;
 
   // Delete all the filters
   this->removeAllFilters();
@@ -121,20 +120,20 @@ SerialListener::determineAmountToRead() {
   // TODO: Make a more intelligent method based on the length of the things 
   //  filters are looking for.  e.g.: if the filter is looking for 'V=XX\r' 
   //  make the read amount at least 5.
-  return this->chunk_size;
+  return this->chunk_size_;
 }
 
 void
 SerialListener::readSomeData(std::string &temp, size_t this_many) {
   // Make sure there is a serial port
-  if (this->serial_port == NULL) {
+  if (this->serial_port_ == NULL) {
     this->handle_exc(SerialListenerException("Invalid serial port."));
   }
   // Make sure the serial port is open
-  if (!this->serial_port->isOpen()) {
+  if (!this->serial_port_->isOpen()) {
     this->handle_exc(SerialListenerException("Serial port not open."));
   }
-  temp = this->serial_port->read(this_many);
+  temp = this->serial_port_->read(this_many);
 }
 
 void
@@ -159,7 +158,7 @@ SerialListener::filter (FilterPtr filter, std::vector<TokenPtr> &tokens)
     if (it == tokens.end()-1)
       continue;
     TokenPtr token = (*it);
-    if (filter->comparator((*token)))
+    if (filter->comparator_((*token)))
       callback_queue.push(std::make_pair(filter,token));
   }
 }
