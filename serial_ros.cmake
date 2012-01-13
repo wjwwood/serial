@@ -17,20 +17,29 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 #set the default path for built libraries to the "lib" directory
 set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 
-# Check for OS X and if so disable kqueue support in asio
-IF(CMAKE_SYSTEM_NAME MATCHES Darwin)
-    add_definitions(-DBOOST_ASIO_DISABLE_KQUEUE)
-ENDIF(CMAKE_SYSTEM_NAME MATCHES Darwin)
+include_directories(include)
+
+set(SERIAL_SRCS src/serial.cc)
+if(UNIX)
+  list(APPEND SERIAL_SRCS src/impl/unix.cc)
+else(UNIX)
+  list(APPEND SERIAL_SRCS src/impl/windows.cc)
+endif(UNIX)
+list(APPEND SERIAL_SRCS src/serial_listener.cc)
 
 # Build the serial library
-rosbuild_add_library(${PROJECT_NAME} src/serial.cpp include/serial/serial.h)
+rosbuild_add_library(${PROJECT_NAME} ${SERIAL_SRCS})
 
 # Add boost dependencies
 rosbuild_add_boost_directories()
 rosbuild_link_boost(${PROJECT_NAME} system filesystem thread)
 
 # Build example
-rosbuild_add_executable(serial_example examples/serial_example.cpp)
+rosbuild_add_executable(serial_example examples/serial_example.cc)
 target_link_libraries(serial_example ${PROJECT_NAME})
+
+rosbuild_add_executable(serial_listener_example
+  examples/serial_listener_example.cc)
+target_link_libraries(serial_listener_example ${PROJECT_NAME})
 
 endmacro(build_serial)
