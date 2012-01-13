@@ -16,14 +16,15 @@ using std::endl;
 using serial::Serial;
 
 int main(int argc, char **argv) {
-  Serial s("/dev/tty.usbserial-A900adHq", 9600, 2000);
+  Serial s("/dev/tty.usbserial-A900adHq", 115200, 2000);
   s.flush();
   int count = 0;
-  while (count < 10) {
+  while (1) {
     size_t available = s.available();
     cout << "avialable: " << available << endl;
     string line = s.readline();
     cout << count << ": " << line;
     count++;
   }
+  cout << endl << endl;
 }

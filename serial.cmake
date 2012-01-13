@@ -106,12 +106,17 @@ IF(SERIAL_BUILD_TESTS)
 
     # Compile the Serial Listener Test program
     add_executable(serial_listener_tests tests/serial_listener_tests.cc)
+    add_executable(serial_tests tests/serial_tests.cc)
     # Link the Test program to the serial library
     target_link_libraries(serial_listener_tests ${GTEST_BOTH_LIBRARIES}
                           serial)
+    target_link_libraries(serial_tests ${GTEST_BOTH_LIBRARIES}
+                          serial)
+
     # # See: http://code.google.com/p/googlemock/issues/detail?id=146
     # add_definitions(-DGTEST_USE_OWN_TR1_TUPLE=1)
     add_test(AllTestsIntest_serial serial_listener_tests)
+    add_test(AllTestsIntest_serial serial_tests)
 ENDIF(SERIAL_BUILD_TESTS)
 
 ## Setup install and uninstall

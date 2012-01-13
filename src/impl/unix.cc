@@ -226,8 +226,8 @@ Serial::SerialImpl::read (size_t size) {
   fd_set readfds;
   memset(buf, 0, (size + 1) * sizeof(*buf));
   ssize_t bytes_read = 0;
-  while (message.length() < size) {
-    if (timeout_ == -1) {
+  while (bytes_read < size) {
+    if (timeout_ != -1) {
       FD_ZERO(&readfds);
       FD_SET(fd_, &readfds);
       struct timeval timeout;
@@ -244,7 +244,7 @@ Serial::SerialImpl::read (size_t size) {
       }
     }
 
-    if (timeout_ == 1 || FD_ISSET(fd_, &readfds)) {
+    if (timeout_ == -1 || FD_ISSET(fd_, &readfds)) {
       ssize_t newest_read = ::read(fd_,
                                    buf + bytes_read,
                                    size - static_cast<size_t>(bytes_read));
