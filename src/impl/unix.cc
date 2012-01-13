@@ -215,42 +215,58 @@ Serial::SerialImpl::read (size_t size) {
     throw PortNotOpenedException("Serial::read");
   }
   string message = "";
-  char buf[1024]; // TODO(ash_gti): Should this be 1024? or...?
+  char *buf = NULL;
+  // Using size+1 to leave room for a null character
+  if (size > 1024) {
+    buf = (char*)malloc((size + 1) * sizeof(*buf));
+  }
+  else {
+    buf = (char*)alloca((size + 1) * sizeof(*buf));
+  }
   fd_set readfds;
+  memset(buf, 0, (size + 1) * sizeof(*buf));
+  ssize_t bytes_read = 0;
   while (message.length() < size) {
-    FD_ZERO(&readfds);
-    FD_SET(fd_, &readfds);
-    struct timeval timeout;
-    timeout.tv_sec =        timeout_ / 1000;
-    timeout.tv_usec = (int) timeout_ % 1000;
-    int r = select(fd_ + 1, &readfds, NULL, NULL, &timeout);
+    if (timeout_ == -1) {
+      FD_ZERO(&readfds);
+      FD_SET(fd_, &readfds);
+      struct timeval timeout;
+      timeout.tv_sec =        timeout_ / 1000;
+      timeout.tv_usec = (int) timeout_ % 1000;
+      int r = select(fd_ + 1, &readfds, NULL, NULL, &timeout);
 
-    if (r == -1 && errno == EINTR)
-      continue;
+      if (r == -1 && errno == EINTR)
+        continue;
 
-    if (r == -1) {
-      perror("select()");
-      exit(EXIT_FAILURE);
+      if (r == -1) {
+        perror("select()");
+        exit(EXIT_FAILURE);
+      }
     }
 
-    if (FD_ISSET(fd_, &readfds)) {
-      memset(buf, 0, 1024);
-      ssize_t bytes_read = ::read(fd_, buf, size-strlen(buf));
+    if (timeout_ == 1 || FD_ISSET(fd_, &readfds)) {
+      ssize_t newest_read = ::read(fd_,
+                                   buf + bytes_read,
+                                   size - static_cast<size_t>(bytes_read));
       // read should always return some data as select reported it was
       // ready to read when we get to this point.
-      if (bytes_read < 1) {
+      if (newest_read < 1) {
         // Disconnected devices, at least on Linux, show the
         // behavior that they are always ready to read immediately
         // but reading returns nothing.
         throw SerialExecption("device reports readiness to read but "
                               "returned no data (device disconnected?)");
       }
-      message.append(buf, (size_t)bytes_read);
+      bytes_read += newest_read;
     }
     else {
       break; // Timeout
     }
   }
+  if (bytes_read > 0)
+    message.append(buf, (size_t)bytes_read);
+  if (size > 1024)
+    free(buf);
   return message;
 }
 
