@@ -135,7 +135,6 @@ SerialListener::readSomeData(std::string &temp, size_t this_many) {
     this->handle_exc(SerialListenerException("Serial port not open."));
   }
   temp = this->serial_port->read(this_many);
-  std::cout << "Read(" << temp.length() << "): " << temp << std::endl;
 }
 
 void
@@ -146,15 +145,19 @@ SerialListener::filterNewTokens (std::vector<TokenPtr> new_tokens) {
   for (it=filters.begin(); it!=filters.end(); it++) {
     this->filter((*it), new_tokens);
   } // for (it=filters.begin(); it!=filters.end(); it++)
+  // Put the last token back in the data buffer
+  this->data_buffer = (*new_tokens.back());
 }
 
-// <filter_ptr,token_ptr>
 void
 SerialListener::filter (FilterPtr filter, std::vector<TokenPtr> &tokens)
 {
   // Iterate through the token uuids and run each against the filter
   std::vector<TokenPtr>::iterator it;
   for (it=tokens.begin(); it!=tokens.end(); it++) {
+    // The last element goes back into the data_buffer, don't filter it
+    if (it == tokens.end()-1)
+      continue;
     TokenPtr token = (*it);
     if (filter->comparator((*token)))
       callback_queue.push(std::make_pair(filter,token));

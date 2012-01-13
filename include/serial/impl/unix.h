@@ -104,7 +104,7 @@ protected:
 
 private:
   string port_;               // Path to the file descriptor
-  int fd_;                    // The current file descriptor.
+  int fd_;                    // The current file descriptor
 
   int interCharTimeout_;
   int writeTimeout_;
@@ -118,7 +118,7 @@ private:
   unsigned long baudrate_;    // Baudrate
   
   parity_t parity_;           // Parity
-  bytesize_t bytesize_;       // Size of the bytes  
+  bytesize_t bytesize_;       // Size of the bytes
   stopbits_t stopbits_;       // Stop Bits
   flowcontrol_t flowcontrol_; // Flow Control
 };

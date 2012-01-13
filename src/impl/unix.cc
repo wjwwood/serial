@@ -74,12 +74,12 @@ Serial::SerialImpl::reconfigurePort () {
   struct termios options; // The current options for the file descriptor
   struct termios originalTTYAttrs; // The orignal file descriptor options
 
-  uint8_t vmin = 0, vtime = 0;                // timeout is done via select
+  uint8_t vmin = 0, vtime = 0; // timeout is done via select
   if (interCharTimeout_ == -1) {
     vmin = 1;
     vtime = uint8_t(interCharTimeout_ * 10);
   }
-  
+
   if (tcgetattr(fd_, &originalTTYAttrs) == -1) {
     throw IOException("::tcgetattr");
   }
@@ -89,7 +89,7 @@ Serial::SerialImpl::reconfigurePort () {
   // set up raw mode / no echo / binary
   options.c_cflag |= (unsigned long)(CLOCAL|CREAD);
   options.c_lflag &= (unsigned long) ~(ICANON|ECHO|ECHOE|ECHOK
-	  								   |ECHONL|ISIG|IEXTEN); //|ECHOPRT
+                       |ECHONL|ISIG|IEXTEN); //|ECHOPRT
 
   options.c_oflag &= (unsigned long) ~(OPOST);
   options.c_iflag &= (unsigned long) ~(INLCR|IGNCR|ICRNL|IGNBRK);
@@ -242,8 +242,8 @@ Serial::SerialImpl::read (size_t size) {
         // Disconnected devices, at least on Linux, show the
         // behavior that they are always ready to read immediately
         // but reading returns nothing.
-        throw SerialExecption("device reports readiness to read but returned no "
-							  "data (device disconnected?)");
+        throw SerialExecption("device reports readiness to read but "
+                              "returned no data (device disconnected?)");
       }
       message.append(buf, (size_t)bytes_read);
     }
@@ -342,19 +342,20 @@ Serial::SerialImpl::getFlowcontrol () const {
   return flowcontrol_;
 }
 
-
 void Serial::SerialImpl::flush () {
   if (isOpen_ == false) {
     throw PortNotOpenedException("Serial::flush");
   }
   tcdrain(fd_);
 }
+
 void Serial::SerialImpl::flushInput () {
   if (isOpen_ == false) {
     throw PortNotOpenedException("Serial::flushInput");
   }
   tcflush(fd_, TCIFLUSH);
 }
+
 void Serial::SerialImpl::flushOutput () {
   if (isOpen_ == false) {
     throw PortNotOpenedException("Serial::flushOutput");
@@ -368,6 +369,7 @@ void Serial::SerialImpl::sendBreak(int duration) {
   }
   tcsendbreak(fd_, int(duration/4));
 }
+
 void Serial::SerialImpl::setBreak(bool level) {
   if (isOpen_ == false) {
     throw PortNotOpenedException("Serial::setBreak");
@@ -379,6 +381,7 @@ void Serial::SerialImpl::setBreak(bool level) {
     ioctl(fd_, TIOCCBRK);
   }
 }
+
 void Serial::SerialImpl::setRTS(bool level) {
   if (isOpen_ == false) {
     throw PortNotOpenedException("Serial::setRTS");
@@ -390,6 +393,7 @@ void Serial::SerialImpl::setRTS(bool level) {
     ioctl(fd_, TIOCMBIC, TIOCM_RTS);
   }
 }
+
 void Serial::SerialImpl::setDTR(bool level) {
   if (isOpen_ == false) {
     throw PortNotOpenedException("Serial::setDTR");
@@ -400,8 +404,8 @@ void Serial::SerialImpl::setDTR(bool level) {
   else {
     ioctl(fd_, TIOCMBIC, TIOCM_DTR);
   }
-
 }
+
 bool Serial::SerialImpl::getCTS() {
   if (isOpen_ == false) {
     throw PortNotOpenedException("Serial::getCTS");
@@ -409,6 +413,7 @@ bool Serial::SerialImpl::getCTS() {
   int s = ioctl(fd_, TIOCMGET, 0);
   return (s & TIOCM_CTS) != 0;
 }
+
 bool Serial::SerialImpl::getDSR() {
   if (isOpen_ == false) {
     throw PortNotOpenedException("Serial::getDSR");
@@ -416,6 +421,7 @@ bool Serial::SerialImpl::getDSR() {
   int s = ioctl(fd_, TIOCMGET, 0);
   return (s & TIOCM_DSR) != 0;
 }
+
 bool Serial::SerialImpl::getRI() {
   if (isOpen_ == false) {
     throw PortNotOpenedException("Serial::getRI");
@@ -423,6 +429,7 @@ bool Serial::SerialImpl::getRI() {
   int s = ioctl(fd_, TIOCMGET, 0);
   return (s & TIOCM_RI) != 0;
 }
+
 bool Serial::SerialImpl::getCD() {
   if (isOpen_ == false) {
     throw PortNotOpenedException("Serial::getCD");

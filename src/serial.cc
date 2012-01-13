@@ -40,6 +40,7 @@ void
 Serial::close () {
   this->pimpl->close ();
 }
+
 bool
 Serial::isOpen () const {
   return this->pimpl->isOpen ();
@@ -63,9 +64,9 @@ Serial::readline(size_t size, string eol) {
     string c = pimpl->read(1);
     if (!c.empty()) {
       line.append(c);
-      if (line.length() > leneol && line.substr(line.length() - leneol, leneol) == eol) {
+      if (line.length() > leneol
+       && line.substr(line.length() - leneol, leneol) == eol)
         break;
-      }
       if (line.length() >= size) {
         break;
       }
@@ -75,7 +76,6 @@ Serial::readline(size_t size, string eol) {
       break;
     }
   }
-
   return line;
 }
 
@@ -98,7 +98,6 @@ Serial::readlines(string eol) {
       break;
     }
   }
-
   return lines;
 }
 
@@ -183,33 +182,43 @@ Serial::getFlowcontrol () const {
 void Serial::flush() {
   this->pimpl->flush();
 }
+
 void Serial::flushInput() {
   this->pimpl->flushInput();
 }
+
 void Serial::flushOutput() {
   this->pimpl->flushOutput();
 }
+
 void Serial::sendBreak(int duration) {
   this->pimpl->sendBreak(duration);
 }
+
 void Serial::setBreak(bool level) {
   this->pimpl->setBreak(level);
 }
+
 void Serial::setRTS(bool level) {
   this->pimpl->setRTS(level);
 }
+
 void Serial::setDTR(bool level) {
   this->pimpl->setDTR(level);
 }
+
 bool Serial::getCTS() {
   return this->pimpl->getCTS();
 }
+
 bool Serial::getDSR() {
   return this->pimpl->getDSR();
 }
+
 bool Serial::getRI() {
   return this->pimpl->getRI();
 }
+
 bool Serial::getCD() {
   return this->pimpl->getCD();
 }

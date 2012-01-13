@@ -82,21 +82,21 @@ typedef enum {
 } flowcontrol_t;
 
 class SerialExecption : public std::exception {
-	const char * e_what;
+  const char * e_what;
 public:
-	SerialExecption(const char *description) {e_what=description;};
-	virtual const char* what() const throw() {
+  SerialExecption(const char *description) {e_what=description;};
+  virtual const char* what() const throw() {
         std::stringstream ss;
         ss << "SerialException " << this->e_what << " failed.";
         return ss.str().c_str();
-	}
+  }
 };
 
 class IOException : public std::exception {
     const char * e_what;
 public:
-    IOException(const char * description) {this->e_what = description;}
-  
+    IOException(const char * description) {e_what = description;}
+
     virtual const char* what() const throw() {
         std::stringstream ss;
         ss << "IO Exception " << this->e_what << " failed.";
@@ -105,13 +105,13 @@ public:
 };
 
 class PortNotOpenedException : public std::exception {
-	const char * e_what;
+  const char * e_what;
 public:
-    PortNotOpenedException(const char * description) {this->e_what = description;}
-  
+    PortNotOpenedException(const char * description) {e_what = description;}
+
     virtual const char* what() const throw() {
-		std::stringstream ss;
-		ss << e_what << " called before port was opened.";
+    std::stringstream ss;
+    ss << e_what << " called before port was opened.";
         return ss.str().c_str();
     }
 };
@@ -193,8 +193,7 @@ public:
   void
   close ();
 
-  /* Return the number of characters in the buffer.
-  */
+  /*! Return the number of characters in the buffer. */
   size_t
   available();
 
@@ -295,8 +294,8 @@ public:
   * timeout on reads occur.  Setting this to zero (0) will cause reading to be
   * non-blocking, i.e. the available data will be returned immediately, but it
   * will not block to wait for more.  Setting this to a number less than
-  * zero (-1) will result in infinite blocking behaviour, i.e. the serial port 
-  * will block until either size bytes have been read or an exception has 
+  * zero (-1) will result in infinite blocking behaviour, i.e. the serial port
+  * will block until either size bytes have been read or an exception has
   * occured.
   */
   void
@@ -337,8 +336,8 @@ public:
 
   /*! Sets the bytesize for the serial port.
   * 
-  * \param bytesize Size of each byte in the serial transmission of data, 
-  * default is EIGHTBITS, possible values are: FIVEBITS, SIXBITS, SEVENBITS, 
+  * \param bytesize Size of each byte in the serial transmission of data,
+  * default is EIGHTBITS, possible values are: FIVEBITS, SIXBITS, SEVENBITS,
   * EIGHTBITS
   * 
   * \throw InvalidConfigurationException
@@ -357,7 +356,7 @@ public:
 
   /*! Sets the parity for the serial port.
   * 
-  * \param parity Method of parity, default is PARITY_NONE, possible values 
+  * \param parity Method of parity, default is PARITY_NONE, possible values
   * are: PARITY_NONE, PARITY_ODD, PARITY_EVEN
   * 
   * \throw InvalidConfigurationException
@@ -376,7 +375,7 @@ public:
 
   /*! Sets the stopbits for the serial port.
   * 
-  * \param stopbits Number of stop bits used, default is STOPBITS_ONE, 
+  * \param stopbits Number of stop bits used, default is STOPBITS_ONE,
   * possible values are: STOPBITS_ONE, STOPBITS_ONE_POINT_FIVE, STOPBITS_TWO
   * 
   * \throw InvalidConfigurationException
@@ -395,8 +394,8 @@ public:
 
   /*! Sets the flow control for the serial port.
   * 
-  * \param flowcontrol Type of flowcontrol used, default is FLOWCONTROL_NONE, 
-  * possible values are: FLOWCONTROL_NONE, FLOWCONTROL_SOFTWARE, 
+  * \param flowcontrol Type of flowcontrol used, default is FLOWCONTROL_NONE,
+  * possible values are: FLOWCONTROL_NONE, FLOWCONTROL_SOFTWARE,
   * FLOWCONTROL_HARDWARE
   * 
   * \throw InvalidConfigurationException
@@ -435,19 +434,6 @@ private:
   class SerialImpl;
   SerialImpl *pimpl;
 };
-
-// why not use std::invalid_argument?
-// class InvalidConfigurationException : public std::exception {
-//     int bytesize;
-// public:
-//     InvalidConfigurationException(int bytesize) {this->bytesize = bytesize;}
-//     
-//     virtual const char* what() const throw() {
-//         std::stringstream ss;
-//         ss << "Invalid configuration provided: " << this->bytesize;
-//         return ss.str().c_str();
-//     }
-// };
 
 } // namespace serial
 
