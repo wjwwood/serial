@@ -209,7 +209,7 @@ class SerialListenerException : public std::exception {
   const std::string e_what_;
 public:
   SerialListenerException(const std::string e_what) : e_what_(e_what) {}
-  ~SerialListenerException() throw() {std::exception::~exception();}
+  ~SerialListenerException() throw() {}
 
   virtual const char* what() const throw() {
     std::stringstream ss;
