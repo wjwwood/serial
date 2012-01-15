@@ -114,9 +114,6 @@ SerialListener::stopListening() {
 
   this->data_buffer = "";
   this->serial_port_ = NULL;
-
-  // Delete all the filters
-  this->removeAllFilters();
 }
 
 size_t
