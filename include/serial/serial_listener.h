@@ -792,10 +792,12 @@ private:
   // Tokenizer
   TokenizerType tokenize;
 
+#if 0
   // Logging handlers
   LoggingCallback warn;
   LoggingCallback info;
   LoggingCallback debug;
+#endif
 
   // Exception handler
   ExceptionCallback handle_exc;
