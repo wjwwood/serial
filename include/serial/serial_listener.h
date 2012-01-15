@@ -91,31 +91,6 @@ typedef boost::function<void(const std::string&)> DataCallback;
 typedef boost::function<bool(const std::string&)> ComparatorType;
 
 /*!
- * This function type describes the prototype for the logging callbacks.
- * 
- * The function takes a std::string reference and returns nothing.  It is
- * called from the library when a logging message occurs.  This
- * allows the library user to hook into this and integrate it with their own
- * logging system.  It can be set with any of the set<log level>Handler
- * functions.
- * 
- * \see SerialListener::setInfoHandler, SerialListener::setDebugHandler, 
- * SerialListener::setWarningHandler
- */
-typedef boost::function<void(const std::string&)> LoggingCallback;
-
-/*!
- * This function type describes the prototype for the exception callback.
- * 
- * The function takes a std::exception reference and returns nothing.  It is 
- * called from the library when an exception occurs in a library thread.
- * This exposes these exceptions to the user so they can to error handling.
- * 
- * \see SerialListener::setExceptionHandler
- */
-typedef boost::function<void(const std::exception&)> ExceptionCallback;
-
-/*!
  * This function type describes the prototype for the tokenizer callback.
  * 
  * The function should take a std::string reference and tokenize it into a
@@ -137,6 +112,33 @@ typedef boost::function<void(const std::exception&)> ExceptionCallback;
  */
 typedef boost::function<void(const std::string&, std::vector<TokenPtr>&)>
 TokenizerType;
+
+#if 0
+/*!
+ * This function type describes the prototype for the logging callbacks.
+ * 
+ * The function takes a std::string reference and returns nothing.  It is
+ * called from the library when a logging message occurs.  This
+ * allows the library user to hook into this and integrate it with their own
+ * logging system.  It can be set with any of the set<log level>Handler
+ * functions.
+ * 
+ * \see SerialListener::setInfoHandler, SerialListener::setDebugHandler, 
+ * SerialListener::setWarningHandler
+ */
+typedef boost::function<void(const std::string&)> LoggingCallback;
+#endif
+
+/*!
+ * This function type describes the prototype for the exception callback.
+ * 
+ * The function takes a std::exception reference and returns nothing.  It is 
+ * called from the library when an exception occurs in a library thread.
+ * This exposes these exceptions to the user so they can to error handling.
+ * 
+ * \see SerialListener::setExceptionHandler
+ */
+typedef boost::function<void(const std::exception&)> ExceptionCallback;
 
 /*!
  * Represents a filter which new data is passed through.
@@ -472,6 +474,7 @@ public:
 
 /***** Hooks and Handlers ******/
 
+#if 0
   /*!
    * Sets the handler to be called when a lines is not caught by a filter.
    * 
@@ -579,6 +582,23 @@ public:
   setWarningHandler (LoggingCallback warning_handler) {
     this->warn = warning_handler;
   }
+#endif
+
+/*!
+ * Sets the function to be called when an exception occurs internally.
+ * 
+ * This allows you to hook into the exceptions that occur in threads inside 
+ * the serial listener library.
+ * 
+ * \param exception_handler A function pointer to the callback to handle new 
+ * interal exceptions.
+ * 
+ * \see serial::ExceptionCallback
+ */
+void
+setWarningHandler (ExceptionCallback exception_handler) {
+  this->handle_exc = exception_handler;
+}
 
 /***** Static Functions ******/
 
