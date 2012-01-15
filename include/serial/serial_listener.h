@@ -91,6 +91,30 @@ typedef boost::function<void(const std::string&)> DataCallback;
 typedef boost::function<bool(const std::string&)> ComparatorType;
 
 /*!
+ * This function type describes the prototype for the tokenizer callback.
+ * 
+ * The function should take a std::string reference and tokenize it into a
+ * several TokenPtr's and store them in the given std::vector<TokenPtr> 
+ * reference.  There are some default ones or the user can create their own.
+ * 
+ * The last element in the std::vector of TokenPtr's should always be
+ * either an empty string ("") or the last partial message.  The last element
+ * in the std::vector will be put back into the data buffer so that if it is
+ * incomplete it can be completed when more data is read.
+ * 
+ * Example: A delimeter tokenizer with a delimeter of "\r".  The result would
+ * be: "msg1\rmsg2\r" -> ["msg1", "msg2", ""] for two complete messages, or:
+ * "msg1\rpartial_msg2" -> ["msg1","partial_msg2"] for one complete message 
+ * and one partial message.
+ * 
+ * \see SerialListener::setTokenizer, serial::delimeter_tokenizer,
+ * serial::TokenPtr
+ */
+typedef boost::function<void(const std::string&, std::vector<TokenPtr>&)>
+TokenizerType;
+
+#if 0
+/*!
  * This function type describes the prototype for the logging callbacks.
  *
  * The function takes a std::string reference and returns nothing.  It is
@@ -103,6 +127,7 @@ typedef boost::function<bool(const std::string&)> ComparatorType;
  * SerialListener::setWarningHandler
  */
 typedef boost::function<void(const std::string&)> LoggingCallback;
+#endif
 
 /*!
  * This function type describes the prototype for the exception callback.
@@ -114,29 +139,6 @@ typedef boost::function<void(const std::string&)> LoggingCallback;
  * \see SerialListener::setExceptionHandler
  */
 typedef boost::function<void(const std::exception&)> ExceptionCallback;
-
-/*!
- * This function type describes the prototype for the tokenizer callback.
- *
- * The function should take a std::string reference and tokenize it into a
- * several TokenPtr's and store them in the given std::vector<TokenPtr>
- * reference.  There are some default ones or the user can create their own.
- *
- * The last element in the std::vector of TokenPtr's should always be
- * either an empty string ("") or the last partial message.  The last element
- * in the std::vector will be put back into the data buffer so that if it is
- * incomplete it can be completed when more data is read.
- *
- * Example: A delimeter tokenizer with a delimeter of "\r".  The result would
- * be: "msg1\rmsg2\r" -> ["msg1", "msg2", ""] for two complete messages, or:
- * "msg1\rpartial_msg2" -> ["msg1","partial_msg2"] for one complete message
- * and one partial message.
- *
- * \see SerialListener::setTokenizer, serial::delimeter_tokenizer,
- * serial::TokenPtr
- */
-typedef boost::function<void(const std::string&, std::vector<TokenPtr>&)>
-TokenizerType;
 
 /*!
  * Represents a filter which new data is passed through.
@@ -472,6 +474,7 @@ public:
 
 /***** Hooks and Handlers ******/
 
+#if 0
   /*!
    * Sets the handler to be called when a lines is not caught by a filter.
    *
@@ -579,6 +582,23 @@ public:
   setWarningHandler (LoggingCallback warning_handler) {
     this->warn = warning_handler;
   }
+#endif
+
+/*!
+ * Sets the function to be called when an exception occurs internally.
+ * 
+ * This allows you to hook into the exceptions that occur in threads inside 
+ * the serial listener library.
+ * 
+ * \param exception_handler A function pointer to the callback to handle new 
+ * interal exceptions.
+ * 
+ * \see serial::ExceptionCallback
+ */
+void
+setWarningHandler (ExceptionCallback exception_handler) {
+  this->handle_exc = exception_handler;
+}
 
 /***** Static Functions ******/
 
@@ -772,10 +792,12 @@ private:
   // Tokenizer
   TokenizerType tokenize;
 
+#if 0
   // Logging handlers
   LoggingCallback warn;
   LoggingCallback info;
   LoggingCallback debug;
+#endif
 
   // Exception handler
   ExceptionCallback handle_exc;
