@@ -458,21 +458,21 @@ public:
 
 /***** Hooks and Handlers ******/
 
-/*!
- * Sets the function to be called when an exception occurs internally.
- * 
- * This allows you to hook into the exceptions that occur in threads inside 
- * the serial listener library.
- * 
- * \param exception_handler A function pointer to the callback to handle new 
- * interal exceptions.
- * 
- * \see serial::ExceptionCallback
- */
-void
-setWarningHandler (ExceptionCallback exception_handler) {
-  this->handle_exc = exception_handler;
-}
+  /*!
+   * Sets the function to be called when an exception occurs internally.
+   * 
+   * This allows you to hook into the exceptions that occur in threads inside 
+   * the serial listener library.
+   * 
+   * \param exception_handler A function pointer to the callback to handle new 
+   * interal exceptions.
+   * 
+   * \see serial::ExceptionCallback
+   */
+  void
+  setExceptionHandler (ExceptionCallback exception_handler) {
+    this->handle_exc = exception_handler;
+  }
 
 /***** Static Functions ******/
 
