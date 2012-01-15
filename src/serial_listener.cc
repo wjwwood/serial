@@ -2,20 +2,6 @@
 
 /***** Inline Functions *****/
 
-#if 0
-inline void defaultWarningCallback(const std::string& msg) {
-  std::cout << "SerialListener Warning: " << msg << std::endl;
-}
-
-inline void defaultDebugCallback(const std::string& msg) {
-  std::cout << "SerialListener Debug: " << msg << std::endl;
-}
-
-inline void defaultInfoCallback(const std::string& msg) {
-  std::cout << "SerialListener Info: " << msg << std::endl;
-}
-#endif
-
 inline void defaultExceptionCallback(const std::exception &error) {
   std::cerr << "SerialListener Unhandled Exception: " << error.what();
   std::cerr << std::endl;
@@ -38,11 +24,6 @@ SerialListener::default_handler(const std::string &token) {
 SerialListener::SerialListener() : listening(false), chunk_size_(5) {
   // Set default callbacks
   this->handle_exc = defaultExceptionCallback;
-#if 0
-  this->info = defaultInfoCallback;
-  this->debug = defaultDebugCallback;
-  this->warn = defaultWarningCallback;
-#endif
 
   // Default handler stuff
   this->_default_handler = NULL;

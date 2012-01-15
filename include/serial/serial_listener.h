@@ -113,22 +113,6 @@ typedef boost::function<bool(const std::string&)> ComparatorType;
 typedef boost::function<void(const std::string&, std::vector<TokenPtr>&)>
 TokenizerType;
 
-#if 0
-/*!
- * This function type describes the prototype for the logging callbacks.
- * 
- * The function takes a std::string reference and returns nothing.  It is
- * called from the library when a logging message occurs.  This
- * allows the library user to hook into this and integrate it with their own
- * logging system.  It can be set with any of the set<log level>Handler
- * functions.
- * 
- * \see SerialListener::setInfoHandler, SerialListener::setDebugHandler, 
- * SerialListener::setWarningHandler
- */
-typedef boost::function<void(const std::string&)> LoggingCallback;
-#endif
-
 /*!
  * This function type describes the prototype for the exception callback.
  * 
@@ -474,116 +458,6 @@ public:
 
 /***** Hooks and Handlers ******/
 
-#if 0
-  /*!
-   * Sets the handler to be called when a lines is not caught by a filter.
-   * 
-   * This allows you to set a catch all function that will get called 
-   * everytime a line is not matched by a filter and the ttl expires.
-   * 
-   * Setting the callbacks works just like SerialListener::setInfoHandler.
-   * 
-   * \param default_handler A function pointer to the callback to handle 
-   * unmatched and expired messages.
-   * 
-   * \see serial::DataCallback, SerialListener::setInfoHandler
-   */
-  void
-  setDefaultHandler (DataCallback default_handler) {
-    this->_default_handler = default_handler;
-  }
-
-  /*!
-   * Sets the function to be called when an info logging message occurs.
-   * 
-   * This allows you to hook into the message reporting of the library and use
-   * your own logging facilities.
-   * 
-   * The provided function must follow this prototype:
-   * <pre>
-   *    void yourInfoCallback(const std::string &msg)
-   * </pre>
-   * Here is an example:
-   * <pre>
-   *    void yourInfoCallback(const std::string &msg) {
-   *        std::cout << "SerialListener Info: " << msg << std::endl;
-   *    }
-   * </pre>
-   * And the resulting call to make it the callback:
-   * <pre>
-   *    serial::SerialListener listener;
-   *    listener.setInfoCallback(yourInfoCallback);
-   * </pre>
-   * Alternatively you can use a class method as a callback using boost::bind:
-   * <pre>
-   *    #include <boost/bind.hpp>
-   *    
-   *    #include "serial/serial_listener.h"
-   *    
-   *    class MyClass
-   *    {
-   *    public:
-   *     MyClass () {
-   *      listener.setInfoHandler(
-   *          boost::bind(&MyClass::handleInfo, this, _1));
-   *     }
-   *    
-   *     void handleInfo(const std::string &msg) {
-   *       std::cout << "MyClass Info: " << msg << std::endl;
-   *     }
-   *    
-   *    private:
-   *     serial::SerialListener listener;
-   *    };
-   * </pre>
-   * 
-   * \param info_handler A function pointer to the callback to handle new 
-   * Info messages.
-   * 
-   * \see serial::LoggingCallback
-   */
-  void
-  setInfoHandler (LoggingCallback info_handler) {
-    this->info = info_handler;
-  }
-  
-  /*!
-   * Sets the function to be called when a debug logging message occurs.
-   * 
-   * This allows you to hook into the message reporting of the library and use
-   * your own logging facilities.
-   * 
-   * This works just like SerialListener::setInfoHandler.
-   * 
-   * \param debug_handler A function pointer to the callback to handle new 
-   * Debug messages.
-   * 
-   * \see serial::LoggingCallback, SerialListener::setInfoHandler
-   */
-  void
-  setDebugHandler (LoggingCallback debug_handler) {
-    this->debug = debug_handler;
-  }
-  
-  /*!
-   * Sets the function to be called when a warning logging message occurs.
-   * 
-   * This allows you to hook into the message reporting of the library and use
-   * your own logging facilities.
-   * 
-   * This works just like SerialListener::setInfoHandler.
-   * 
-   * \param warning_handler A function pointer to the callback to handle new 
-   * Warning messages.
-   * 
-   * \see serial::LoggingCallback, SerialListener::setInfoHandler
-   */
-  void
-  setWarningHandler (LoggingCallback warning_handler) {
-    this->warn = warning_handler;
-  }
-#endif
-
 /*!
  * Sets the function to be called when an exception occurs internally.
  * 
@@ -791,13 +665,6 @@ private:
 
   // Tokenizer
   TokenizerType tokenize;
-
-#if 0
-  // Logging handlers
-  LoggingCallback warn;
-  LoggingCallback info;
-  LoggingCallback debug;
-#endif
 
   // Exception handler
   ExceptionCallback handle_exc;
