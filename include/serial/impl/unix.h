@@ -8,7 +8,7 @@
  *
  * The MIT License
  *
- * Copyright (c) 2011 William Woodall
+ * Copyright (c) 2011 William Woodall, John Harrison
  *
  * Permission is hereby granted, free of charge, to any person obtaining a 
  * copy of this software and associated documentation files (the "Software"),
@@ -30,7 +30,9 @@
  *
  * \section DESCRIPTION
  *
- * This provides a unix based pimpl for the Serial class.
+ * This provides a unix based pimpl for the Serial class. This implementation is
+ * based off termios.h and uses select for multiplexing the IO ports.
+ *
  */
 
 #ifndef SERIAL_IMPL_UNIX_H
@@ -42,6 +44,7 @@ namespace serial {
 
 using std::string;
 using std::invalid_argument;
+
 using serial::SerialExecption;
 using serial::IOException;
 
@@ -57,47 +60,98 @@ public:
 
   virtual ~SerialImpl ();
 
-  void open ();
-  void close () ;
-  bool isOpen () const;
+  void
+  open ();
 
-  size_t available ();
-  string read (size_t size = 1);
-  size_t write (const string &data);
+  void
+  close ();
 
-  void flush ();
-  void flushInput ();
-  void flushOutput ();
+  bool
+  isOpen () const;
 
-  void sendBreak(int duration);
-  void setBreak(bool level);
-  void setRTS(bool level);
-  void setDTR(bool level);
-  bool getCTS();
-  bool getDSR();
-  bool getRI();
-  bool getCD();
+  size_t
+  available ();
 
-  void setPort (const string &port);
-  string getPort () const;
+  size_t
+  read (char* buf, size_t size = 1);
 
-  void setTimeout (long timeout);
-  long getTimeout () const;
+  size_t
+  write (const string &data);
 
-  void setBaudrate (unsigned long baudrate);
-  unsigned long getBaudrate () const;
+  void
+  flush ();
 
-  void setBytesize (bytesize_t bytesize);
-  bytesize_t getBytesize () const;
+  void
+  flushInput ();
 
-  void setParity (parity_t parity);
-  parity_t getParity () const;
+  void
+  flushOutput ();
 
-  void setStopbits (stopbits_t stopbits);
-  stopbits_t getStopbits () const;
+  void
+  sendBreak(int duration);
 
-  void setFlowcontrol (flowcontrol_t flowcontrol);
-  flowcontrol_t getFlowcontrol () const;
+  void
+  setBreak(bool level);
+
+  void
+  setRTS(bool level);
+
+  void
+  setDTR(bool level);
+  
+  bool
+  getCTS();
+  
+  bool
+  getDSR();
+  
+  bool
+  getRI();
+  
+  bool
+  getCD();
+
+  void
+  setPort (const string &port);
+  
+  string
+  getPort () const;
+
+  void
+  setTimeout (long timeout);
+  
+  long
+  getTimeout () const;
+
+  void
+  setBaudrate (unsigned long baudrate);
+  
+  unsigned long
+  getBaudrate () const;
+
+  void
+  setBytesize (bytesize_t bytesize);
+  
+  bytesize_t
+  getBytesize () const;
+
+  void
+  setParity (parity_t parity);
+
+  parity_t
+  getParity () const;
+
+  void
+  setStopbits (stopbits_t stopbits);
+
+  stopbits_t
+  getStopbits () const;
+
+  void
+  setFlowcontrol (flowcontrol_t flowcontrol);
+
+  flowcontrol_t
+  getFlowcontrol () const;
 
 protected:
   void reconfigurePort ();
@@ -106,17 +160,13 @@ private:
   string port_;               // Path to the file descriptor
   int fd_;                    // The current file descriptor
 
-  int interCharTimeout_;
-  int writeTimeout_;
   bool isOpen_;
   bool xonxoff_;
   bool rtscts_;
-  
-  char ___; // lol padding
 
   long timeout_;              // Timeout for read operations
   unsigned long baudrate_;    // Baudrate
-  
+
   parity_t parity_;           // Parity
   bytesize_t bytesize_;       // Size of the bytes
   stopbits_t stopbits_;       // Stop Bits
