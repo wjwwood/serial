@@ -1,3 +1,5 @@
+/* Copyright 2012 William Woodall and John Harrison */
+
 #include "serial/serial_listener.h"
 
 /***** Inline Functions *****/
