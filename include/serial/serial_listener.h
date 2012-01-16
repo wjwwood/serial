@@ -472,7 +472,7 @@ public:
    * \see serial::DataCallback, SerialListener::setInfoHandler
    */
   void setDefaultHandler(DataCallback default_handler) {
-    this->default_handler = default_handler;
+    this->_default_handler = default_handler;
   }
 
   /*!
