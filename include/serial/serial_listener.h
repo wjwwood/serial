@@ -459,6 +459,23 @@ public:
 /***** Hooks and Handlers ******/
 
   /*!
+   * Sets the handler to be called when a lines is not caught by a filter.
+   * 
+   * This allows you to set a catch all function that will get called 
+   * everytime a line is not matched by a filter and the ttl expires.
+   * 
+   * Setting the callbacks works just like SerialListener::setInfoHandler.
+   * 
+   * \param default_handler A function pointer to the callback to handle 
+   * unmatched and expired messages.
+   * 
+   * \see serial::DataCallback, SerialListener::setInfoHandler
+   */
+  void setDefaultHandler(DataCallback default_handler) {
+    this->default_handler = default_handler;
+  }
+
+  /*!
    * Sets the function to be called when an exception occurs internally.
    * 
    * This allows you to hook into the exceptions that occur in threads inside 
