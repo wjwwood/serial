@@ -42,6 +42,8 @@
 #include <vector>
 #include <limits>
 
+#include <boost/thread/mutex.hpp>
+
 namespace serial {
 
 /*!
@@ -442,6 +444,8 @@ private:
   // Pimpl idiom, d_pointer
   class SerialImpl;
   SerialImpl *pimpl_;
+
+  boost::mutex mut;
 };
 
 } // namespace serial

@@ -5,6 +5,8 @@
 #include <cstring>
 #include <algorithm>
 
+#include <boost/thread/mutex.hpp>
+
 #include "serial/serial.h"
 
 #ifdef _WIN32
@@ -29,11 +31,14 @@ using serial::parity_t;
 using serial::stopbits_t;
 using serial::flowcontrol_t;
 
+using boost::mutex;
+
 Serial::Serial (const string &port, unsigned long baudrate, long timeout,
                 bytesize_t bytesize, parity_t parity, stopbits_t stopbits,
                 flowcontrol_t flowcontrol, const size_t buffer_size)
  : buffer_size_(buffer_size)
 {
+  mutex::scoped_lock scoped_lock(mut);
   pimpl_ = new SerialImpl (port, baudrate, timeout, bytesize, parity,
                            stopbits, flowcontrol);
   read_cache_ = new char[buffer_size_];
@@ -74,6 +79,7 @@ Serial::available ()
 string
 Serial::read (size_t size)
 {
+  mutex::scoped_lock scoped_lock (mut);
   size_t cache_size = strlen (read_cache_);
   if (cache_size >= size)
   {
@@ -184,12 +190,14 @@ Serial::readlines(string eol)
 size_t
 Serial::write (const string &data)
 {
+  mutex::scoped_lock scoped_lock(mut);
   return pimpl_->write (data);
 }
 
 void
 Serial::setPort (const string &port)
 {
+  mutex::scoped_lock scoped_lock(mut);
   bool was_open = pimpl_->isOpen();
   if (was_open) close();
   pimpl_->setPort (port);
@@ -275,6 +283,7 @@ Serial::getFlowcontrol () const
 
 void Serial::flush ()
 {
+  mutex::scoped_lock scoped_lock (mut);
   pimpl_->flush ();
   memset (read_cache_, 0, buffer_size_);
 }
@@ -286,6 +295,7 @@ void Serial::flushInput ()
 
 void Serial::flushOutput ()
 {
+  mutex::scoped_lock scoped_lock (mut);
   pimpl_->flushOutput ();
   memset (read_cache_, 0, buffer_size_);
 }

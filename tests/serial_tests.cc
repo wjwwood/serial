@@ -17,7 +17,7 @@ int main(int argc, char **argv) {
     while (1) {
       // size_t available = s.available();
       // cout << "avialable: " << available << endl;
-      string line = s.read();
+      string line = s.readline();
       if (line.empty())
         cout << "Nothing\n";
       cout << count << ": " << line << line.length() << endl;

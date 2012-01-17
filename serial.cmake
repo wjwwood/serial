@@ -74,11 +74,6 @@ IF( WIN32 )
   target_link_libraries(serial wsock32)
 ENDIF( )
 
-# Check for OS X and if so disable kqueue support in asio
-IF(CMAKE_SYSTEM_NAME MATCHES Darwin)
-    add_definitions(-DBOOST_ASIO_DISABLE_KQUEUE)
-ENDIF(CMAKE_SYSTEM_NAME MATCHES Darwin)
-
 ## Build Examples
 
 # If asked to
