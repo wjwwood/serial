@@ -52,9 +52,9 @@ Setup workspace (skip if you already have one):
     
 Add the rosinstall entry for this stack:
     
-    echo "-git: {local-name: serial, uri: 'https://github.com/wjwwood/serial.git', version: 'master'}" >> .rosinstall
+    echo "- git: {local-name: serial, uri: 'https://github.com/wjwwood/serial.git', version: 'master'}" >> .rosinstall
     
-Rerun rosinstall:
+Rerun rosinstall (note this will change your $ROS_PACKAGE_PATH):
     
     rosinstall .
     source setup.bash
