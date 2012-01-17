@@ -236,7 +236,7 @@ Serial::SerialImpl::read (char* buf, size_t size)
       FD_SET (fd_, &readfds);
       struct timeval timeout;
       timeout.tv_sec =                    timeout_ / 1000;
-      timeout.tv_usec = static_cast<int> (timeout_ % 1000);
+      timeout.tv_usec = static_cast<int> (timeout_ % 1000) * 1000;
       int r = select (fd_ + 1, &readfds, NULL, NULL, &timeout);
 
       if (r == -1 && errno == EINTR)
@@ -263,6 +263,10 @@ Serial::SerialImpl::read (char* buf, size_t size)
         throw SerialExecption ("device reports readiness to read but "
                                "returned no data (device disconnected?)");
       }
+      break;
+    }
+    else
+    {
       break;
     }
   }
@@ -298,8 +302,6 @@ void
 Serial::SerialImpl::setTimeout (long timeout)
 {
   timeout_ = timeout;
-  if (isOpen_)
-    reconfigurePort ();
 }
 
 long
