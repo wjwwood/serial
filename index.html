@@ -8,7 +8,7 @@
   <style type="text/css">
     body {
       margin-top: 1.0em;
-      background-color: #483D8B;
+      background-color: #000;
       font-family: Helvetica, Arial, FreeSans, san-serif;
       color: #ffffff;
     }
@@ -16,15 +16,15 @@
       margin: 0 auto;
       width: 700px;
     }
-    h1 { font-size: 3.8em; color: #9188c5; margin-bottom: 3px; }
+    h1 { font-size: 3.8em; color: #0f0; margin-bottom: 3px; }
     h1 .small { font-size: 0.4em; }
     h1 a { text-decoration: none }
-    h2 { font-size: 1.5em; color: #9188c5; }
-    h3 { text-align: center; color: #9188c5; }
-    a { color: #9188c5; }
+    h2 { font-size: 1.5em; color: #0f0; }
+    h3 { text-align: center; color: #0f0; }
+    a { color: #0f0; }
     .description { font-size: 1.2em; margin-bottom: 30px; margin-top: 30px; font-style: italic;}
     .download { float: right; }
-    pre { background: #96874e; color: #fff; padding: 15px;}
+    pre { background: #000; color: #0f0; padding: 15px;}
     hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
     .footer { text-align:center; padding-top:30px; font-style: italic; }
   </style>
@@ -50,15 +50,23 @@
     </div>
 
     
-      <p>This is a cross-platform library for interfacing with rs-232 serial like ports written in C++.  It provides a modern C++ interface with a workflow designed to look and feel like PySerial (http://pyserial.sourceforge.net/), but with the speed and control provided by C++.  This library is in use in several robotics related projects and can be built and installed to the OS like most unix libraries with `make` and then `sudo make install`, but if you wish to use it with ROS then it will build as a unary stack.  The library has two main components currently: Serial and SerialListener.  Serial is a class that provides the basic interface common to serial libraries (open, close, read, write, etc..) and requires no extra dependencies.  The SerialListener class is a convenience class that provides a method for easily asynchronously reading from a serial port, we have found this setup useful when interfacing with devices that send data asynchronously as well as use command-response type message interleaved.  The SerialListener has an extra dependency of Boost for C++, which provides some feature not yet fully adopted by all C++ compilers like function types, shared_ptr's, and convenient threading.</p>
+      <p>This is a cross-platform library for interfacing with rs-232 serial like ports written in C++.  It provides a modern C++ interface with a workflow designed to look and feel like <a href="http://pyserial.sourceforge.net/">PySerial</a>, but with the speed and control provided by C++.
+<br/>
+This library is in use in several robotics related projects and can be built and installed to the OS like most unix libraries with <it>make</it> and then <it>sudo make install</it>, but if you wish to use it with ROS then it will build as a unary stack.
+<br/>
+The library has two main components currently: Serial and SerialListener.  
+<br/>
+Serial is a class that provides the basic interface common to serial libraries (open, close, read, write, etc..) and requires no extra dependencies.
+<br/>
+The SerialListener class is a convenience class that provides a method for easily asynchronously reading from a serial port, we have found this setup useful when interfacing with devices that send data asynchronously as well as use command-response type message interleaved.  The SerialListener has an extra dependency of Boost for C++, which provides some feature not yet fully adopted by all C++ compilers like function types, shared_ptr's, and convenient threading.</p>
     
 
     
       <h2>Dependencies</h2>
       <ul>
-          <li>cmake - for the build system</li>
-          <li>boost - for SerialListener only (optional)</li>
-          <li>ROS - for building in a ROS ecosystem (optional)</li>
+          <li><a href="http://www.cmake.org/">cmake</a> - for the build system</li>
+          <li><a href="http://www.boost.org/">boost</a> - for SerialListener only (optional)</li>
+          <li><a href="http://www.ros.org/wiki/">ROS</a> - for building in a ROS ecosystem (optional)</li>
       </ul>
     
 
