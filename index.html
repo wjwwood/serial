@@ -51,13 +51,13 @@
 
     
       <p>This is a cross-platform library for interfacing with rs-232 serial like ports written in C++.  It provides a modern C++ interface with a workflow designed to look and feel like <a href="http://pyserial.sourceforge.net/">PySerial</a>, but with the speed and control provided by C++.
-<br/>
+<br/><br/>
 This library is in use in several robotics related projects and can be built and installed to the OS like most unix libraries with <it>make</it> and then <it>sudo make install</it>, but if you wish to use it with ROS then it will build as a unary stack.
-<br/>
+<br/><br/>
 The library has two main components currently: Serial and SerialListener.  
-<br/>
+<br/><br/>
 Serial is a class that provides the basic interface common to serial libraries (open, close, read, write, etc..) and requires no extra dependencies.
-<br/>
+<br/><br/>
 The SerialListener class is a convenience class that provides a method for easily asynchronously reading from a serial port, we have found this setup useful when interfacing with devices that send data asynchronously as well as use command-response type message interleaved.  The SerialListener has an extra dependency of Boost for C++, which provides some feature not yet fully adopted by all C++ compilers like function types, shared_ptr's, and convenient threading.</p>
     
 
@@ -109,10 +109,10 @@ to deal in the Software without restriction, including without limitation
 the rights to use, copy, modify, merge, publish, distribute, sublicense,
 and/or sell copies of the Software, and to permit persons to whom the
 Software is furnished to do so, subject to the following conditions:
-
+<br/><br/>
 The above copyright notice and this permission notice shall be included in
 all copies or substantial portions of the Software.
-
+<br/><br/>
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
