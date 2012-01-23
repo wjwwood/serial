@@ -116,7 +116,7 @@ Serial::SerialImpl::reconfigurePort ()
   else if (bytesize_ == FIVEBITS)
       options.c_cflag |= CS5;
   else
-      throw invalid_argument ("Invalid char len");
+      throw invalid_argument ("invalid char len");
   // setup stopbits
   if (stopbits_ == STOPBITS_ONE)
       options.c_cflag &= (unsigned long) ~(CSTOPB);

@@ -50,8 +50,8 @@ SerialListener::callback() {
     std::pair<FilterPtr,TokenPtr> pair;
     while (this->listening) {
       if (this->callback_queue.timed_wait_and_pop(pair, 10)) {
-        std::cout << "Got something off the callback queue: ";
-        std::cout << (*pair.second) << std::endl;
+        std::cerr << "Got something off the callback queue: ";
+        std::cerr << (*pair.second) << std::endl;
         if (this->listening) {
           try {
             pair.first->callback_((*pair.second));
@@ -118,6 +118,10 @@ SerialListener::readSomeData(std::string &temp, size_t this_many) {
     this->handle_exc(SerialListenerException("Serial port not open."));
   }
   temp = this->serial_port_->read(this_many);
+  // if (temp.length() > 0) {
+    std::cerr << "SerialListener read (" << temp.length() << "): ";
+    std::cerr << temp << std::endl;
+  // }
 }
 
 void

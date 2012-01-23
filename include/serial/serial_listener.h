@@ -643,12 +643,6 @@ private:
   // exact comparator function
   static bool
   _exactly (const std::string& token, std::string exact_str) {
-    std::cout << token << " == " << exact_str << ": ";
-    if (token == exact_str)
-      std::cout << "True";
-    else
-      std::cout << "False";
-    std::cout << std::endl;
     return token == exact_str;
   }
   // startswith comparator function

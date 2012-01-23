@@ -1,3 +1,24 @@
+/* To run these tests you need to change the define below to the serial port 
+ * with a loop back device attached.
+ * 
+ * Alternatively you could use an Arduino:
+ 
+ void setup()
+ {
+   Serial.begin(9600);
+ }
+
+ void loop()
+ {
+   while (Serial.available() > 0) {
+     Serial.write(Serial.read());
+   }
+ }
+ 
+ */
+
+#define SERIAL_PORT_NAME "/dev/tty.usbserial"
+
 #include "gtest/gtest.h"
 
 #include <boost/bind.hpp>
@@ -13,62 +34,47 @@ static size_t global_count, global_listen_count;
 
 void default_handler(std::string line) {
   global_count++;
-  // std::cout << "default_handler got: " << line << std::endl;
+  std::cout << "default_handler got: " << line << std::endl;
 }
 
 namespace {
 
-// class SerialListenerTests : public ::testing::Test {
-// protected:
-//   virtual void SetUp() {
-//     listener.listening = true;
-//     listener.setDefaultHandler(default_handler);
-//     listener.callback_thread =
-//      boost::thread(boost::bind(&SerialListener::callback, &listener));
-//   }
-// 
-//   virtual void TearDown() {
-//     listener.listening = false;
-//     listener.callback_thread.join();
-//   }
-// 
-//   void stopCallbackThread() {
-//     while (true) {
-//       boost::this_thread::sleep(boost::posix_time::milliseconds(1));
-//       boost::mutex::scoped_lock lock(listener.callback_queue.the_mutex);
-//       if (listener.callback_queue.the_queue.empty())
-//         break;
-//     }
-//     listener.listening = false;
-//     listener.callback_thread.join();
-//   }
-// 
-//   void execute_listenForStringOnce() {
-//     listener.listenForStringOnce("?$1E", 50);
-//   }
-// 
-//   void simulate_loop(std::string input_str) {
-//     std::vector<TokenPtr> new_tokens;
-//     listener.tokenize(input_str, new_tokens);
-//     listener.filterNewTokens(new_tokens);
-//   }
-// 
-//   SerialListener listener;
-// 
-// };
-// 
-// TEST_F(SerialListenerTests, handlesPartialMessage) {
-//   global_count = 0;
-//   std::string input_str = "?$1E\r$1E=Robo";
-// 
-//   simulate_loop(input_str);
-// 
-//   // give some time for the callback thread to finish
-//   stopCallbackThread();
-// 
-//   ASSERT_EQ(global_count, 1);
-// }
-// 
+class SerialListenerTests : public ::testing::Test {
+protected:
+  virtual void SetUp() {
+    port1 = new Serial(SERIAL_PORT_NAME, 115200, 250);
+
+    listener.setDefaultHandler(default_handler);
+    listener.startListening((*port1));
+  }
+
+  virtual void TearDown() {
+    listener.stopListening();
+    port1->close();
+    delete port1;
+  }
+
+  SerialListener listener;
+  Serial * port1;
+
+};
+
+void my_sleep(long milliseconds) {
+  boost::this_thread::sleep(boost::posix_time::milliseconds(milliseconds));
+}
+
+TEST_F(SerialListenerTests, handlesPartialMessage) {
+  global_count = 0;
+  std::string input_str = "?$1E\r$1E=Robo";
+
+  port1->write(input_str);
+
+  // give some time for the callback thread to finish
+  my_sleep(1000);
+
+  ASSERT_EQ(1, global_count);
+}
+
 // TEST_F(SerialListenerTests, listenForOnceWorks) {
 //   global_count = 0;
 // 
@@ -147,6 +153,11 @@ namespace {
 }  // namespace
 
 int main(int argc, char **argv) {
+  try {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
+  } catch (std::exception &e) {
+    std::cerr << "Unhandled Exception: " << e.what() << std::endl;
+  }
+  return 1;
 }
