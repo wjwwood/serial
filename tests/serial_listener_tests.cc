@@ -2,22 +2,22 @@
  * with a loop back device attached.
  * 
  * Alternatively you could use an Arduino:
- 
- void setup()
- {
-   Serial.begin(115200);
- }
-
- void loop()
- {
-   while (Serial.available() > 0) {
-     Serial.write(Serial.read());
-   }
- }
- 
+ * 
+ *     void setup()
+ *     {
+ *       Serial.begin(115200);
+ *     }
+ *     
+ *     void loop()
+ *     {
+ *       while (Serial.available() > 0) {
+ *         Serial.write(Serial.read());
+ *       }
+ *     }
+ * 
  */
 
-#define SERIAL_PORT_NAME "/dev/tty.usbserial-A900cfJA"
+#define SERIAL_PORT_NAME "/dev/tty.usbserial"
 
 #include "gtest/gtest.h"
 
@@ -50,7 +50,7 @@ protected:
     port1 = new Serial(SERIAL_PORT_NAME, 115200, 250);
 
     // Need to wait a bit for the Arduino to come up
-    my_sleep(1000);
+    // my_sleep(1000);
 
     listener.setDefaultHandler(default_handler);
     listener.startListening((*port1));
@@ -71,10 +71,10 @@ TEST_F(SerialListenerTests, handlesPartialMessage) {
   global_count = 0;
   std::string input_str = "?$1E\r$1E=Robo";
 
-  port1->write(input_str);
+  ASSERT_EQ(input_str.length(), port1->write(input_str));
 
   // give some time for the callback thread to finish
-  my_sleep(1000);
+  my_sleep(2000);
 
   ASSERT_EQ(1, global_count);
 }

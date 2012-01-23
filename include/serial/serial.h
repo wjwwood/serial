@@ -240,7 +240,7 @@ public:
   * \return A std::string containing the line.
   */
   std::string
-  readline(size_t      size = std::numeric_limits<std::size_t>::max(),
+  readline(size_t size = std::numeric_limits<std::size_t>::max(),
            std::string eol  = "\n");
 
   /*! Reads in multiple lines until the serail port times out.
