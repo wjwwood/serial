@@ -24,7 +24,7 @@ int run(int argc, char **argv)
     
     int count = 0;
     while (count >= 0) {
-        int bytes_wrote = serial.write("Testing.");
+        size_t bytes_wrote = serial.write("Testing.");
         std::string result = serial.read(8);
         std::cout << ">" << count << ">" << bytes_wrote << ">";
         std::cout << result.length() << "<" << result << std::endl;

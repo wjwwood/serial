@@ -17,7 +17,7 @@
  
  */
 
-#define SERIAL_PORT_NAME "/dev/tty.usbserial"
+#define SERIAL_PORT_NAME "/dev/tty.usbserial-A900cfJA"
 
 #include "gtest/gtest.h"
 
@@ -39,10 +39,18 @@ void default_handler(std::string line) {
 
 namespace {
 
+
+void my_sleep(long milliseconds) {
+  boost::this_thread::sleep(boost::posix_time::milliseconds(milliseconds));
+}
+
 class SerialListenerTests : public ::testing::Test {
 protected:
   virtual void SetUp() {
     port1 = new Serial(SERIAL_PORT_NAME, 115200, 250);
+
+    // Need to wait a bit for the Arduino to come up
+    my_sleep(1000);
 
     listener.setDefaultHandler(default_handler);
     listener.startListening((*port1));
@@ -58,10 +66,6 @@ protected:
   Serial * port1;
 
 };
-
-void my_sleep(long milliseconds) {
-  boost::this_thread::sleep(boost::posix_time::milliseconds(milliseconds));
-}
 
 TEST_F(SerialListenerTests, handlesPartialMessage) {
   global_count = 0;
