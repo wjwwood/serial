@@ -1,5 +1,6 @@
 #include <string>
 #include <iostream>
+#include <stdio.h>
 
 #include <boost/thread.hpp>
 
@@ -7,14 +8,17 @@
 
 int run(int argc, char **argv)
 {
-    if(argc < 2) {
-        std::cerr << "Usage: test_serial <serial port address>" << std::endl;
+    if(argc < 3) {
+        std::cerr << "Usage: test_serial <serial port address> <baudrate>" << std::endl;
         return 0;
     }
     std::string port(argv[1]);
-    
+    unsigned long baud = 0;
+
+    sscanf(argv[2], "%lu", &baud);
+
     // port, baudrate, timeout in milliseconds
-    serial::Serial serial(port, 115200, 250);
+    serial::Serial serial(port, baud, 250);
     
     std::cout << "Is the serial port open?";
     if(serial.isOpen())

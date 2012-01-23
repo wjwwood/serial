@@ -64,7 +64,19 @@ Serial::SerialImpl::open ()
 
   if (fd_ == -1)
   {
-    throw IOException ("invalid file descriptor");
+    switch (errno)
+    {
+      case EINTR:
+        // Recurse because this is a recoverable error.
+        open ();
+        return;
+      case ENFILE:
+      case EMFILE:
+        throw IOException ("to many file handles open");
+        break;
+      default:
+        throw IOException (errno);
+    }
   }
 
   reconfigurePort();
@@ -215,7 +227,7 @@ Serial::SerialImpl::available ()
   }
   else
   {
-    throw IOException ("ioctl");
+    throw IOException (errno);
   }
 }
 
@@ -244,8 +256,7 @@ Serial::SerialImpl::read (char* buf, size_t size)
 
       if (r == -1)
       {
-        perror("select()");
-        exit(EXIT_FAILURE);
+        throw IOException (errno);
       }
     }
 
@@ -276,12 +287,27 @@ Serial::SerialImpl::read (char* buf, size_t size)
 size_t
 Serial::SerialImpl::write (const string &data)
 {
-  if (isOpen_ == false) {
+  if (isOpen_ == false)
+  {
     throw PortNotOpenedException ("Serial::write");
   }
+
   ssize_t n = ::write (fd_, data.c_str (), data.length ());
-  if (n == -1) {
-    throw IOException ("Write");
+
+  if (n != static_cast<ssize_t> (data.length ()))
+  {
+    throw IOException ("Write did not complete");
+  }
+  else if (n == -1)
+  {
+    if (errno == EINTR)
+    {
+      return write (data);
+    }
+    else
+    {
+      throw IOException (errno);
+    }
   }
   return static_cast<size_t> (n);
 }
