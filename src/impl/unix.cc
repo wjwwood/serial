@@ -265,7 +265,6 @@ Serial::SerialImpl::read (char* buf, size_t size)
       bytes_read = ::read (fd_, buf, size);
       // read should always return some data as select reported it was
       // ready to read when we get to this point.
-      // printf("bytes_read: %lu\n", bytes_read);
       if (bytes_read < 1)
       {
         // Disconnected devices, at least on Linux, show the
@@ -291,25 +290,54 @@ Serial::SerialImpl::write (const string &data)
   {
     throw PortNotOpenedException ("Serial::write");
   }
-
-  ssize_t n = ::write (fd_, data.c_str (), data.length ());
-
-  if (n != static_cast<ssize_t> (data.length ()))
+  
+  fd_set writefds;
+  ssize_t bytes_written = 0;
+  while (true)
   {
-    throw IOException ("Write did not complete");
-  }
-  else if (n == -1)
-  {
-    if (errno == EINTR)
+    if (timeout_ != -1)
     {
-      return write (data);
+      FD_ZERO (&writefds);
+      FD_SET (fd_, &writefds);
+      struct timeval timeout;
+      timeout.tv_sec =                    timeout_ / 1000;
+      timeout.tv_usec = static_cast<int> (timeout_ % 1000) * 1000;
+      int r = select (fd_ + 1, NULL, &writefds, NULL, &timeout);
+
+      if (r == -1 && errno == EINTR)
+        continue;
+
+      if (r == -1)
+      {
+        throw IOException (errno);
+      }
+    }
+
+    if (timeout_ == -1 || FD_ISSET (fd_, &writefds))
+    {
+      bytes_written = ::write (fd_, data.c_str (), data.length ());
+      // read should always return some data as select reported it was
+      // ready to read when we get to this point.
+      if (bytes_written < 1)
+      {
+        // Disconnected devices, at least on Linux, show the
+        // behavior that they are always ready to read immediately
+        // but reading returns nothing.
+        throw SerialExecption ("device reports readiness to read but "
+                               "returned no data (device disconnected?)");
+      }
+      break;
     }
     else
     {
-      throw IOException (errno);
+      break;
     }
   }
-  return static_cast<size_t> (n);
+  if (bytes_written != static_cast<ssize_t> (data.length ()))
+  {
+    throw IOException ("Write did not complete");
+  }
+  return static_cast<size_t> (bytes_written);
 }
 
 void

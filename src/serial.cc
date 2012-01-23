@@ -91,7 +91,7 @@ Serial::read (size_t size)
   }
   else
   {
-    // Needs to read, loop until we have read enough... or timeout
+    // Needs to read, loop until we have read enough or timeout
     size_t chars_left = 0;
     string result = "";
 
@@ -114,8 +114,8 @@ Serial::read (size_t size)
         *(read_cache_ + chars_read) = '\0';
         if (chars_left > chars_read)
         {
+          result.append (read_cache_, chars_read);
           memset (read_cache_, 0, buffer_size_);
-          result.append (read_cache_);
           chars_left -= chars_read;
         }
         else
