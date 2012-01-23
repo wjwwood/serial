@@ -83,39 +83,53 @@ typedef enum {
   FLOWCONTROL_HARDWARE
 } flowcontrol_t;
 
-class SerialExecption : public std::exception {
-  const char * e_what;
+class SerialExecption : public std::exception
+{
+  const char* e_what_;
 public:
-  SerialExecption(const char *description) {e_what=description;};
-  virtual const char* what() const throw() {
-        std::stringstream ss;
-        ss << "SerialException " << this->e_what << " failed.";
-        return ss.str().c_str();
+  SerialExecption (const char *description) : e_what_ (description) {}
+
+  virtual const char* what () const throw ()
+  {
+    std::stringstream ss;
+    ss << "SerialException " << e_what_ << " failed.";
+    return ss.str ().c_str ();
   }
 };
 
-class IOException : public std::exception {
-    const char * e_what;
+class IOException : public std::exception
+{
+  const char* e_what_;
+  int errno_;
 public:
-    IOException(const char * description) {e_what = description;}
+  explicit IOException (int errnum) : e_what_ (strerror (errnum)), errno_(errnum) {}
+  explicit IOException (const char * description) : e_what_ (description), errno_(0) {}
 
-    virtual const char* what() const throw() {
-        std::stringstream ss;
-        ss << "IO Exception " << this->e_what << " failed.";
-        return ss.str().c_str();
-    }
+  int getErrorNumber () { return errno_; }
+
+  virtual const char* what () const throw ()
+  {
+    std::stringstream ss;
+    if (errno_ == 0)
+      ss << "IO Exception " << e_what_ << " failed.";
+    else
+      ss << "IO Exception " << errno_ << ":" << e_what_ << " failed.";
+    return ss.str ().c_str ();
+  }
 };
 
-class PortNotOpenedException : public std::exception {
-  const char * e_what;
+class PortNotOpenedException : public std::exception
+{
+  const char * e_what_;
 public:
-    PortNotOpenedException(const char * description) {e_what = description;}
+  PortNotOpenedException (const char * description) : e_what_ (description) {}
 
-    virtual const char* what() const throw() {
+  virtual const char* what () const throw ()
+  {
     std::stringstream ss;
-    ss << e_what << " called before port was opened.";
-        return ss.str().c_str();
-    }
+    ss << e_what_ << " called before port was opened.";
+    return ss.str ().c_str ();
+  }
 };
 
 

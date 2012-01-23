@@ -167,7 +167,7 @@ Serial::readlines(string eol)
 {
   if (pimpl_->getTimeout () < 0)
   {
-    throw "Error, must be set for readlines";
+    throw invalid_argument ("Error, must be set for readlines");
   }
   size_t leneol = eol.length ();
   vector<string> lines;
@@ -339,3 +339,4 @@ bool Serial::getCD ()
 {
   return pimpl_->getCD ();
 }
+
