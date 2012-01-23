@@ -42,4 +42,10 @@ rosbuild_add_executable(serial_listener_example
   examples/serial_listener_example.cc)
 target_link_libraries(serial_listener_example ${PROJECT_NAME})
 
+# Create unit tests
+rosbuild_add_gtest(serial_tests tests/serial_tests.cc)
+target_link_libraries(serial_tests ${PROJECT_NAME})
+rosbuild_add_gtest(serial_listener_tests tests/serial_listener_tests.cc)
+target_link_libraries(serial_listener_tests ${PROJECT_NAME})
+
 endmacro(build_serial)
