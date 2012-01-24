@@ -808,12 +808,15 @@ public:
    * \return std::string token that was matched or "" if none were matched.
    */
   std::string wait(long ms) {
-    if (ms == 0)
-      if (!this->queue.try_pop(this->result))
+    if (ms == 0) {
+      if (!this->queue.try_pop(this->result)) {
         this->result = "";
-    else
-      if (!this->queue.timed_wait_and_pop(this->result, ms))
+      }
+    } else {
+      if (!this->queue.timed_wait_and_pop(this->result, ms)) {
         this->result = "";
+      }
+    }
     return result;
   }
 
@@ -842,8 +845,9 @@ public:
 
   void callback(const std::string &token) {
     std::string throw_away;
-    if (this->queue.size() == this->buffer_size_)
+    if (this->queue.size() == this->buffer_size_) {
       this->queue.wait_and_pop(throw_away);
+    }
     this->queue.push(token);
   }
 
