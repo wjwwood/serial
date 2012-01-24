@@ -18,7 +18,7 @@ int run(int argc, char **argv)
     sscanf(argv[2], "%lu", &baud);
 
     // port, baudrate, timeout in milliseconds
-    serial::Serial serial(port, baud, 250);
+    serial::Serial serial(port, baud, 1000);
     
     std::cout << "Is the serial port open?";
     if(serial.isOpen())

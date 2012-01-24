@@ -17,7 +17,8 @@
  * 
  */
 
-#define SERIAL_PORT_NAME "/dev/tty.usbserial"
+// #define SERIAL_PORT_NAME "/dev/tty.usbserial-A900cfJA"
+#define SERIAL_PORT_NAME "p0"
 
 #include "gtest/gtest.h"
 
@@ -32,13 +33,18 @@ using namespace serial;
 
 static size_t global_count, global_listen_count;
 
+void filter_handler(std::string token) {
+  global_listen_count++;
+  std::cout << "filter_handler got: " << token << std::endl;
+  return true;
+}
+
 void default_handler(std::string line) {
   global_count++;
   std::cout << "default_handler got: " << line << std::endl;
 }
 
 namespace {
-
 
 void my_sleep(long milliseconds) {
   boost::this_thread::sleep(boost::posix_time::milliseconds(milliseconds));
@@ -47,10 +53,8 @@ void my_sleep(long milliseconds) {
 class SerialListenerTests : public ::testing::Test {
 protected:
   virtual void SetUp() {
-    port1 = new Serial(SERIAL_PORT_NAME, 115200, 250);
-
-    // Need to wait a bit for the Arduino to come up
-    // my_sleep(1000);
+    port1 = new Serial("/dev/pty"SERIAL_PORT_NAME, 115200, 10);
+    port2 = new Serial("/dev/tty"SERIAL_PORT_NAME, 115200, 250);
 
     listener.setDefaultHandler(default_handler);
     listener.startListening((*port1));
@@ -58,12 +62,13 @@ protected:
 
   virtual void TearDown() {
     listener.stopListening();
-    port1->close();
     delete port1;
+    delete port2;
   }
 
   SerialListener listener;
   Serial * port1;
+  Serial * port2;
 
 };
 
@@ -71,88 +76,39 @@ TEST_F(SerialListenerTests, handlesPartialMessage) {
   global_count = 0;
   std::string input_str = "?$1E\r$1E=Robo";
 
-  ASSERT_EQ(input_str.length(), port1->write(input_str));
-
-  // give some time for the callback thread to finish
-  my_sleep(2000);
+  std::cout << "writing: ?$1E<cr>$1E=Robo" << std::endl;
+  port2->write(input_str);
+  // Allow time for processing
+  my_sleep(50);
 
   ASSERT_EQ(1, global_count);
+
+  input_str = "?$1E\r$1E=Roboteq\r";
+  std::cout << "writing: ?$1E<cr>$1E=Roboteq<cr>" << std::endl;
+  port2->write(input_str);
+  // Allow time for processing
+  my_sleep(50);
+
+  ASSERT_EQ(3, global_count);
 }
 
-// TEST_F(SerialListenerTests, listenForOnceWorks) {
-//   global_count = 0;
-// 
-//   boost::thread t(
-//     boost::bind(&SerialListenerTests::execute_listenForStringOnce, this));
-// 
-//   boost::this_thread::sleep(boost::posix_time::milliseconds(5));
-// 
-//   simulate_loop("\r+\r?$1E\r$1E=Robo");
-// 
-//   ASSERT_TRUE(t.timed_join(boost::posix_time::milliseconds(60)));
-// 
-//   // Make sure the filters are getting deleted
-//   ASSERT_EQ(listener.filters.size(), 0);
-// 
-//   // give some time for the callback thread to finish
-//   stopCallbackThread();
-// 
-//   ASSERT_EQ(global_count, 1);
-// }
-// 
-// // lookForOnce should not find it, but timeout after 1000ms, so it should 
-// //  still join.
-// TEST_F(SerialListenerTests, listenForOnceTimesout) {
-//   global_count = 0;
-// 
-//   boost::thread t(
-//     boost::bind(&SerialListenerTests::execute_listenForStringOnce, this));
-// 
-//   boost::this_thread::sleep(boost::posix_time::milliseconds(55));
-// 
-//   simulate_loop("\r+\r?$1ENOTRIGHT\r$1E=Robo");
-// 
-//   ASSERT_TRUE(t.timed_join(boost::posix_time::milliseconds(60)));
-// 
-//   // give some time for the callback thread to finish
-//   stopCallbackThread();
-// 
-//   ASSERT_EQ(global_count, 2);
-// }
-// 
-// bool listenForComparator(std::string line) {
-//   // std::cout << "In listenForComparator(" << line << ")" << std::endl;
-//   if (line.substr(0,2) == "V=") {
-//     return true;
-//   }
-//   return false;
-// }
-// 
-// void listenForCallback(std::string line) {
-//   // std::cout << "In listenForCallback(" << line << ")" << std::endl;
-//   global_listen_count++;
-// }
-// 
-// TEST_F(SerialListenerTests, listenForWorks) {
-//   global_count = 0;
-//   global_listen_count = 0;
-// 
-//   FilterPtr filt_uuid =
-//     listener.listenFor(listenForComparator, listenForCallback);
-// 
-//   simulate_loop("\r+\rV=05:06\r?$1E\rV=06:05\r$1E=Robo");
-// 
-//   // give some time for the callback thread to finish
-//   stopCallbackThread();
-// 
-//   ASSERT_EQ(global_count, 2);
-//   ASSERT_EQ(global_listen_count, 2);
-// 
-//   listener.stopListeningFor(filt_uuid);
-// 
-//   ASSERT_EQ(listener.filters.size(), 0);
-// 
-// }
+TEST_F(SerialListenerTests, normalFilterWorks) {
+  global_count = 0;
+  std::string input_str = "?$1E\r$1E=Robo\rV=1334:1337\rT=123";
+
+  // Setup filter
+  FilterPtr filt_1 =
+    listener.createFilter(SerialListener::startsWith("V="), filter_handler);
+
+  std::cout << "writing: ?$1E<cr>$1E=Robo<cr>V=1334:1337<cr>T=123";
+  std::cout << std::endl;
+  port2->write(input_str);
+  // Allow time for processing
+  my_sleep(50);
+
+  ASSERT_EQ(2, global_count);
+  ASSERT_EQ(1, global_listen_count);
+}
 
 }  // namespace
 

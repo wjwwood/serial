@@ -102,8 +102,10 @@ class IOException : public std::exception
   const char* e_what_;
   int errno_;
 public:
-  explicit IOException (int errnum) : e_what_ (strerror (errnum)), errno_(errnum) {}
-  explicit IOException (const char * description) : e_what_ (description), errno_(0) {}
+  explicit IOException (int errnum)
+  : e_what_ (strerror (errnum)), errno_(errnum) {}
+  explicit IOException (const char * description)
+  : e_what_ (description), errno_(0) {}
 
   int getErrorNumber () { return errno_; }
 
@@ -113,7 +115,7 @@ public:
     if (errno_ == 0)
       ss << "IO Exception " << e_what_ << " failed.";
     else
-      ss << "IO Exception " << errno_ << ":" << e_what_ << " failed.";
+      ss << "IO Exception (" << errno_ << "): " << e_what_ << " failed.";
     return ss.str ().c_str ();
   }
 };

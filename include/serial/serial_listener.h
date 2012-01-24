@@ -663,10 +663,8 @@ private:
 
   // Gets some data from the serial port
   void readSomeData (std::string&, size_t);
-  // Runs the new tokens through the filters
-  void filterNewTokens (std::vector<TokenPtr> new_tokens);
-  // Given a filter_id and a list of tokens, return list of matched tokens
-  void filter (FilterPtr filter, std::vector<TokenPtr> &tokens);
+  // Runs the new_tokens through all the filters
+  void filter (std::vector<TokenPtr> &tokens);
   // Function that loops while listening is true
   void listen ();
   // Target of callback thread

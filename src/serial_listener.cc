@@ -50,8 +50,6 @@ SerialListener::callback() {
     std::pair<FilterPtr,TokenPtr> pair;
     while (this->listening) {
       if (this->callback_queue.timed_wait_and_pop(pair, 10)) {
-        std::cerr << "Got something off the callback queue: ";
-        std::cerr << (*pair.second) << std::endl;
         if (this->listening) {
           try {
             pair.first->callback_((*pair.second));
@@ -118,37 +116,32 @@ SerialListener::readSomeData(std::string &temp, size_t this_many) {
     this->handle_exc(SerialListenerException("Serial port not open."));
   }
   temp = this->serial_port_->read(this_many);
-  // if (temp.length() > 0) {
-    std::cerr << "SerialListener read (" << temp.length() << "): ";
-    std::cerr << temp << std::endl;
-  // }
 }
 
 void
-SerialListener::filterNewTokens (std::vector<TokenPtr> new_tokens) {
-  // Iterate through the filters, checking each against new tokens
+SerialListener::filter(std::vector<TokenPtr> &tokens) {
+  // Lock the filters while filtering
   boost::mutex::scoped_lock lock(filter_mux);
-  std::vector<FilterPtr>::iterator it;
-  for (it=filters.begin(); it!=filters.end(); it++) {
-    this->filter((*it), new_tokens);
-  } // for (it=filters.begin(); it!=filters.end(); it++)
-  // Put the last token back in the data buffer
-  this->data_buffer = (*new_tokens.back());
-}
-
-void
-SerialListener::filter (FilterPtr filter, std::vector<TokenPtr> &tokens)
-{
-  // Iterate through the token uuids and run each against the filter
+  // Iterate through each new token and filter them
   std::vector<TokenPtr>::iterator it;
   for (it=tokens.begin(); it!=tokens.end(); it++) {
-    // The last element goes back into the data_buffer, don't filter it
-    if (it == tokens.end()-1)
-      continue;
     TokenPtr token = (*it);
-    if (filter->comparator_((*token)))
-      callback_queue.push(std::make_pair(filter,token));
-  }
+    bool matched = false;
+    // Iterate through each filter
+    std::vector<FilterPtr>::iterator itt;
+    for (itt=filters.begin(); itt!=filters.end(); itt++) {
+      FilterPtr filter = (*itt);
+      if (filter->comparator_((*token))) {
+        callback_queue.push(std::make_pair(filter,token));
+        matched = true;
+        break;
+      }
+    } // for (itt=filters.begin(); itt!=filters.end(); itt++)
+    // If matched is false then send it to the default handler
+    if (!matched) {
+      callback_queue.push(std::make_pair(default_filter,token));
+    }
+  } // for (it=tokens.begin(); it!=tokens.end(); it++)
 }
 
 void
@@ -166,8 +159,11 @@ SerialListener::listen() {
         // Call the tokenizer on the updated buffer
         std::vector<TokenPtr> new_tokens;
         this->tokenize(this->data_buffer, new_tokens);
+        // Put the last token back in the data buffer
+        this->data_buffer = (*new_tokens.back());
+        new_tokens.pop_back();
         // Run the new tokens through existing filters
-        this->filterNewTokens(new_tokens);
+        this->filter(new_tokens);
       }
       // Done parsing lines and buffer should now be set to the left overs
     } // while (this->listening)
