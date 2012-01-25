@@ -106,19 +106,6 @@ SerialListener::determineAmountToRead() {
 }
 
 void
-SerialListener::readSomeData(std::string &temp, size_t this_many) {
-  // Make sure there is a serial port
-  if (this->serial_port_ == NULL) {
-    this->handle_exc(SerialListenerException("Invalid serial port."));
-  }
-  // Make sure the serial port is open
-  if (!this->serial_port_->isOpen()) {
-    this->handle_exc(SerialListenerException("Serial port not open."));
-  }
-  temp = this->serial_port_->read(this_many);
-}
-
-void
 SerialListener::filter(std::vector<TokenPtr> &tokens) {
   // Lock the filters while filtering
   boost::mutex::scoped_lock lock(filter_mux);
@@ -126,6 +113,10 @@ SerialListener::filter(std::vector<TokenPtr> &tokens) {
   std::vector<TokenPtr>::iterator it;
   for (it=tokens.begin(); it!=tokens.end(); it++) {
     TokenPtr token = (*it);
+    // If it is empty then pass it
+    if (token->empty()) {
+      continue;
+    }
     bool matched = false;
     // Iterate through each filter
     std::vector<FilterPtr>::iterator itt;

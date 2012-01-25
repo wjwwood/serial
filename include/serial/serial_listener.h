@@ -36,9 +36,14 @@
 #ifndef SERIAL_LISTENER_H
 #define SERIAL_LISTENER_H
 
+#ifndef SERIAL_LISTENER_DEBUG
+#define SERIAL_LISTENER_DEBUG 0
+#endif
+
 // STL
 #include <queue>
 #include <stdint.h>
+#include <iostream>
 
 // Serial
 #include <serial/serial.h>
@@ -48,6 +53,10 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/thread.hpp>
+
+#if SERIAL_LISTENER_DEBUG
+# warning SerialListener in debug mode
+#endif
 
 namespace serial {
 
@@ -643,16 +652,46 @@ private:
   // exact comparator function
   static bool
   _exactly (const std::string& token, std::string exact_str) {
+#if SERIAL_LISTENER_DEBUG
+    std::cerr << "In exactly callback(" << token.length() << "): ";
+    std::cerr << token << " == " << exact_str << ": ";
+    if (token == exact_str)
+      std::cerr << "True";
+    else
+      std::cerr << "False";
+    std::cerr << std::endl;
+#endif
     return token == exact_str;
   }
   // startswith comparator function
   static bool
   _startsWith (const std::string& token, std::string prefix) {
+#if SERIAL_LISTENER_DEBUG
+    std::cerr << "In startsWith callback(" << token.length() << "): ";
+    std::cerr << token << " starts with " << prefix;
+    std::cerr << "?: ";
+    if (token.substr(0,prefix.length()) == prefix)
+      std::cerr << "True";
+    else
+      std::cerr << "False";
+    std::cerr << std::endl;
+#endif
     return token.substr(0,prefix.length()) == prefix;
   }
   // endswith comparator function
   static bool
   _endsWith (const std::string& token, std::string postfix) {
+#if SERIAL_LISTENER_DEBUG
+    std::cerr << "In endsWith callback(";
+    std::cerr << token.length();
+    std::cerr << "): " << token;
+    std::cerr << " ends with " << postfix << "?: ";
+    if (token.substr(token.length()-postfix.length()) == postfix)
+      std::cerr << "True";
+    else
+      std::cerr << "False";
+    std::cerr << std::endl;
+#endif
     return token.substr(token.length()-postfix.length()) == postfix;
   }
   // contains comparator function
@@ -662,7 +701,17 @@ private:
   }
 
   // Gets some data from the serial port
-  void readSomeData (std::string&, size_t);
+  void readSomeData (std::string &temp, size_t this_many) {
+    // Make sure there is a serial port
+    if (this->serial_port_ == NULL) {
+      this->handle_exc(SerialListenerException("Invalid serial port."));
+    }
+    // Make sure the serial port is open
+    if (!this->serial_port_->isOpen()) {
+      this->handle_exc(SerialListenerException("Serial port not open."));
+    }
+    temp = this->serial_port_->read(this_many);
+  }
   // Runs the new_tokens through all the filters
   void filter (std::vector<TokenPtr> &tokens);
   // Function that loops while listening is true
@@ -750,6 +799,10 @@ public:
   FilterPtr filter_ptr;
 
   void callback(const std::string& token) {
+#if SERIAL_LISTENER_DEBUG
+    std::cerr << "In BlockingFilter callback(" << token.length() << "): ";
+    std::cerr << token << std::endl;
+#endif
     this->cond.notify_all();
     this->result = token;
   }
@@ -844,6 +897,10 @@ public:
   FilterPtr filter_ptr;
 
   void callback(const std::string &token) {
+#if SERIAL_LISTENER_DEBUG
+    std::cerr << "In BufferedFilter callback(" << token.length() << "): ";
+    std::cerr << token << std::endl;
+#endif
     std::string throw_away;
     if (this->queue.size() == this->buffer_size_) {
       this->queue.wait_and_pop(throw_away);
