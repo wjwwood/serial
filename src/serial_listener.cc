@@ -52,7 +52,9 @@ SerialListener::callback() {
       if (this->callback_queue.timed_wait_and_pop(pair, 10)) {
         if (this->listening) {
           try {
-            pair.first->callback_((*pair.second));
+            if (pair.first != NULL && pair.second != NULL) {
+              pair.first->callback_((*pair.second));
+            }
           } catch (std::exception &e) {
             this->handle_exc(e);
           }// try callback
