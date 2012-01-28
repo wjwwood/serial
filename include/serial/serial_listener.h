@@ -159,6 +159,12 @@ public:
 
   ComparatorType comparator_;
   DataCallback callback_;
+
+private:
+  // Disable copy constructors
+  Filter(const Filter&);
+  void operator=(const Filter&);
+  const Filter& operator=(Filter);
 };
 
 /*!
@@ -173,7 +179,7 @@ public:
  */
 typedef boost::shared_ptr<Filter> FilterPtr;
 
-class BlockingFilter;
+class BlockingFilter; // Forward declaration
 
 /*!
  * Shared Pointer of BlockingFilter, returned by
@@ -183,7 +189,7 @@ class BlockingFilter;
  */
 typedef boost::shared_ptr<BlockingFilter> BlockingFilterPtr;
 
-class BufferedFilter;
+class BufferedFilter; // Forward declaration
 
 /*!
  * Shared Pointer of BufferedFilter, returned by
@@ -637,6 +643,10 @@ public:
   }
 
 private:
+  // Disable copy constructors
+  SerialListener(const SerialListener&);
+  void operator=(const SerialListener&);
+  const SerialListener& operator=(SerialListener);
   // delimeter tokenizer function
   static void
   _delimeter_tokenizer (const std::string &data,
