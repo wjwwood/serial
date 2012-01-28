@@ -35,20 +35,17 @@ using boost::mutex;
 
 Serial::Serial (const string &port, unsigned long baudrate, long timeout,
                 bytesize_t bytesize, parity_t parity, stopbits_t stopbits,
-                flowcontrol_t flowcontrol, const size_t buffer_size)
- : buffer_size_(buffer_size)
+                flowcontrol_t flowcontrol)
+ : read_cache_("")
 {
   mutex::scoped_lock scoped_lock(mut);
   pimpl_ = new SerialImpl (port, baudrate, timeout, bytesize, parity,
                            stopbits, flowcontrol);
-  read_cache_ = new char[buffer_size_];
-  memset (read_cache_, 0, buffer_size_ * sizeof (char));
 }
 
 Serial::~Serial ()
 {
-  delete   pimpl_;
-  delete[] read_cache_;
+  delete pimpl_;
 }
 
 void
@@ -61,7 +58,6 @@ void
 Serial::close ()
 {
   pimpl_->close ();
-  memset (read_cache_, 0, buffer_size_ * sizeof (char));
 }
 
 bool
@@ -80,57 +76,42 @@ string
 Serial::read (size_t size)
 {
   mutex::scoped_lock scoped_lock (mut);
-  size_t cache_size = strlen (read_cache_);
-  if (cache_size >= size)
+  if (read_cache_.size() >= size)
   {
     // Don't need to do a new read.
-    string result (read_cache_, size);
-    memmove (read_cache_, read_cache_ + size, cache_size - size);
-    *(read_cache_ + cache_size - size) = '\0';
+    string result = read_cache_.substr (0, size);
+    read_cache_ = read_cache_.substr (size, read_cache_.size ());
     return result;
   }
   else
   {
     // Needs to read, loop until we have read enough or timeout
-    size_t chars_left = 0;
-    string result = "";
-
-    if (cache_size > 0)
-    {
-      result.append (read_cache_, cache_size);
-      memset (read_cache_, 0, buffer_size_);
-      chars_left = size - cache_size;
-    }
-    else
-    {
-      chars_left = size;
-    }
+    string result (read_cache_.substr (0, size));
+    read_cache_.clear ();
 
     while (true)
     {
-      size_t chars_read = pimpl_->read (read_cache_, buffer_size_ - 1);
+      char buf[256];
+      size_t chars_read = pimpl_->read (buf, 256);
       if (chars_read > 0)
       {
-        *(read_cache_ + chars_read) = '\0';
-        if (chars_left > chars_read)
-        {
-          result.append (read_cache_, chars_read);
-          memset (read_cache_, 0, buffer_size_);
-          chars_left -= chars_read;
-        }
-        else
-        {
-          result.append (read_cache_, static_cast<size_t> (chars_left));
-          memmove (read_cache_, read_cache_ + chars_left, chars_read - chars_left);
-          *(read_cache_ + chars_read - chars_left) = '\0';
-          memset (read_cache_ + chars_read - chars_left, 0,
-                  buffer_size_ - chars_read - chars_left);
-          // Finished reading all of the data
-          break;
-        }
+        read_cache_.append(buf, chars_read);
       }
       else
         break; // Timeout occured
+      
+      if (chars_read > size)
+      {
+        result.append (read_cache_.substr (0, size));
+        read_cache_ = read_cache_.substr (size, read_cache_.size ());
+        break;
+      }
+      else
+      {
+        result.append (read_cache_.substr (0, size));
+        read_cache_.clear ();
+        size -= chars_read;
+      }
     }
     return result;
   }
@@ -285,7 +266,7 @@ void Serial::flush ()
 {
   mutex::scoped_lock scoped_lock (mut);
   pimpl_->flush ();
-  memset (read_cache_, 0, buffer_size_);
+  read_cache_.clear ();
 }
 
 void Serial::flushInput ()
@@ -297,7 +278,7 @@ void Serial::flushOutput ()
 {
   mutex::scoped_lock scoped_lock (mut);
   pimpl_->flushOutput ();
-  memset (read_cache_, 0, buffer_size_);
+  read_cache_.clear ();
 }
 
 void Serial::sendBreak (int duration)

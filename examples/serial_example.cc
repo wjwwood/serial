@@ -29,7 +29,7 @@ int run(int argc, char **argv)
     int count = 0;
     while (count >= 0) {
         size_t bytes_wrote = serial.write("Testing.");
-        std::string result = serial.read(8);
+        std::string result = serial.readline();
         std::cout << ">" << count << ">" << bytes_wrote << ">";
         std::cout << result.length() << "<" << result << std::endl;
         
@@ -41,9 +41,9 @@ int run(int argc, char **argv)
 }
 
 int main(int argc, char **argv) {
-  try {
+  // try {
     return run(argc, argv);
-  } catch (std::exception &e) {
-    std::cerr << "Unhandled Exception: " << e.what() << std::endl;
-  }
+  // } catch (std::exception &e) {
+  //   std::cerr << "Unhandled Exception: " << e.what() << std::endl;
+  // }
 }
