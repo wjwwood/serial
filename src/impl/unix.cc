@@ -14,6 +14,10 @@
 #include <sys/time.h>
 #include <time.h>
 
+#if defined(__linux__)
+#include <linux/serial.h>
+#endif
+
 #include "serial/impl/unix.h"
 
 #ifndef TIOCINQ
@@ -218,12 +222,12 @@ Serial::SerialImpl::reconfigurePort ()
       struct serial_struct ser;
       ioctl(fd_, TIOCGSERIAL, &ser);
       // set custom divisor
-      ser.custom_divisor = ser.baud_base / baudrate;
+      ser.custom_divisor = ser.baud_base / baudrate_;
       // update flags
       ser.flags &= ~ASYNC_SPD_MASK;
       ser.flags |= ASYNC_SPD_CUST;
 
-      if (ioctl(fd_, TIOCSSERIAL, buf) < 0)
+      if (ioctl(fd_, TIOCSSERIAL, ser) < 0)
       {
         throw IOException (errno);
       }

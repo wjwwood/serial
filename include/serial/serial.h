@@ -38,6 +38,9 @@
 
 #include <stdexcept>
 #include <string>
+#if defined(__linux__)
+#include <string.h>
+#endif
 #include <sstream>
 #include <vector>
 #include <limits>
