@@ -185,8 +185,7 @@ public:
           bytesize_t bytesize = EIGHTBITS,
           parity_t parity = PARITY_NONE,
           stopbits_t stopbits = STOPBITS_ONE,
-          flowcontrol_t flowcontrol = FLOWCONTROL_NONE,
-          const size_t buffer_size = 256);
+          flowcontrol_t flowcontrol = FLOWCONTROL_NONE);
 
   /*! Destructor */
   virtual ~Serial ();
@@ -457,8 +456,7 @@ private:
   void operator=(const Serial&);
   const Serial& operator=(Serial);
 
-  const size_t buffer_size_;
-  char *read_cache_; //!< Cache for doing reads in chunks.
+  std::string read_cache_; //!< Cache for doing reads in chunks.
 
   // Pimpl idiom, d_pointer
   class SerialImpl;
