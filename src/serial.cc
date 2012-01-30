@@ -89,8 +89,10 @@ Serial::read (size_t size)
     string result (read_cache_.substr (0, size));
     read_cache_.clear ();
 
+	int count = 0;
     while (true)
     {
+	  // printf("%u\n", count++);
       char buf[256];
       size_t chars_read = pimpl_->read (buf, 256);
       if (chars_read > 0)
