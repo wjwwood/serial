@@ -18,7 +18,7 @@ int run(int argc, char **argv)
     sscanf(argv[2], "%lu", &baud);
 
     // port, baudrate, timeout in milliseconds
-    serial::Serial serial(port, baud, 1000);
+    serial::Serial serial(port, baud, 30000);
     
     std::cout << "Is the serial port open?";
     if(serial.isOpen())
@@ -28,7 +28,7 @@ int run(int argc, char **argv)
     
     int count = 0;
     while (count >= 0) {
-        size_t bytes_wrote = serial.write("Testing.");
+        size_t bytes_wrote = serial.write("Testing.\n");
         std::string result = serial.readline();
         std::cout << ">" << count << ">" << bytes_wrote << ">";
         std::cout << result.length() << "<" << result << std::endl;
