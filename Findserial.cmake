@@ -1,4 +1,4 @@
-find_path(serial_INCLUDE_DIRS serial.h serial_listener.h /usr/include/serial 
+find_path(serial_INCLUDE_DIRS serial.h /usr/include/serial 
           /usr/local/include/serial "$ENV{NAMER_ROOT}")
 
 find_library(serial_LIBRARIES serial /usr/lib /usr/local/lib
