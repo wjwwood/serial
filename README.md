@@ -7,7 +7,6 @@ Coming Soon!
 ## Dependencies
 
 * CMake, for the build system: http://www.cmake.org/
-* Boost, for threading: http://www.boost.org/
 * (Optional) ROS
 
 ## Stand Alone Installation

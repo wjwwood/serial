@@ -1,12 +1,5 @@
 /* Copyright 2012 William Woodall and John Harrison */
 
-#include <alloca.h>
-
-#include <cstring>
-#include <algorithm>
-
-#include <boost/thread/mutex.hpp>
-
 #include "serial/serial.h"
 
 #ifdef _WIN32
@@ -31,14 +24,35 @@ using serial::parity_t;
 using serial::stopbits_t;
 using serial::flowcontrol_t;
 
-using boost::mutex;
+class Serial::ScopedReadLock {
+public:
+  ScopedReadLock(SerialImpl *pimpl) : pimpl_(pimpl) {
+    this->pimpl_->readLock();
+  }
+  ~ScopedReadLock() {
+    this->pimpl_->readUnlock();
+  }
+private:
+  SerialImpl *pimpl_;
+};
+
+class Serial::ScopedWriteLock {
+public:
+  ScopedWriteLock(SerialImpl *pimpl) : pimpl_(pimpl) {
+    this->pimpl_->writeLock();
+  }
+  ~ScopedWriteLock() {
+    this->pimpl_->writeUnlock();
+  }
+private:
+  SerialImpl *pimpl_;
+};
 
 Serial::Serial (const string &port, unsigned long baudrate, long timeout,
                 bytesize_t bytesize, parity_t parity, stopbits_t stopbits,
                 flowcontrol_t flowcontrol)
  : read_cache_("")
 {
-  mutex::scoped_lock scoped_lock(mut);
   pimpl_ = new SerialImpl (port, baudrate, timeout, bytesize, parity,
                            stopbits, flowcontrol);
 }
@@ -75,7 +89,7 @@ Serial::available ()
 string
 Serial::read (size_t size)
 {
-  mutex::scoped_lock scoped_lock (mut);
+  ScopedReadLock(this->pimpl_);
   if (read_cache_.size() >= size)
   {
     // Don't need to do a new read.
@@ -89,10 +103,8 @@ Serial::read (size_t size)
     string result (read_cache_.substr (0, size));
     read_cache_.clear ();
 
-	int count = 0;
     while (true)
     {
-	  // printf("%u\n", count++);
       char buf[256];
       size_t chars_read = pimpl_->read (buf, 256);
       if (chars_read > 0)
@@ -173,14 +185,15 @@ Serial::readlines(string eol)
 size_t
 Serial::write (const string &data)
 {
-  mutex::scoped_lock scoped_lock(mut);
+  ScopedWriteLock(this->pimpl_);
   return pimpl_->write (data);
 }
 
 void
 Serial::setPort (const string &port)
 {
-  mutex::scoped_lock scoped_lock(mut);
+  ScopedReadLock(this->pimpl_);
+  ScopedWriteLock(this->pimpl_);
   bool was_open = pimpl_->isOpen();
   if (was_open) close();
   pimpl_->setPort (port);
@@ -266,19 +279,21 @@ Serial::getFlowcontrol () const
 
 void Serial::flush ()
 {
-  mutex::scoped_lock scoped_lock (mut);
+  ScopedReadLock(this->pimpl_);
+  ScopedWriteLock(this->pimpl_);
   pimpl_->flush ();
   read_cache_.clear ();
 }
 
 void Serial::flushInput ()
 {
+  ScopedReadLock(this->pimpl_);
   pimpl_->flushInput ();
 }
 
 void Serial::flushOutput ()
 {
-  mutex::scoped_lock scoped_lock (mut);
+  ScopedWriteLock(this->pimpl_);
   pimpl_->flushOutput ();
   read_cache_.clear ();
 }
@@ -322,4 +337,3 @@ bool Serial::getCD ()
 {
   return pimpl_->getCD ();
 }
-

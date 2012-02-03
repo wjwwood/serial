@@ -19,6 +19,7 @@ macro(build_serial)
   set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 
   include_directories(include)
+  include_directories(vendor)
 
   set(SERIAL_SRCS src/serial.cc)
   if(UNIX)

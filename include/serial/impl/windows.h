@@ -1,5 +1,5 @@
 /*!
- * \file serial/impl/unix.h
+ * \file serial/impl/windows.h
  * \author  William Woodall <wjwwood@gmail.com>
  * \author  John Harrison <ash@greaterthaninfinity.com>
  * \version 0.1
@@ -30,17 +30,14 @@
  *
  * \section DESCRIPTION
  *
- * This provides a unix based pimpl for the Serial class. This implementation is
- * based off termios.h and uses select for multiplexing the IO ports.
+ * This provides a windows implementation of the Serial class interface.
  *
  */
 
-#ifndef SERIAL_IMPL_UNIX_H
-#define SERIAL_IMPL_UNIX_H
+#ifndef SERIAL_IMPL_WINDOWS_H
+#define SERIAL_IMPL_WINDOWS_H
 
 #include "serial/serial.h"
-
-#include <pthread.h>
 
 namespace serial {
 
@@ -100,40 +97,40 @@ public:
 
   void
   setDTR(bool level);
-
+  
   bool
   getCTS();
-
+  
   bool
   getDSR();
-
+  
   bool
   getRI();
-
+  
   bool
   getCD();
 
   void
   setPort (const string &port);
-
+  
   string
   getPort () const;
 
   void
   setTimeout (long timeout);
-
+  
   long
   getTimeout () const;
 
   void
   setBaudrate (unsigned long baudrate);
-
+  
   unsigned long
   getBaudrate () const;
 
   void
   setBytesize (bytesize_t bytesize);
-
+  
   bytesize_t
   getBytesize () const;
 
@@ -155,18 +152,6 @@ public:
   flowcontrol_t
   getFlowcontrol () const;
 
-  void
-  readLock();
-
-  void
-  readUnlock();
-
-  void
-  writeLock();
-
-  void
-  writeUnlock();
-
 protected:
   void reconfigurePort ();
 
@@ -185,13 +170,8 @@ private:
   bytesize_t bytesize_;       // Size of the bytes
   stopbits_t stopbits_;       // Stop Bits
   flowcontrol_t flowcontrol_; // Flow Control
-
-  // Mutex used to lock the read functions
-  pthread_mutex_t read_mutex;
-  // Mutex used to lock the write functions
-  pthread_mutex_t write_mutex;
 };
 
 }
 
-#endif // SERIAL_IMPL_UNIX_H
+#endif // SERIAL_IMPL_WINDOWS_H

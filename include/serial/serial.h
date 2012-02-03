@@ -36,16 +36,12 @@
 #ifndef SERIAL_H
 #define SERIAL_H
 
-#include <stdexcept>
-#include <string>
-#if defined(__linux__)
-#include <string.h>
-#endif
-#include <sstream>
-#include <vector>
 #include <limits>
-
-#include <boost/thread/mutex.hpp>
+#include <vector>
+#include <string.h>
+#include <sstream>
+#include <exception>
+#include <stdexcept>
 
 namespace serial {
 
@@ -85,58 +81,6 @@ typedef enum {
   FLOWCONTROL_SOFTWARE,
   FLOWCONTROL_HARDWARE
 } flowcontrol_t;
-
-class SerialExecption : public std::exception
-{
-  const char* e_what_;
-public:
-  SerialExecption (const char *description) : e_what_ (description) {}
-
-  virtual const char* what () const throw ()
-  {
-    std::stringstream ss;
-    ss << "SerialException " << e_what_ << " failed.";
-    return ss.str ().c_str ();
-  }
-};
-
-class IOException : public std::exception
-{
-  const char* e_what_;
-  int errno_;
-public:
-  explicit IOException (int errnum)
-  : e_what_ (strerror (errnum)), errno_(errnum) {}
-  explicit IOException (const char * description)
-  : e_what_ (description), errno_(0) {}
-
-  int getErrorNumber () { return errno_; }
-
-  virtual const char* what () const throw ()
-  {
-    std::stringstream ss;
-    if (errno_ == 0)
-      ss << "IO Exception " << e_what_ << " failed.";
-    else
-      ss << "IO Exception (" << errno_ << "): " << e_what_ << " failed.";
-    return ss.str ().c_str ();
-  }
-};
-
-class PortNotOpenedException : public std::exception
-{
-  const char * e_what_;
-public:
-  PortNotOpenedException (const char * description) : e_what_ (description) {}
-
-  virtual const char* what () const throw ()
-  {
-    std::stringstream ss;
-    ss << e_what_ << " called before port was opened.";
-    return ss.str ().c_str ();
-  }
-};
-
 
 /*!
  * Class that provides a portable serial port interface.
@@ -462,7 +406,61 @@ private:
   class SerialImpl;
   SerialImpl *pimpl_;
 
-  boost::mutex mut;
+  // Scoped Lock Classes
+  class ScopedReadLock;
+  class ScopedWriteLock;
+
+};
+
+class SerialExecption : public std::exception
+{
+  const char* e_what_;
+public:
+  SerialExecption (const char *description) : e_what_ (description) {}
+
+  virtual const char* what () const throw ()
+  {
+    std::stringstream ss;
+    ss << "SerialException " << e_what_ << " failed.";
+    return ss.str ().c_str ();
+  }
+};
+
+class IOException : public std::exception
+{
+  const char* e_what_;
+  int errno_;
+public:
+  explicit IOException (int errnum)
+  : e_what_ (strerror (errnum)), errno_(errnum) {}
+  explicit IOException (const char * description)
+  : e_what_ (description), errno_(0) {}
+
+  int getErrorNumber () { return errno_; }
+
+  virtual const char* what () const throw ()
+  {
+    std::stringstream ss;
+    if (errno_ == 0)
+      ss << "IO Exception " << e_what_ << " failed.";
+    else
+      ss << "IO Exception (" << errno_ << "): " << e_what_ << " failed.";
+    return ss.str ().c_str ();
+  }
+};
+
+class PortNotOpenedException : public std::exception
+{
+  const char * e_what_;
+public:
+  PortNotOpenedException (const char * description) : e_what_ (description) {}
+
+  virtual const char* what () const throw ()
+  {
+    std::stringstream ss;
+    ss << e_what_ << " called before port was opened.";
+    return ss.str ().c_str ();
+  }
 };
 
 } // namespace serial
