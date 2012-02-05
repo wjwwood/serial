@@ -88,41 +88,41 @@ typedef enum {
 class Serial {
 public:
   /*!
-  * Constructor, creates a SerialPortBoost object and opens the port.
-  *
-  * \param port A std::string containing the address of the serial port,
-  *        which would be something like 'COM1' on Windows and '/dev/ttyS0'
-  *        on Linux.
-  *
-  * \param baudrate An integer that represents the buadrate
-  *
-  * \param timeout A long that represents the time (in milliseconds) until a
-  * timeout on reads occur. Setting this to zero (0) will cause reading to
-  * be non-blocking, i.e. the available data will be returned immediately,
-  * but it will not block to wait for more. Setting this to a number less
-  * than zero (-1) will result in infinite blocking behaviour, i.e. the
-  * serial port will block until either size bytes have been read or an
-  * exception has occured.
-  *
-  * \param bytesize Size of each byte in the serial transmission of data,
-  * default is eightbits, possible values are: fivebits, sixbits, sevenbits,
-  * eightbits
-  *
-  * \param parity Method of parity, default is parity_none, possible values
-  * are: parity_none, parity_odd, parity_even
-  *
-  * \param stopbits Number of stop bits used, default is stopbits_one,
-  * possible values are: stopbits_one, stopbits_one_point_five, stopbits_two
-  *
-  * \param flowcontrol Type of flowcontrol used, default is
-  * flowcontrol_none, possible values are: flowcontrol_none,
-  * flowcontrol_software, flowcontrol_hardware
-  *
-  * \param buffer_size The maximum size of the internal buffer, defaults
-  * to 256 bytes (2^8).
-  *
-  * \throw PortNotOpenedException
-  */
+   * Constructor, creates a SerialPortBoost object and opens the port.
+   *
+   * \param port A std::string containing the address of the serial port,
+   *        which would be something like 'COM1' on Windows and '/dev/ttyS0'
+   *        on Linux.
+   *
+   * \param baudrate An integer that represents the buadrate
+   *
+   * \param timeout A long that represents the time (in milliseconds) until a
+   * timeout on reads occur. Setting this to zero (0) will cause reading to
+   * be non-blocking, i.e. the available data will be returned immediately,
+   * but it will not block to wait for more. Setting this to a number less
+   * than zero (-1) will result in infinite blocking behaviour, i.e. the
+   * serial port will block until either size bytes have been read or an
+   * exception has occured.
+   *
+   * \param bytesize Size of each byte in the serial transmission of data,
+   * default is eightbits, possible values are: fivebits, sixbits, sevenbits,
+   * eightbits
+   *
+   * \param parity Method of parity, default is parity_none, possible values
+   * are: parity_none, parity_odd, parity_even
+   *
+   * \param stopbits Number of stop bits used, default is stopbits_one,
+   * possible values are: stopbits_one, stopbits_one_point_five, stopbits_two
+   *
+   * \param flowcontrol Type of flowcontrol used, default is
+   * flowcontrol_none, possible values are: flowcontrol_none,
+   * flowcontrol_software, flowcontrol_hardware
+   *
+   * \param buffer_size The maximum size of the internal buffer, defaults
+   * to 256 bytes (2^8).
+   *
+   * \throw PortNotOpenedException
+   */
   Serial (const std::string &port = "",
           unsigned long baudrate = 9600,
           long timeout = 0,
@@ -135,25 +135,25 @@ public:
   virtual ~Serial ();
 
   /*!
-  * Opens the serial port as long as the portname is set and the port isn't
-  * alreay open.
-  *
-  * If the port is provided to the constructor then an explicit call to open
-  * is not needed.
-  *
-  * \see Serial::Serial
-  *
-  * \throw std::invalid_argument
-  * \throw serial::SerialExecption
-  * \throw serial::IOException
-  */
+   * Opens the serial port as long as the portname is set and the port isn't
+   * alreay open.
+   *
+   * If the port is provided to the constructor then an explicit call to open
+   * is not needed.
+   *
+   * \see Serial::Serial
+   *
+   * \throw std::invalid_argument
+   * \throw serial::SerialExecption
+   * \throw serial::IOException
+   */
   void
   open ();
 
   /*! Gets the open status of the serial port.
-  *
-  * \return Returns true if the port is open, false otherwise.
-  */
+   *
+   * \return Returns true if the port is open, false otherwise.
+   */
   bool
   isOpen () const;
 
@@ -166,51 +166,67 @@ public:
   available();
 
   /*! Read a given amount of bytes from the serial port.
-  *
-  * If a timeout is set it may return less characters than requested. With
-  * no timeout it will block until the requested number of bytes have been
-  * read or until an exception occurs.
-  *
-  * \param size A size_t defining how many bytes to be read.
-  *
-  * \return A std::string containing the data read.
-  */
+   *
+   * If a timeout is set it may return less characters than requested. With
+   * no timeout it will block until the requested number of bytes have been
+   * read or until an exception occurs.
+   *
+   * \param size A size_t defining how many bytes to be read.
+   *
+   * \return A std::string containing the data read.
+   */
+  size_t
+  read (unsigned char *buffer, size_t size);
+  size_t
+  read (std::vector<unsigned char> &buffer, size_t size = 1);
+  size_t
+  read (std::string &buffer, size_t size = 1);
   std::string
   read (size_t size = 1);
 
   /*! Reads in a line or until a given delimiter has been processed
-  *
-  * Reads from the serial port until a single line has been read.
-  *
-  * \param size A maximum length of a line defaults to size_t::max()
-  * \param eol A string to match against for the EOL.
-  *
-  * \return A std::string containing the line.
-  */
+   *
+   * Reads from the serial port until a single line has been read.
+   *
+   * \param size A maximum length of a line, defaults to 65536 (2^16)
+   * \param eol A string to match against for the EOL.
+   *
+   * \return A std::string containing the line.
+   */
+  size_t
+  readline (std::string &buffer,
+            size_t size = 65536,
+            std::string eol = "\n");
   std::string
-  readline(size_t size = std::numeric_limits<std::size_t>::max(),
-           std::string eol  = "\n");
+  readline (size_t size = 65536,
+            std::string eol = "\n");
 
   /*! Reads in multiple lines until the serail port times out.
-  *
-  * This requires a timeout > 0 before it can be run. It will read until a
-  * timeout occurs and return a list of strings.
-  *
-  * \param eol A string to match against for the EOL.
-  *
-  * \return A vector<string> containing the lines.
-  */
+   *
+   * This requires a timeout > 0 before it can be run. It will read until a
+   * timeout occurs and return a list of strings.
+   *
+   * \param size A maximum length of combined lines, defaults to 65536 (2^16)
+   * 
+   * \param eol A string to match against for the EOL.
+   *
+   * \return A vector<string> containing the lines.
+   */
   std::vector<std::string>
-  readlines(std::string eol = "\n");
+  readlines (size_t size = 65536, std::string eol = "\n");
 
   /*! Write a string to the serial port.
-  *
-  * \param data A const std::string reference containg the data to be written
-  * to the serial port.
-  *
-  * \return A size_t representing the number of bytes actually written to
-  * the serial port.
-  */
+   *
+   * \param data A const reference containg the data to be written
+   * to the serial port.
+   *
+   * \return A size_t representing the number of bytes actually written to
+   * the serial port.
+   */
+  size_t
+  write (const unsigned char *data, size_t size);
+  size_t
+  write (const std::vector<unsigned char> &data);
   size_t
   write (const std::string &data);
 
@@ -409,6 +425,10 @@ private:
   // Scoped Lock Classes
   class ScopedReadLock;
   class ScopedWriteLock;
+
+  // Read common function
+  size_t
+  read_ (unsigned char *buffer, size_t size);
 
 };
 

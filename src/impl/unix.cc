@@ -10,13 +10,18 @@
 #include <sysexits.h>
 #include <termios.h>
 #include <sys/param.h>
-#include <sys/select.h>
-#include <sys/time.h>
-#include <time.h>
 #include <pthread.h>
 
 #if defined(__linux__)
 # include <linux/serial.h>
+#endif
+
+#include <sys/select.h>
+#include <sys/time.h>
+#include <time.h>
+#ifdef __MACH__
+#include <mach/clock.h>
+#include <mach/mach.h>
 #endif
 
 #include "serial/impl/unix.h"
@@ -41,7 +46,7 @@ Serial::SerialImpl::SerialImpl (const string &port, unsigned long baudrate,
                                 long timeout, bytesize_t bytesize,
                                 parity_t parity, stopbits_t stopbits,
                                 flowcontrol_t flowcontrol)
-: port_ (port), fd_ (-1), isOpen_ (false), xonxoff_ (true), rtscts_ (false),
+: port_ (port), fd_ (-1), is_open_ (false), xonxoff_ (true), rtscts_ (false),
   timeout_ (timeout), baudrate_ (baudrate), parity_ (parity),
   bytesize_ (bytesize), stopbits_ (stopbits), flowcontrol_ (flowcontrol)
 {
@@ -61,13 +66,13 @@ Serial::SerialImpl::~SerialImpl ()
 void
 Serial::SerialImpl::open ()
 {
-  if (port_.empty())
+  if (port_.empty ())
   {
-    throw invalid_argument ("bad port specified");
+    throw invalid_argument ("Empty port is invalid.");
   }
-  if (isOpen_ == true)
+  if (is_open_ == true)
   {
-    throw SerialExecption ("port already open");
+    throw SerialExecption ("Serial port already open.");
   }
 
   fd_ = ::open (port_.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK);
@@ -82,7 +87,7 @@ Serial::SerialImpl::open ()
         return;
       case ENFILE:
       case EMFILE:
-        throw IOException ("to many file handles open");
+        throw IOException ("Too many file handles open.");
         break;
       default:
         throw IOException (errno);
@@ -90,7 +95,7 @@ Serial::SerialImpl::open ()
   }
 
   reconfigurePort();
-  isOpen_ = true;
+  is_open_ = true;
 }
 
 void
@@ -99,7 +104,7 @@ Serial::SerialImpl::reconfigurePort ()
   if (fd_ == -1)
   {
     // Can only operate on a valid file descriptor
-    throw IOException ("invalid file descriptor");
+    throw IOException ("Invalid file descriptor, is the serial port open?");
   }
 
   struct termios options; // The options for the file descriptor
@@ -266,7 +271,8 @@ Serial::SerialImpl::reconfigurePort ()
   if (stopbits_ == STOPBITS_ONE)
       options.c_cflag &= (unsigned long) ~(CSTOPB);
   else if (stopbits_ == STOPBITS_ONE_POINT_FIVE)
-      options.c_cflag |=  (CSTOPB);  // XXX same as TWO.. there is no POSIX support for 1.5
+  // ONE POINT FIVE same as TWO.. there is no POSIX support for 1.5
+      options.c_cflag |=  (CSTOPB);
   else if (stopbits_ == STOPBITS_TWO)
       options.c_cflag |=  (CSTOPB);
   else
@@ -318,8 +324,12 @@ Serial::SerialImpl::reconfigurePort ()
 #error "OS Support seems wrong."
 #endif
 
-  options.c_cc[VMIN] = 1; // Minimum of 1 character in the buffer
-  options.c_cc[VTIME] = 0; // timeout on waiting for new data
+  // http://www.unixwiz.net/techtips/termios-vmin-vtime.html
+  // this basically sets the read call up to be a polling read, 
+  // but we are using select to ensure there is data available 
+  // to read before each call, so we should never needlessly poll
+  options.c_cc[VMIN] = 0;
+  options.c_cc[VTIME] = 0;
 
   // activate settings
   ::tcsetattr (fd_, TCSANOW, &options);
@@ -328,27 +338,27 @@ Serial::SerialImpl::reconfigurePort ()
 void
 Serial::SerialImpl::close ()
 {
-  if (isOpen_ == true)
+  if (is_open_ == true)
   {
     if (fd_ != -1)
     {
       ::close (fd_); // Ignoring the outcome
       fd_ = -1;
     }
-    isOpen_ = false;
+    is_open_ = false;
   }
 }
 
 bool
 Serial::SerialImpl::isOpen () const
 {
-  return isOpen_;
+  return is_open_;
 }
 
 size_t
 Serial::SerialImpl::available ()
 {
-  if (!isOpen_)
+  if (!is_open_)
   {
     return 0;
   }
@@ -364,113 +374,131 @@ Serial::SerialImpl::available ()
   }
 }
 
+inline void get_time_now(struct timespec &time) {
+# ifdef __MACH__ // OS X does not have clock_gettime, use clock_get_time
+  clock_serv_t cclock;
+  mach_timespec_t mts;
+  host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
+  clock_get_time(cclock, &mts);
+  mach_port_deallocate(mach_task_self(), cclock);
+  time.tv_sec = mts.tv_sec;
+  time.tv_nsec = mts.tv_nsec;
+# else
+  clock_gettime(CLOCK_REALTIME, &time);
+# endif
+}
+
 size_t
-Serial::SerialImpl::read (char* buf, size_t size)
+Serial::SerialImpl::read (unsigned char* buf, size_t size)
 {
-  if (!isOpen_)
+  if (!is_open_)
   {
     throw PortNotOpenedException ("Serial::read");
   }
   fd_set readfds;
-  ssize_t bytes_read = 0;
-  int count = 0;
-  while (true)
+  size_t bytes_read = 0;
+  struct timeval timeout;
+  timeout.tv_sec =                    timeout_ / 1000;
+  timeout.tv_usec = static_cast<int> (timeout_ % 1000) * 1000;
+  while (bytes_read < size)
   {
-    count++;
-    // printf("Counting: %u\n", count);
-    if (timeout_ != -1)
-    {
-      FD_ZERO (&readfds);
-      FD_SET (fd_, &readfds);
-      struct timeval timeout;
-      timeout.tv_sec =                    timeout_ / 1000;
-      timeout.tv_usec = static_cast<int> (timeout_ % 1000) * 1000;
-      int r = select (fd_ + 1, &readfds, NULL, NULL, &timeout);
+    FD_ZERO (&readfds);
+    FD_SET (fd_, &readfds);
+    // On Linux the timeout struct is updated by select to contain the time 
+    // left on the timeout to make looping easier, but on other platforms this 
+    // does not occur.
+#if !defined(__linux__)
+    // Begin timing select
+    struct timespec start, end;
+    get_time_now(start);
+#endif
+    // Do the select
+    int r = select (fd_ + 1, &readfds, NULL, NULL, &timeout);
+#if !defined(__linux__)
+    // Calculate difference and update the structure
+    get_time_now(end);
+    // Calculate the time select took
+    struct timeval diff;
+    diff.tv_sec = end.tv_sec-start.tv_sec;
+    diff.tv_usec = (end.tv_nsec-start.tv_nsec)/1000;
+    // Update the timeout
+    if (timeout.tv_sec <= diff.tv_sec) {
+      timeout.tv_sec = 0;
+    } else {
+      timeout.tv_sec -= diff.tv_sec;
+    }
+    if (timeout.tv_usec <= diff.tv_usec) {
+      timeout.tv_usec = 0;
+    } else {
+      timeout.tv_usec -= diff.tv_usec;
+    }
+#endif
 
-      if (r == -1 && errno == EINTR)
+    // Figure out what happened by looking at select's response 'r'
+/** Error **/
+    if (r < 0) {
+      // Select was interrupted, try again
+      if (errno == EINTR) {
         continue;
-
-      if (r == -1)
-      {
-        throw IOException (errno);
       }
+      // Otherwise there was some error
+      throw IOException (errno);
     }
-
-    if (timeout_ == -1 || FD_ISSET (fd_, &readfds))
-    {
-      bytes_read = ::read (fd_, buf, size);
-      // read should always return some data as select reported it was
-      // ready to read when we get to this point.
-      if (bytes_read < 1)
-      {
-        // Disconnected devices, at least on Linux, show the
-        // behavior that they are always ready to read immediately
-        // but reading returns nothing.
-        throw SerialExecption ("device reports readiness to read but "
-                               "returned no data (device disconnected?)");
-      }
+/** Timeout **/
+    if (r == 0) {
       break;
     }
-    else
-    {
-      break;
+/** Something ready to read **/
+    if (r > 0) {
+      // Make sure our file descriptor is in the ready to read list
+      if (FD_ISSET (fd_, &readfds)) {
+        // This should be non-blocking returning only what is avaialble now
+        //  Then returning so that select can block again.
+        ssize_t bytes_read_now = ::read (fd_, buf, size-bytes_read);
+        // read should always return some data as select reported it was
+        // ready to read when we get to this point.
+        if (bytes_read_now < 1)
+        {
+          // Disconnected devices, at least on Linux, show the
+          // behavior that they are always ready to read immediately
+          // but reading returns nothing.
+          throw SerialExecption ("device reports readiness to read but "
+                                 "returned no data (device disconnected?)");
+        }
+        // Update bytes_read
+        bytes_read += static_cast<size_t> (bytes_read_now);
+        // If bytes_read == size then we have read everything we need
+        if (bytes_read == size) {
+          break;
+        }
+        // If bytes_read < size then we have more to read
+        if (bytes_read < size) {
+          continue;
+        }
+        // If bytes_read > size then we have over read, which shouldn't happen
+        if (bytes_read > size) {
+          throw SerialExecption ("read over read, too many bytes where "
+                                 "read, this shouldn't happen, might be "
+                                 "a logical error!");
+        }
+      }
+      // This shouldn't happen, if r > 0 our fd has to be in the list!
+      throw IOException ("select reports ready to read, but our fd isn't"
+                         " in the list, this shouldn't happen!");
     }
   }
-  return static_cast<size_t> (bytes_read);
+  return bytes_read;
 }
 
 size_t
 Serial::SerialImpl::write (const string &data)
 {
-  if (isOpen_ == false)
+  if (is_open_ == false)
   {
     throw PortNotOpenedException ("Serial::write");
   }
-  
-  fd_set writefds;
-  ssize_t bytes_written = 0;
-  while (true)
-  {
-    if (timeout_ != -1)
-    {
-      FD_ZERO (&writefds);
-      FD_SET (fd_, &writefds);
-      struct timeval timeout;
-      timeout.tv_sec =                    timeout_ / 1000;
-      timeout.tv_usec = static_cast<int> (timeout_ % 1000) * 1000;
-      int r = select (fd_ + 1, NULL, &writefds, NULL, &timeout);
 
-      if (r == -1 && errno == EINTR)
-        continue;
-
-      if (r == -1)
-      {
-        throw IOException (errno);
-      }
-    }
-
-    if (timeout_ == -1 || FD_ISSET (fd_, &writefds))
-    {
-      bytes_written = ::write (fd_, data.c_str (), data.length ());
-      // read should always return some data as select reported it was
-      // ready to read when we get to this point.
-      if (bytes_written < 1)
-      {
-        // Disconnected devices, at least on Linux, show the
-        // behavior that they are always ready to read immediately
-        // but reading returns nothing.
-        throw SerialExecption ("device reports readiness to read but "
-                               "returned no data (device disconnected?)");
-      }
-      break;
-    }
-    else
-    {
-      break;
-    }
-  }
-
-  return static_cast<size_t> (bytes_written);
+  return static_cast<size_t> (::write (fd_, data.c_str (), data.length ()));
 }
 
 void
@@ -501,7 +529,7 @@ void
 Serial::SerialImpl::setBaudrate (unsigned long baudrate)
 {
   baudrate_ = baudrate;
-  if (isOpen_)
+  if (is_open_)
     reconfigurePort ();
 }
 
@@ -515,7 +543,7 @@ void
 Serial::SerialImpl::setBytesize (serial::bytesize_t bytesize)
 {
   bytesize_ = bytesize;
-  if (isOpen_)
+  if (is_open_)
     reconfigurePort ();
 }
 
@@ -529,7 +557,7 @@ void
 Serial::SerialImpl::setParity (serial::parity_t parity)
 {
   parity_ = parity;
-  if (isOpen_)
+  if (is_open_)
     reconfigurePort ();
 }
 
@@ -543,7 +571,7 @@ void
 Serial::SerialImpl::setStopbits (serial::stopbits_t stopbits)
 {
   stopbits_ = stopbits;
-  if (isOpen_)
+  if (is_open_)
     reconfigurePort ();
 }
 
@@ -557,7 +585,7 @@ void
 Serial::SerialImpl::setFlowcontrol (serial::flowcontrol_t flowcontrol)
 {
   flowcontrol_ = flowcontrol;
-  if (isOpen_)
+  if (is_open_)
     reconfigurePort ();
 }
 
@@ -570,7 +598,7 @@ Serial::SerialImpl::getFlowcontrol () const
 void
 Serial::SerialImpl::flush ()
 {
-  if (isOpen_ == false)
+  if (is_open_ == false)
   {
     throw PortNotOpenedException ("Serial::flush");
   }
@@ -580,7 +608,7 @@ Serial::SerialImpl::flush ()
 void
 Serial::SerialImpl::flushInput ()
 {
-  if (isOpen_ == false)
+  if (is_open_ == false)
   {
     throw PortNotOpenedException ("Serial::flushInput");
   }
@@ -590,7 +618,7 @@ Serial::SerialImpl::flushInput ()
 void
 Serial::SerialImpl::flushOutput ()
 {
-  if (isOpen_ == false)
+  if (is_open_ == false)
   {
     throw PortNotOpenedException ("Serial::flushOutput");
   }
@@ -600,7 +628,7 @@ Serial::SerialImpl::flushOutput ()
 void
 Serial::SerialImpl::sendBreak (int duration)
 {
-  if (isOpen_ == false)
+  if (is_open_ == false)
   {
     throw PortNotOpenedException ("Serial::sendBreak");
   }
@@ -610,7 +638,7 @@ Serial::SerialImpl::sendBreak (int duration)
 void
 Serial::SerialImpl::setBreak (bool level)
 {
-  if (isOpen_ == false)
+  if (is_open_ == false)
   {
     throw PortNotOpenedException ("Serial::setBreak");
   }
@@ -626,7 +654,7 @@ Serial::SerialImpl::setBreak (bool level)
 void
 Serial::SerialImpl::setRTS (bool level)
 {
-  if (isOpen_ == false)
+  if (is_open_ == false)
   {
     throw PortNotOpenedException ("Serial::setRTS");
   }
@@ -642,7 +670,7 @@ Serial::SerialImpl::setRTS (bool level)
 void
 Serial::SerialImpl::setDTR (bool level)
 {
-  if (isOpen_ == false)
+  if (is_open_ == false)
   {
     throw PortNotOpenedException ("Serial::setDTR");
   }
@@ -659,7 +687,7 @@ Serial::SerialImpl::setDTR (bool level)
 bool
 Serial::SerialImpl::getCTS ()
 {
-  if (isOpen_ == false)
+  if (is_open_ == false)
   {
     throw PortNotOpenedException ("Serial::getCTS");
   }
@@ -670,7 +698,7 @@ Serial::SerialImpl::getCTS ()
 bool
 Serial::SerialImpl::getDSR()
 {
-  if (isOpen_ == false)
+  if (is_open_ == false)
   {
     throw PortNotOpenedException ("Serial::getDSR");
   }
@@ -681,7 +709,7 @@ Serial::SerialImpl::getDSR()
 bool
 Serial::SerialImpl::getRI()
 {
-  if (isOpen_ == false)
+  if (is_open_ == false)
   {
     throw PortNotOpenedException ("Serial::getRI");
   }
@@ -692,7 +720,7 @@ Serial::SerialImpl::getRI()
 bool
 Serial::SerialImpl::getCD()
 {
-  if (isOpen_ == false)
+  if (is_open_ == false)
   {
     throw PortNotOpenedException ("Serial::getCD");
   }
