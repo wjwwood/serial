@@ -49,37 +49,37 @@ namespace serial {
  * Enumeration defines the possible bytesizes for the serial port.
  */
 typedef enum {
-  FIVEBITS = 5,
-  SIXBITS = 6,
-  SEVENBITS = 7,
-  EIGHTBITS = 8
+  fivebits = 5,
+  sixbits = 6,
+  sevenbits = 7,
+  eightbits = 8
 } bytesize_t;
 
 /*!
  * Enumeration defines the possible parity types for the serial port.
  */
 typedef enum {
-  PARITY_NONE = 0,
-  PARITY_ODD = 1,
-  PARITY_EVEN = 2
+  parity_none = 0,
+  parity_odd = 1,
+  parity_even = 2
 } parity_t;
 
 /*!
  * Enumeration defines the possible stopbit types for the serial port.
  */
 typedef enum {
-  STOPBITS_ONE = 1,
-  STOPBITS_ONE_POINT_FIVE,
-  STOPBITS_TWO = 2
+  stopbits_one = 1,
+  stopbits_one_point_five,
+  stopbits_two = 2
 } stopbits_t;
 
 /*!
  * Enumeration defines the possible flowcontrol types for the serial port.
  */
 typedef enum {
-  FLOWCONTROL_NONE = 0,
-  FLOWCONTROL_SOFTWARE,
-  FLOWCONTROL_HARDWARE
+  flowcontrol_none = 0,
+  flowcontrol_software,
+  å
 } flowcontrol_t;
 
 /*!
@@ -105,18 +105,18 @@ public:
   * exception has occured.
   *
   * \param bytesize Size of each byte in the serial transmission of data,
-  * default is EIGHTBITS, possible values are: FIVEBITS, SIXBITS, SEVENBITS,
-  * EIGHTBITS
+  * default is eightbits, possible values are: fivebits, sixbits, sevenbits,
+  * eightbits
   *
-  * \param parity Method of parity, default is PARITY_NONE, possible values
-  * are: PARITY_NONE, PARITY_ODD, PARITY_EVEN
+  * \param parity Method of parity, default is parity_none, possible values
+  * are: parity_none, parity_odd, parity_even
   *
-  * \param stopbits Number of stop bits used, default is STOPBITS_ONE,
-  * possible values are: STOPBITS_ONE, STOPBITS_ONE_POINT_FIVE, STOPBITS_TWO
+  * \param stopbits Number of stop bits used, default is stopbits_one,
+  * possible values are: stopbits_one, stopbits_one_point_five, stopbits_two
   *
   * \param flowcontrol Type of flowcontrol used, default is
-  * FLOWCONTROL_NONE, possible values are: FLOWCONTROL_NONE,
-  * FLOWCONTROL_SOFTWARE, FLOWCONTROL_HARDWARE
+  * flowcontrol_none, possible values are: flowcontrol_none,
+  * flowcontrol_software, flowcontrol_hardware
   *
   * \param buffer_size The maximum size of the internal buffer, defaults
   * to 256 bytes (2^8).
@@ -126,10 +126,10 @@ public:
   Serial (const std::string &port = "",
           unsigned long baudrate = 9600,
           long timeout = 0,
-          bytesize_t bytesize = EIGHTBITS,
-          parity_t parity = PARITY_NONE,
-          stopbits_t stopbits = STOPBITS_ONE,
-          flowcontrol_t flowcontrol = FLOWCONTROL_NONE);
+          bytesize_t bytesize = eightbits,
+          parity_t parity = parity_none,
+          stopbits_t stopbits = stopbits_one,
+          flowcontrol_t flowcontrol = flowcontrol_none);
 
   /*! Destructor */
   virtual ~Serial ();
@@ -283,8 +283,8 @@ public:
   /*! Sets the bytesize for the serial port.
   *
   * \param bytesize Size of each byte in the serial transmission of data,
-  * default is EIGHTBITS, possible values are: FIVEBITS, SIXBITS, SEVENBITS,
-  * EIGHTBITS
+  * default is eightbits, possible values are: fivebits, sixbits, sevenbits,
+  * eightbits
   *
   * \throw InvalidConfigurationException
   */
@@ -302,8 +302,8 @@ public:
 
   /*! Sets the parity for the serial port.
   *
-  * \param parity Method of parity, default is PARITY_NONE, possible values
-  * are: PARITY_NONE, PARITY_ODD, PARITY_EVEN
+  * \param parity Method of parity, default is parity_none, possible values
+  * are: parity_none, parity_odd, parity_even
   *
   * \throw InvalidConfigurationException
   */
@@ -321,8 +321,8 @@ public:
 
   /*! Sets the stopbits for the serial port.
   *
-  * \param stopbits Number of stop bits used, default is STOPBITS_ONE,
-  * possible values are: STOPBITS_ONE, STOPBITS_ONE_POINT_FIVE, STOPBITS_TWO
+  * \param stopbits Number of stop bits used, default is stopbits_one,
+  * possible values are: stopbits_one, stopbits_one_point_five, stopbits_two
   *
   * \throw InvalidConfigurationException
   */
@@ -340,9 +340,9 @@ public:
 
   /*! Sets the flow control for the serial port.
   *
-  * \param flowcontrol Type of flowcontrol used, default is FLOWCONTROL_NONE,
-  * possible values are: FLOWCONTROL_NONE, FLOWCONTROL_SOFTWARE,
-  * FLOWCONTROL_HARDWARE
+  * \param flowcontrol Type of flowcontrol used, default is flowcontrol_none,
+  * possible values are: flowcontrol_none, flowcontrol_software,
+  * flowcontrol_hardware
   *
   * \throw InvalidConfigurationException
   */

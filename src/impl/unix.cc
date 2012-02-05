@@ -16,7 +16,7 @@
 #include <pthread.h>
 
 #if defined(__linux__)
-#include <linux/serial.h>
+# include <linux/serial.h>
 #endif
 
 #include "serial/impl/unix.h"
