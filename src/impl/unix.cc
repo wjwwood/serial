@@ -454,7 +454,8 @@ Serial::SerialImpl::read (unsigned char* buf, size_t size)
       if (FD_ISSET (fd_, &readfds)) {
         // This should be non-blocking returning only what is avaialble now
         //  Then returning so that select can block again.
-        ssize_t bytes_read_now = ::read (fd_, buf, size-bytes_read);
+        ssize_t bytes_read_now =
+          ::read (fd_, buf+bytes_read, size-bytes_read);
         // read should always return some data as select reported it was
         // ready to read when we get to this point.
         if (bytes_read_now < 1)
