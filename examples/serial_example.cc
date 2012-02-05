@@ -1,5 +1,6 @@
 #include <string>
 #include <iostream>
+#include <cstdio>
 
 // OS Specific sleep
 #ifdef __WIN32__

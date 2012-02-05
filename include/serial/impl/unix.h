@@ -75,7 +75,7 @@ public:
   available ();
 
   size_t
-  read (char* buf, size_t size = 1);
+  read (unsigned char* buf, size_t size = 1);
 
   size_t
   write (const string &data);
@@ -174,7 +174,7 @@ private:
   string port_;               // Path to the file descriptor
   int fd_;                    // The current file descriptor
 
-  bool isOpen_;
+  bool is_open_;
   bool xonxoff_;
   bool rtscts_;
 

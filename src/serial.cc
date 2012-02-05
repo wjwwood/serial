@@ -9,7 +9,6 @@
 #endif
 
 using std::invalid_argument;
-using std::memset;
 using std::min;
 using std::numeric_limits;
 using std::vector;
@@ -86,98 +85,113 @@ Serial::available ()
   return pimpl_->available ();
 }
 
+size_t
+Serial::read_ (unsigned char *buffer, size_t size)
+{
+  return this->pimpl_->read (buffer, size);
+}
+
+size_t
+Serial::read (unsigned char *buffer, size_t size)
+{
+  ScopedReadLock (this->pimpl_);
+  return this->pimpl_->read (buffer, size);
+}
+
+size_t
+Serial::read (std::vector<unsigned char> &buffer, size_t size)
+{
+  ScopedReadLock (this->pimpl_);
+  unsigned char *buffer_ = new unsigned char[size];
+  size_t bytes_read = this->pimpl_->read (buffer_, size);
+  buffer.insert (buffer.end (), buffer_, buffer_+bytes_read);
+  delete[] buffer_;
+  return bytes_read;
+}
+
+size_t
+Serial::read (std::string &buffer, size_t size)
+{
+  ScopedReadLock (this->pimpl_);
+  unsigned char *buffer_ = new unsigned char[size];
+  size_t bytes_read = this->pimpl_->read (buffer_, size);
+  buffer.append (reinterpret_cast<const char*>(buffer_), bytes_read);
+  delete[] buffer_;
+  return bytes_read;
+}
+
 string
 Serial::read (size_t size)
 {
-  ScopedReadLock(this->pimpl_);
-  if (read_cache_.size() >= size)
-  {
-    // Don't need to do a new read.
-    string result = read_cache_.substr (0, size);
-    read_cache_ = read_cache_.substr (size, read_cache_.size ());
-    return result;
-  }
-  else
-  {
-    // Needs to read, loop until we have read enough or timeout
-    string result (read_cache_.substr (0, size));
-    read_cache_.clear ();
+  std::string buffer;
+  this->read (buffer, size);
+  return buffer;
+}
 
-    while (true)
-    {
-      char buf[256];
-      size_t chars_read = pimpl_->read (buf, 256);
-      if (chars_read > 0)
-      {
-        read_cache_.append(buf, chars_read);
-      }
-      else
-        break; // Timeout occured
-      
-      if (chars_read > size)
-      {
-        result.append (read_cache_.substr (0, size));
-        read_cache_ = read_cache_.substr (size, read_cache_.size ());
-        break;
-      }
-      else
-      {
-        result.append (read_cache_.substr (0, size));
-        read_cache_.clear ();
-        size -= chars_read;
-      }
+size_t
+Serial::readline (string &buffer, size_t size, string eol)
+{
+  ScopedReadLock (this->pimpl_);
+  size_t eol_len = eol.length();
+  unsigned char buffer_[size];
+  size_t read_so_far = 0;
+  while (true)
+  {
+    size_t bytes_read = this->read_ (buffer_+read_so_far, 1);
+    read_so_far += bytes_read;
+    if (bytes_read == 0) {
+      break; // Timeout occured on reading 1 byte
     }
-    return result;
+    if (string(buffer_[read_so_far-eol_len], eol_len) == eol) {
+      break; // EOL found
+    }
+    if (read_so_far == size) {
+      break; // Reached the maximum read length
+    }
   }
+  return read_so_far;
 }
 
 string
 Serial::readline (size_t size, string eol)
 {
-  size_t leneol = eol.length ();
-  string line = "";
-  while (true)
-  {
-    string c = read (1);
-    if (!c.empty ())
-    {
-      line.append (c);
-      if (line.length () > leneol &&
-          line.substr (line.length () - leneol, leneol) == eol)
-        break;
-      if (line.length () >= size)
-      {
-        break;
-      }
-    }
-    else
-      // Timeout
-      break;
-  }
-  return line;
+  std::string buffer;
+  this->readline (buffer, size, eol);
+  return buffer;
 }
 
 vector<string>
-Serial::readlines(string eol)
+Serial::readlines (size_t size, string eol)
 {
-  if (pimpl_->getTimeout () < 0)
-  {
-    throw invalid_argument ("Error, must be set for readlines");
-  }
-  size_t leneol = eol.length ();
-  vector<string> lines;
-  while (true)
-  {
-    string line = readline (numeric_limits<size_t>::max (), eol);
-    if (!line.empty ())
-    {
-      lines.push_back (line);
-      if (line.substr (line.length () - leneol, leneol) == eol)
-        break;
+  ScopedReadLock (this->pimpl_);
+  std::vector<std::string> lines;
+  size_t eol_len = eol.length();
+  unsigned char buffer_[size];
+  size_t read_so_far = 0;
+  size_t start_of_line = 0;
+  while (read_so_far < size) {
+    size_t bytes_read = this->read_ (buffer_+read_so_far, 1);
+    read_so_far += bytes_read;
+    if (bytes_read == 0) {
+      if (start_of_line != read_so_far) {
+        lines.push_back(
+          std::string(buffer_[start_of_line], read_so_far-start_of_line));
+      }
+      break; // Timeout occured on reading 1 byte
     }
-    else
-      // Timeout
-      break;
+    if (string(buffer_[read_so_far-eol_len], eol_len) == eol) {
+      // EOL found
+      lines.push_back(
+        std::string(buffer_[start_of_line], read_so_far-start_of_line));
+      start_of_line = read_so_far;
+    }
+    if (read_so_far == size) {
+      if (start_of_line != read_so_far) {
+        lines.push_back(
+          std::string(buffer_[start_of_line], read_so_far-start_of_line));
+      }
+      break; // Reached the maximum read length
+    }
   }
   return lines;
 }
