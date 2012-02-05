@@ -257,38 +257,38 @@ Serial::SerialImpl::reconfigurePort ()
 
   // setup char len
   options.c_cflag &= (unsigned long) ~CSIZE;
-  if (bytesize_ == EIGHTBITS)
+  if (bytesize_ == eightbits)
       options.c_cflag |= CS8;
-  else if (bytesize_ == SEVENBITS)
+  else if (bytesize_ == sevenbits)
       options.c_cflag |= CS7;
-  else if (bytesize_ == SIXBITS)
+  else if (bytesize_ == sixbits)
       options.c_cflag |= CS6;
-  else if (bytesize_ == FIVEBITS)
+  else if (bytesize_ == fivebits)
       options.c_cflag |= CS5;
   else
       throw invalid_argument ("invalid char len");
   // setup stopbits
-  if (stopbits_ == STOPBITS_ONE)
+  if (stopbits_ == stopbits_one)
       options.c_cflag &= (unsigned long) ~(CSTOPB);
-  else if (stopbits_ == STOPBITS_ONE_POINT_FIVE)
+  else if (stopbits_ == stopbits_one_point_five)
   // ONE POINT FIVE same as TWO.. there is no POSIX support for 1.5
       options.c_cflag |=  (CSTOPB);
-  else if (stopbits_ == STOPBITS_TWO)
+  else if (stopbits_ == stopbits_two)
       options.c_cflag |=  (CSTOPB);
   else
       throw invalid_argument ("invalid stop bit");
   // setup parity
   options.c_iflag &= (unsigned long) ~(INPCK|ISTRIP);
-  if (parity_ == PARITY_NONE)
+  if (parity_ == parity_none)
   {
     options.c_cflag &= (unsigned long) ~(PARENB|PARODD);
   }
-  else if (parity_ == PARITY_EVEN)
+  else if (parity_ == parity_even)
   {
     options.c_cflag &= (unsigned long) ~(PARODD);
     options.c_cflag |=  (PARENB);
   }
-  else if (parity_ == PARITY_ODD)
+  else if (parity_ == parity_odd)
   {
     options.c_cflag |=  (PARENB|PARODD);
   }
