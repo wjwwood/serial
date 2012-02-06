@@ -9,7 +9,7 @@ macro(build_serial)
   #  Release        : w/o debug symbols, w/ optimization
   #  RelWithDebInfo : w/ debug symbols, w/ optimization
   #  MinSizeRel     : w/o debug symbols, w/ optimization, stripped binaries
-  set(ROS_BUILD_TYPE RelWithDebInfo)
+  set(ROS_BUILD_TYPE Debug)
 
   rosbuild_init()
 
