@@ -1,4 +1,5 @@
 /* Copyright 2012 William Woodall and John Harrison */
+#include <alloca.h>
 
 #include "serial/serial.h"
 
