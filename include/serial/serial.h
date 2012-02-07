@@ -43,6 +43,8 @@
 #include <exception>
 #include <stdexcept>
 
+#define THROW(exceptionClass, message) throw exceptionClass(__FILE__, __LINE__, (message) )
+
 namespace serial {
 
 /*!
@@ -447,13 +449,16 @@ public:
 
 class IOException : public std::exception
 {
+  std::string file_;
+  int line_;
   const char* e_what_;
   int errno_;
 public:
-  explicit IOException (int errnum)
-  : e_what_ (strerror (errnum)), errno_(errnum) {}
-  explicit IOException (const char * description)
-  : e_what_ (description), errno_(0) {}
+  explicit IOException (std::string file, int line, int errnum)
+  : file_(file), line_(line), e_what_ (strerror (errnum)), errno_(errnum) {}
+  explicit IOException (std::string file, int line, const char * description)
+  : file_(file), line_(line), e_what_ (description), errno_(0) {}
+  virtual ~IOException() throw() {}
 
   int getErrorNumber () { return errno_; }
 
@@ -461,9 +466,10 @@ public:
   {
     std::stringstream ss;
     if (errno_ == 0)
-      ss << "IO Exception " << e_what_ << " failed.";
+      ss << "IO Exception: " << e_what_;
     else
-      ss << "IO Exception (" << errno_ << "): " << e_what_ << " failed.";
+      ss << "IO Exception (" << errno_ << "): " << e_what_;
+    ss << ", file " << file_ << ", line " << line_ << ".";
     return ss.str ().c_str ();
   }
 };
@@ -480,6 +486,11 @@ public:
     ss << e_what_ << " called before port was opened.";
     return ss.str ().c_str ();
   }
+};
+
+class SerialExceptionBase : public std::exception
+{
+  
 };
 
 } // namespace serial

@@ -87,10 +87,10 @@ Serial::SerialImpl::open ()
         return;
       case ENFILE:
       case EMFILE:
-        throw IOException ("Too many file handles open.");
+        THROW (IOException, "Too many file handles open.");
         break;
       default:
-        throw IOException (errno);
+        THROW (IOException, errno);
     }
   }
 
@@ -104,14 +104,14 @@ Serial::SerialImpl::reconfigurePort ()
   if (fd_ == -1)
   {
     // Can only operate on a valid file descriptor
-    throw IOException ("Invalid file descriptor, is the serial port open?");
+    THROW (IOException, "Invalid file descriptor, is the serial port open?");
   }
 
   struct termios options; // The options for the file descriptor
 
   if (tcgetattr(fd_, &options) == -1)
   {
-    throw IOException ("::tcgetattr");
+    THROW (IOException, "::tcgetattr");
   }
 
   // set up raw mode / no echo / binary
@@ -225,7 +225,7 @@ Serial::SerialImpl::reconfigurePort ()
       int new_baud = static_cast<int> (baudrate_);
       if (ioctl (fd_, IOSSIOSPEED, &new_baud, 1) < 0)
       {
-        throw IOException (errno);
+        THROW (IOException, errno);
       }
 // Linux Support
 #elif defined(__linux__)
@@ -239,7 +239,7 @@ Serial::SerialImpl::reconfigurePort ()
 
       if (ioctl (fd_, TIOCSSERIAL, ser) < 0)
       {
-        throw IOException (errno);
+        THROW (IOException, errno);
       }
 #else
       throw invalid_argument ("OS does not currently support custom bauds");
@@ -370,7 +370,7 @@ Serial::SerialImpl::available ()
   }
   else
   {
-    throw IOException (errno);
+    THROW (IOException, errno);
   }
 }
 
@@ -442,7 +442,7 @@ Serial::SerialImpl::read (unsigned char* buf, size_t size)
         continue;
       }
       // Otherwise there was some error
-      throw IOException (errno);
+      THROW (IOException, errno);
     }
 /** Timeout **/
     if (r == 0) {
@@ -484,8 +484,8 @@ Serial::SerialImpl::read (unsigned char* buf, size_t size)
         }
       }
       // This shouldn't happen, if r > 0 our fd has to be in the list!
-      throw IOException ("select reports ready to read, but our fd isn't"
-                         " in the list, this shouldn't happen!");
+      THROW (IOException, "select reports ready to read, but our fd isn't"
+                          " in the list, this shouldn't happen!");
     }
   }
   return bytes_read;
@@ -733,7 +733,7 @@ void
 Serial::SerialImpl::readLock() {
   int result = pthread_mutex_lock(&this->read_mutex);
   if (result) {
-    throw (IOException (result));
+    THROW (IOException, result);
   }
 }
 
@@ -741,7 +741,7 @@ void
 Serial::SerialImpl::readUnlock() {
   int result = pthread_mutex_unlock(&this->read_mutex);
   if (result) {
-    throw (IOException (result));
+    THROW (IOException, result);
   }
 }
 
@@ -749,7 +749,7 @@ void
 Serial::SerialImpl::writeLock() {
   int result = pthread_mutex_lock(&this->write_mutex);
   if (result) {
-    throw (IOException (result));
+    THROW (IOException, result);
   }
 }
 
@@ -757,6 +757,6 @@ void
 Serial::SerialImpl::writeUnlock() {
   int result = pthread_mutex_unlock(&this->write_mutex);
   if (result) {
-    throw (IOException (result));
+    THROW (IOException, result);
   }
 }

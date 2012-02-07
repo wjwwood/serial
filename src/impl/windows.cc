@@ -346,7 +346,6 @@ Serial::SerialImpl::read (char* buf, size_t size)
   while (true)
   {
     count++;
-    // printf("Counting: %u\n", count);
     if (timeout_ != -1)
     {
       FD_ZERO (&readfds);
