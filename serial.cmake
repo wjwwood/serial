@@ -32,6 +32,9 @@ macro(build_serial)
       set(BUILD_SHARED_LIBS OFF)
   ENDIF(NOT BUILD_SHARED_LIBS)
 
+  # Threading libraries added for mutexs
+  FIND_PACKAGE (Threads)
+
   # Set the default path for built executables to the "bin" directory
   IF(NOT DEFINED(EXECUTABLE_OUTPUT_PATH))
       set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
@@ -60,6 +63,7 @@ macro(build_serial)
 
   # Compile the Library
   add_library(serial ${SERIAL_SRCS})
+  target_link_libraries(serial ${CMAKE_THREAD_LIBS_INIT})
 
   ## Build Examples
 
