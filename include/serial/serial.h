@@ -78,7 +78,7 @@ typedef enum {
  */
 typedef enum {
   flowcontrol_none = 0,
-  flowcontrol_software,
+  flowcontrol_software
 } flowcontrol_t;
 
 /*!

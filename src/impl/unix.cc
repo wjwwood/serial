@@ -230,14 +230,14 @@ Serial::SerialImpl::reconfigurePort ()
 // Linux Support
 #elif defined(__linux__)
       struct serial_struct ser;
-      ioctl(fd_, TIOCGSERIAL, &ser);
+      ioctl (fd_, TIOCGSERIAL, &ser);
       // set custom divisor
       ser.custom_divisor = ser.baud_base / baudrate_;
       // update flags
       ser.flags &= ~ASYNC_SPD_MASK;
       ser.flags |= ASYNC_SPD_CUST;
 
-      if (ioctl(fd_, TIOCSSERIAL, ser) < 0)
+      if (ioctl (fd_, TIOCSSERIAL, ser) < 0)
       {
         throw IOException (errno);
       }
@@ -420,7 +420,7 @@ Serial::SerialImpl::read (unsigned char* buf, size_t size)
     // Calculate the time select took
     struct timeval diff;
     diff.tv_sec = end.tv_sec-start.tv_sec;
-    diff.tv_usec = (end.tv_nsec-start.tv_nsec)/1000;
+    diff.tv_usec = static_cast<int> ((end.tv_nsec-start.tv_nsec)/1000);
     // Update the timeout
     if (timeout.tv_sec <= diff.tv_sec) {
       timeout.tv_sec = 0;
@@ -703,7 +703,7 @@ Serial::SerialImpl::getDSR()
   {
     throw PortNotOpenedException ("Serial::getDSR");
   }
-  int s = ioctl(fd_, TIOCMGET, 0);
+  int s = ioctl (fd_, TIOCMGET, 0);
   return (s & TIOCM_DSR) != 0;
 }
 

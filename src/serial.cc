@@ -132,17 +132,19 @@ size_t
 Serial::readline (string &buffer, size_t size, string eol)
 {
   ScopedReadLock (this->pimpl_);
-  size_t eol_len = eol.length();
-  unsigned char buffer_[size];
+  size_t eol_len = eol.length ();
+  unsigned char *buffer_ = static_cast<unsigned char*>
+                              (alloca (size * sizeof (unsigned char)));
   size_t read_so_far = 0;
   while (true)
   {
-    size_t bytes_read = this->read_ (buffer_+read_so_far, 1);
+    size_t bytes_read = this->read_ (buffer_ + read_so_far, 1);
     read_so_far += bytes_read;
     if (bytes_read == 0) {
       break; // Timeout occured on reading 1 byte
     }
-    if (string(buffer_[read_so_far-eol_len], eol_len) == eol) {
+    if (string (reinterpret_cast<const char*>
+         (buffer_ + read_so_far - eol_len), eol_len) == eol) {
       break; // EOL found
     }
     if (read_so_far == size) {
@@ -165,8 +167,9 @@ Serial::readlines (size_t size, string eol)
 {
   ScopedReadLock (this->pimpl_);
   std::vector<std::string> lines;
-  size_t eol_len = eol.length();
-  unsigned char buffer_[size];
+  size_t eol_len = eol.length ();
+  unsigned char *buffer_ = static_cast<unsigned char*>
+    (alloca (size * sizeof (unsigned char)));
   size_t read_so_far = 0;
   size_t start_of_line = 0;
   while (read_so_far < size) {
@@ -174,21 +177,25 @@ Serial::readlines (size_t size, string eol)
     read_so_far += bytes_read;
     if (bytes_read == 0) {
       if (start_of_line != read_so_far) {
-        lines.push_back(
-          std::string(buffer_[start_of_line], read_so_far-start_of_line));
+        lines.push_back (
+          string (reinterpret_cast<const char*> (buffer_ + start_of_line),
+            read_so_far - start_of_line));
       }
       break; // Timeout occured on reading 1 byte
     }
-    if (string(buffer_[read_so_far-eol_len], eol_len) == eol) {
+    if (string (reinterpret_cast<const char*>
+         (buffer_ + read_so_far - eol_len), eol_len) == eol) {
       // EOL found
       lines.push_back(
-        std::string(buffer_[start_of_line], read_so_far-start_of_line));
+        string(reinterpret_cast<const char*> (buffer_ + start_of_line),
+          read_so_far - start_of_line));
       start_of_line = read_so_far;
     }
     if (read_so_far == size) {
       if (start_of_line != read_so_far) {
         lines.push_back(
-          std::string(buffer_[start_of_line], read_so_far-start_of_line));
+          string(reinterpret_cast<const char*> (buffer_ + start_of_line),
+            read_so_far - start_of_line));
       }
       break; // Reached the maximum read length
     }
@@ -208,10 +215,10 @@ Serial::setPort (const string &port)
 {
   ScopedReadLock(this->pimpl_);
   ScopedWriteLock(this->pimpl_);
-  bool was_open = pimpl_->isOpen();
+  bool was_open = pimpl_->isOpen ();
   if (was_open) close();
   pimpl_->setPort (port);
-  if (was_open) open();
+  if (was_open) open ();
 }
 
 string
