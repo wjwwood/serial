@@ -66,11 +66,17 @@ macro(build_serial)
   # Add default header files
   set(SERIAL_HEADERS include/serial/serial.h)
 
+
+  set(OTHER_LIBS "")
+  if(UNIX)
+    set(OTHER_LIBS util)
+  endif(UNIX)
+  
   ## Build the Serial Library
 
   # Compile the Library
   add_library(serial ${SERIAL_SRCS})
-  target_link_libraries(serial ${CMAKE_THREAD_LIBS_INIT})
+  target_link_libraries(serial ${CMAKE_THREAD_LIBS_INIT} ${OTHER_LIBS})
 
   ## Build Examples
 
