@@ -152,6 +152,7 @@ Serial::readline (string &buffer, size_t size, string eol)
       break; // Reached the maximum read length
     }
   }
+  buffer.append(reinterpret_cast<const char*> (buffer_), read_so_far);
   return read_so_far;
 }
 

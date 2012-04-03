@@ -88,7 +88,6 @@ Serial::SerialImpl::open ()
       case ENFILE:
       case EMFILE:
         THROW (IOException, "Too many file handles open.");
-        break;
       default:
         THROW (IOException, errno);
     }
