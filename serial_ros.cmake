@@ -23,14 +23,14 @@ IF(CMAKE_SYSTEM_NAME MATCHES Darwin)
 ENDIF(CMAKE_SYSTEM_NAME MATCHES Darwin)
 
 # Build the serial library
-rosbuild_add_library(${PROJECT_NAME} src/serial.cpp include/serial/serial.h)
+rosbuild_add_library(serial src/serial.cpp include/serial/serial.h)
 
 # Add boost dependencies
 rosbuild_add_boost_directories()
-rosbuild_link_boost(${PROJECT_NAME} system filesystem thread)
+rosbuild_link_boost(serial system filesystem thread)
 
 # Build example
 rosbuild_add_executable(serial_example examples/serial_example.cpp)
-target_link_libraries(serial_example ${PROJECT_NAME})
+target_link_libraries(serial_example serial)
 
 endmacro(build_serial)
