@@ -48,13 +48,14 @@ private:
   SerialImpl *pimpl_;
 };
 
-Serial::Serial (const string &port, unsigned long baudrate,
+Serial::Serial (const string &port, unsigned long baudrate, Timeout timeout,
                 bytesize_t bytesize, parity_t parity, stopbits_t stopbits,
                 flowcontrol_t flowcontrol)
  : read_cache_("")
 {
   pimpl_ = new SerialImpl (port, baudrate, bytesize, parity,
                            stopbits, flowcontrol);
+  pimpl_->setTimeout(timeout);
 }
 
 Serial::~Serial ()
@@ -230,12 +231,12 @@ Serial::getPort () const
 }
 
 void
-Serial::setTimeout (serial::timeout_t &timeout)
+Serial::setTimeout (serial::Timeout &timeout)
 {
   pimpl_->setTimeout (timeout);
 }
 
-serial::timeout_t
+serial::Timeout
 Serial::getTimeout () const {
   return pimpl_->getTimeout ();
 }

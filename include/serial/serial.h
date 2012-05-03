@@ -38,7 +38,7 @@
 
 #include <limits>
 #include <vector>
-#include <string.h>
+#include <string>
 #include <sstream>
 #include <exception>
 #include <stdexcept>
@@ -88,8 +88,8 @@ typedef enum {
  * Structure for setting the timeout of the serial port, times are 
  * in milliseconds.
  */
-struct timeout_t {
-    timeout_t (long inter_byte_timeout_=0, long read_timeout_constant_=0,
+struct Timeout {
+    Timeout (long inter_byte_timeout_=0, long read_timeout_constant_=0,
                long read_timeout_multiplier_=0, long write_timeout_constant_=0,
                long write_timeout_multiplier_=0)
     : inter_byte_timeout(inter_byte_timeout_),
@@ -129,6 +129,9 @@ public:
    *
    * \param baudrate An integer that represents the baudrate
    *
+   * \param timeout A serial::Timeout struct that defines the timeout 
+   * conditions for the serial port. \see serial::Timeout
+   *
    * \param bytesize Size of each byte in the serial transmission of data,
    * default is eightbits, possible values are: fivebits, sixbits, sevenbits,
    * eightbits
@@ -147,6 +150,7 @@ public:
    */
   Serial (const std::string &port = "",
           unsigned long baudrate = 9600,
+          Timeout timeout = Timeout(),
           bytesize_t bytesize = eightbits,
           parity_t parity = parity_none,
           stopbits_t stopbits = stopbits_one,
@@ -341,29 +345,42 @@ public:
   std::string
   getPort () const;
 
-  /*! Sets the timeout for reads and writes using the timeout_t struct.
+  /*! Sets the timeout for reads and writes using the Timeout struct.
    *
-   * There are two basic conditions for timeout described here, the inter byte 
-   * timeout is the maximum amount of time in milliseconds allowed between 
-   * receiving bytes from the serial port.  The second condition is where the 
-   * total timeout expires during a read or write.  The total timeout can be 
-   * calculated as the multiplier times the number of requested bytes plus the 
-   * constant.  In this way a single constant time timeout can be specified 
-   * with zero for the inter byte timeout and zero for the multiplier.  
-   * Alternatively, you could have only an inter byte timeout and zero for 
-   * both the constant and multiplier to prevent a total time timeout from 
-   * occurring.You can use the multiplier to increase the total time timeout 
-   * based on the number of bytes requested.  The user can combine any of 
-   * these timeout metrics in order to achieve the desired trade-off between 
-   * efficiency and responsiveness.
+   * There are two timeout conditions described here:
+   *  * The inter byte timeout:
+   *    * The inter_byte_timeout component of serial::Timeout defines the 
+   *      maximum amount of time, in milliseconds, between receiving bytes on 
+   *      the serial port that can pass before a timeout occurs.  Setting this 
+   *      to zero will prevent inter byte timeouts from occurring.
+   *  * Total time timeout:
+   *    * The the constant and multiplier component of this timeout condition, 
+   *      for both read and write, are defined in serial::Timeout.  This 
+   *      timeout occurs if the total time since the read or write call was 
+   *      made exceeds the specified time in milliseconds.
+   *    * The limit is defined by multiplying the multiplier component by the 
+   *      number of requested bytes and adding that product to the constant 
+   *      component.  In this way if you want a read call, for example, to 
+   *      timeout after exactly one second regardless of the number of bytes 
+   *      you asked for then set the read_timeout_constant component of 
+   *      serial::Timeout to 1000 and the read_timeout_multiplier to zero.  
+   *      This timeout condition can be used in conjunction with the inter 
+   *      byte timeout condition with out any problems, timeout will simply 
+   *      occur when one of the two timeout conditions is met.  This allows 
+   *      users to have maximum control over the trade-off between 
+   *      responsiveness and efficiency.
    *
-   * \param timeout A timeout_t struct containing the inter byte timeout, and 
-   * the read and write timeout constants and multipliers.
+   * Read and write functions will return in one of three cases.  When the 
+   * reading or writing is complete, when a timeout occurs, or when an 
+   * exception occurs.
    * 
-   * \see serial::timeout_t
+   * \param timeout A serial::Timeout struct containing the inter byte 
+   * timeout, and the read and write timeout constants and multipliers.
+   * 
+   * \see serial::Timeout
    */
   void
-  setTimeout (timeout_t &timeout);
+  setTimeout (Timeout &timeout);
 
   /*! Sets the timeout for reads and writes. */
   void
@@ -371,7 +388,7 @@ public:
               long read_timeout_multiplier, long write_timeout_constant,
               long write_timeout_multiplier)
   {
-    timeout_t timeout(inter_byte_timeout, read_timeout_constant,
+    Timeout timeout(inter_byte_timeout, read_timeout_constant,
                       read_timeout_multiplier, write_timeout_constant,
                       write_timeout_multiplier);
     return setTimeout(timeout);
@@ -379,12 +396,12 @@ public:
 
   /*! Gets the timeout for reads in seconds.
    *
-   * \return A timeout_t struct containing the inter_byte_timeout, and read 
+   * \return A Timeout struct containing the inter_byte_timeout, and read 
    * and write timeout constants and multipliers.
    *
    * \see Serial::setTimeout
    */
-  timeout_t
+  Timeout
   getTimeout () const;
 
   /*! Sets the baudrate for the serial port.
@@ -520,7 +537,7 @@ public:
   setDTR (bool level = true);
 
   /*!
-   * Returns true on CTS, DSR, RI, or CD changing.
+   * Blocks until CTS, DSR, RI, CD changes or something interrupts it.
    * 
    * Can throw an exception if an error occurs while waiting.
    * You can check the status of CTS, DSR, RI, and CD once this returns.
@@ -528,6 +545,9 @@ public:
    * resolution of less than +-1ms and as good as +-0.2ms.  Otherwise a 
    * polling method is used which can give +-2ms.
    * 
+   * \return Returns true if one of the lines changed, false if something else 
+   * occurred.
+   *
    * \throw SerialException
    */
   bool

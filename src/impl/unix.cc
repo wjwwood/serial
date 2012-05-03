@@ -491,12 +491,12 @@ Serial::SerialImpl::getPort () const
 }
 
 void
-Serial::SerialImpl::setTimeout (serial::timeout_t &timeout)
+Serial::SerialImpl::setTimeout (serial::Timeout &timeout)
 {
   timeout_ = timeout;
 }
 
-serial::timeout_t
+serial::Timeout
 Serial::SerialImpl::getTimeout () const
 {
   return timeout_;
