@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['inter_5fbyte_5ftimeout',['inter_byte_timeout',['../structserial_1_1timeout__t.html#abb885cffadb5ee57c6689d5a3c50dfad',1,'serial::timeout_t']]]
+  ['inter_5fbyte_5ftimeout',['inter_byte_timeout',['../structserial_1_1_timeout.html#a65d995afbe1efdae5f78687e16572b6b',1,'serial::Timeout']]]
 ];

@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>serial: serial::IOException Class Reference</title>
+<title>serial: serial::Timeout Struct Reference</title>
 
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
@@ -92,15 +92,16 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="nav-path" class="navpath">
     <ul>
       <li class="navelem"><a class="el" href="namespaceserial.html">serial</a>      </li>
-      <li class="navelem"><a class="el" href="classserial_1_1_i_o_exception.html">IOException</a>      </li>
+      <li class="navelem"><a class="el" href="structserial_1_1_timeout.html">Timeout</a>      </li>
     </ul>
   </div>
 </div>
 <div class="header">
   <div class="summary">
-<a href="#pub-methods">Public Member Functions</a>  </div>
+<a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-attribs">Data Fields</a>  </div>
   <div class="headertitle">
-<div class="title">serial::IOException Class Reference</div>  </div>
+<div class="title">serial::Timeout Struct Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
@@ -108,142 +109,141 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:acb2f2cf7a5cc8090945f6cbfcef3ef1e"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserial_1_1_i_o_exception.html#acb2f2cf7a5cc8090945f6cbfcef3ef1e">IOException</a> (std::string file, int line, int errnum)</td></tr>
-<tr class="memitem:acc1d2c650832cc8127f2cd777072b2cd"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserial_1_1_i_o_exception.html#acc1d2c650832cc8127f2cd777072b2cd">IOException</a> (std::string file, int line, const char *description)</td></tr>
-<tr class="memitem:a026ae2e6abc57c6069915f0f8c701390"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserial_1_1_i_o_exception.html#a026ae2e6abc57c6069915f0f8c701390">~IOException</a> ()  throw ()</td></tr>
-<tr class="memitem:a91d5ee5241dd49fb39e8e762564b6cc5"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserial_1_1_i_o_exception.html#a91d5ee5241dd49fb39e8e762564b6cc5">getErrorNumber</a> ()</td></tr>
-<tr class="memitem:a5151f78cf0309db2c79f3dc4c779c774"><td class="memItemLeft" align="right" valign="top">virtual const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserial_1_1_i_o_exception.html#a5151f78cf0309db2c79f3dc4c779c774">what</a> () const   throw ()</td></tr>
+<tr class="memitem:ad4ed0d5f1332e795f4ddd12e999a157d"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structserial_1_1_timeout.html#ad4ed0d5f1332e795f4ddd12e999a157d">Timeout</a> (long inter_byte_timeout_=0, long read_timeout_constant_=0, long read_timeout_multiplier_=0, long write_timeout_constant_=0, long write_timeout_multiplier_=0)</td></tr>
+<tr><td colspan="2"><h2><a name="pub-attribs"></a>
+Data Fields</h2></td></tr>
+<tr class="memitem:a65d995afbe1efdae5f78687e16572b6b"><td class="memItemLeft" align="right" valign="top">long&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structserial_1_1_timeout.html#a65d995afbe1efdae5f78687e16572b6b">inter_byte_timeout</a></td></tr>
+<tr class="memitem:a4fe391ea22792044ebd91f97ae8714f9"><td class="memItemLeft" align="right" valign="top">long&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structserial_1_1_timeout.html#a4fe391ea22792044ebd91f97ae8714f9">read_timeout_constant</a></td></tr>
+<tr class="memitem:abab63b8839297135a23035ad316a9b54"><td class="memItemLeft" align="right" valign="top">long&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structserial_1_1_timeout.html#abab63b8839297135a23035ad316a9b54">read_timeout_multiplier</a></td></tr>
+<tr class="memitem:acbdcb9680cffdcd1dc6147f7ec49aec0"><td class="memItemLeft" align="right" valign="top">long&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structserial_1_1_timeout.html#acbdcb9680cffdcd1dc6147f7ec49aec0">write_timeout_constant</a></td></tr>
+<tr class="memitem:ad441c95ac69511cec9374e9ca6a70ca9"><td class="memItemLeft" align="right" valign="top">long&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structserial_1_1_timeout.html#ad441c95ac69511cec9374e9ca6a70ca9">write_timeout_multiplier</a></td></tr>
 </table>
-<hr/><h2>Constructor &amp; Destructor Documentation</h2>
-<a class="anchor" id="acb2f2cf7a5cc8090945f6cbfcef3ef1e"></a>
+<hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
+<div class="textblock"><p>Structure for setting the timeout of the serial port, times are in milliseconds. </p>
+</div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="ad4ed0d5f1332e795f4ddd12e999a157d"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classserial_1_1_i_o_exception.html#acb2f2cf7a5cc8090945f6cbfcef3ef1e">serial::IOException::IOException</a> </td>
+          <td class="memname"><a class="el" href="structserial_1_1_timeout.html#ad4ed0d5f1332e795f4ddd12e999a157d">serial::Timeout::Timeout</a> </td>
           <td>(</td>
-          <td class="paramtype">std::string&#160;</td>
-          <td class="paramname"><em>file</em>, </td>
+          <td class="paramtype">long&#160;</td>
+          <td class="paramname"><em>inter_byte_timeout_</em> = <code>0</code>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>line</em>, </td>
+          <td class="paramtype">long&#160;</td>
+          <td class="paramname"><em>read_timeout_constant_</em> = <code>0</code>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>errnum</em>&#160;</td>
+          <td class="paramtype">long&#160;</td>
+          <td class="paramname"><em>read_timeout_multiplier_</em> = <code>0</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">long&#160;</td>
+          <td class="paramname"><em>write_timeout_constant_</em> = <code>0</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">long&#160;</td>
+          <td class="paramname"><em>write_timeout_multiplier_</em> = <code>0</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
           <td>)</td>
-          <td></td><td><code> [inline, explicit]</code></td>
+          <td></td><td><code> [inline]</code></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<div class="fragment"><pre class="fragment">  : file_(file), line_(line), e_what_ (strerror (errnum)), errno_(errnum) {}
+<div class="fragment"><pre class="fragment">    : <a class="code" href="structserial_1_1_timeout.html#a65d995afbe1efdae5f78687e16572b6b">inter_byte_timeout</a>(inter_byte_timeout_),
+      <a class="code" href="structserial_1_1_timeout.html#a4fe391ea22792044ebd91f97ae8714f9">read_timeout_constant</a>(read_timeout_constant_),
+      <a class="code" href="structserial_1_1_timeout.html#abab63b8839297135a23035ad316a9b54">read_timeout_multiplier</a>(read_timeout_multiplier_),
+      <a class="code" href="structserial_1_1_timeout.html#acbdcb9680cffdcd1dc6147f7ec49aec0">write_timeout_constant</a>(write_timeout_constant_),
+      <a class="code" href="structserial_1_1_timeout.html#ad441c95ac69511cec9374e9ca6a70ca9">write_timeout_multiplier</a>(write_timeout_multiplier_)
+    {}
 </pre></div>
 </div>
 </div>
-<a class="anchor" id="acc1d2c650832cc8127f2cd777072b2cd"></a>
+<hr/><h2>Field Documentation</h2>
+<a class="anchor" id="a65d995afbe1efdae5f78687e16572b6b"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classserial_1_1_i_o_exception.html#acb2f2cf7a5cc8090945f6cbfcef3ef1e">serial::IOException::IOException</a> </td>
-          <td>(</td>
-          <td class="paramtype">std::string&#160;</td>
-          <td class="paramname"><em>file</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>line</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const char *&#160;</td>
-          <td class="paramname"><em>description</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td><code> [inline, explicit]</code></td>
+          <td class="memname">long <a class="el" href="structserial_1_1_timeout.html#a65d995afbe1efdae5f78687e16572b6b">serial::Timeout::inter_byte_timeout</a></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<div class="fragment"><pre class="fragment">  : file_(file), line_(line), e_what_ (description), errno_(0) {}
-</pre></div>
+<p>Number of milliseconds between bytes received to timeout on. </p>
+
 </div>
 </div>
-<a class="anchor" id="a026ae2e6abc57c6069915f0f8c701390"></a>
+<a class="anchor" id="a4fe391ea22792044ebd91f97ae8714f9"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">virtual <a class="el" href="classserial_1_1_i_o_exception.html#a026ae2e6abc57c6069915f0f8c701390">serial::IOException::~IOException</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td>  throw ()<code> [inline, virtual]</code></td>
+          <td class="memname">long <a class="el" href="structserial_1_1_timeout.html#a4fe391ea22792044ebd91f97ae8714f9">serial::Timeout::read_timeout_constant</a></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<div class="fragment"><pre class="fragment">{}
-</pre></div>
+<p>A constant number of milliseconds to wait after calling read. </p>
+
 </div>
 </div>
-<hr/><h2>Member Function Documentation</h2>
-<a class="anchor" id="a91d5ee5241dd49fb39e8e762564b6cc5"></a>
+<a class="anchor" id="abab63b8839297135a23035ad316a9b54"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">int <a class="el" href="classserial_1_1_i_o_exception.html#a91d5ee5241dd49fb39e8e762564b6cc5">serial::IOException::getErrorNumber</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td><code> [inline]</code></td>
+          <td class="memname">long <a class="el" href="structserial_1_1_timeout.html#abab63b8839297135a23035ad316a9b54">serial::Timeout::read_timeout_multiplier</a></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<div class="fragment"><pre class="fragment">{ <span class="keywordflow">return</span> errno_; }
-</pre></div>
+<p>A multiplier against the number of requested bytes to wait after calling read. </p>
+
 </div>
 </div>
-<a class="anchor" id="a5151f78cf0309db2c79f3dc4c779c774"></a>
+<a class="anchor" id="acbdcb9680cffdcd1dc6147f7ec49aec0"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">virtual const char* <a class="el" href="classserial_1_1_i_o_exception.html#a5151f78cf0309db2c79f3dc4c779c774">serial::IOException::what</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const  throw ()<code> [inline, virtual]</code></td>
+          <td class="memname">long <a class="el" href="structserial_1_1_timeout.html#acbdcb9680cffdcd1dc6147f7ec49aec0">serial::Timeout::write_timeout_constant</a></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<div class="fragment"><pre class="fragment">  {
-    std::stringstream ss;
-    <span class="keywordflow">if</span> (errno_ == 0)
-      ss &lt;&lt; <span class="stringliteral">&quot;IO Exception: &quot;</span> &lt;&lt; e_what_;
-    <span class="keywordflow">else</span>
-      ss &lt;&lt; <span class="stringliteral">&quot;IO Exception (&quot;</span> &lt;&lt; errno_ &lt;&lt; <span class="stringliteral">&quot;): &quot;</span> &lt;&lt; e_what_;
-    ss &lt;&lt; <span class="stringliteral">&quot;, file &quot;</span> &lt;&lt; file_ &lt;&lt; <span class="stringliteral">&quot;, line &quot;</span> &lt;&lt; line_ &lt;&lt; <span class="stringliteral">&quot;.&quot;</span>;
-    <span class="keywordflow">return</span> ss.str ().c_str ();
-  }
-</pre></div>
+<p>A constant number of milliseconds to wait after calling write. </p>
+
 </div>
 </div>
-<hr/>The documentation for this class was generated from the following file:<ul>
+<a class="anchor" id="ad441c95ac69511cec9374e9ca6a70ca9"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">long <a class="el" href="structserial_1_1_timeout.html#ad441c95ac69511cec9374e9ca6a70ca9">serial::Timeout::write_timeout_multiplier</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>A multiplier against the number of requested bytes to wait after calling write. </p>
+
+</div>
+</div>
+<hr/>The documentation for this struct was generated from the following file:<ul>
 <li>include/serial/<a class="el" href="serial_8h_source.html">serial.h</a></li>
 </ul>
 </div><!-- contents -->

@@ -113,7 +113,7 @@ Data Structures</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_serial_1_1_scoped_write_lock.html">ScopedWriteLock</a></td></tr>
 <tr><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a5c7bf8dcebe4dcf4269641fcd6d773e7"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserial_1_1_serial.html#a5c7bf8dcebe4dcf4269641fcd6d773e7">Serial</a> (const std::string &amp;port=&quot;&quot;, unsigned long baudrate=9600, <a class="el" href="namespaceserial.html#a00b3281fa11cea770c0b0c8a106080f8">bytesize_t</a> bytesize=<a class="el" href="namespaceserial.html#a00b3281fa11cea770c0b0c8a106080f8a47f14d952cf9bed6c3f7ae5985161990">eightbits</a>, <a class="el" href="namespaceserial.html#a8f45d26bf7c9a06659e75b5004a50481">parity_t</a> parity=<a class="el" href="namespaceserial.html#a8f45d26bf7c9a06659e75b5004a50481a31cbb2b3cf0870d1a089d66295918416">parity_none</a>, <a class="el" href="namespaceserial.html#af5b116611d6628a3aa8f788fdc09f469">stopbits_t</a> stopbits=<a class="el" href="namespaceserial.html#af5b116611d6628a3aa8f788fdc09f469ab70806555a14cb43e5cc43f6f3d01157">stopbits_one</a>, <a class="el" href="namespaceserial.html#a93ef57a314b4e562f9eded6c15d34351">flowcontrol_t</a> flowcontrol=<a class="el" href="namespaceserial.html#a93ef57a314b4e562f9eded6c15d34351a083bc02a6e8e7c6540a28654c0f95bb0">flowcontrol_none</a>)</td></tr>
+<tr class="memitem:a3cb99baa1eca537742cb81117def8e9b"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserial_1_1_serial.html#a3cb99baa1eca537742cb81117def8e9b">Serial</a> (const std::string &amp;port=&quot;&quot;, unsigned long baudrate=9600, <a class="el" href="structserial_1_1_timeout.html">Timeout</a> timeout=<a class="el" href="structserial_1_1_timeout.html">Timeout</a>(), <a class="el" href="namespaceserial.html#a00b3281fa11cea770c0b0c8a106080f8">bytesize_t</a> bytesize=<a class="el" href="namespaceserial.html#a00b3281fa11cea770c0b0c8a106080f8a47f14d952cf9bed6c3f7ae5985161990">eightbits</a>, <a class="el" href="namespaceserial.html#a8f45d26bf7c9a06659e75b5004a50481">parity_t</a> parity=<a class="el" href="namespaceserial.html#a8f45d26bf7c9a06659e75b5004a50481a31cbb2b3cf0870d1a089d66295918416">parity_none</a>, <a class="el" href="namespaceserial.html#af5b116611d6628a3aa8f788fdc09f469">stopbits_t</a> stopbits=<a class="el" href="namespaceserial.html#af5b116611d6628a3aa8f788fdc09f469ab70806555a14cb43e5cc43f6f3d01157">stopbits_one</a>, <a class="el" href="namespaceserial.html#a93ef57a314b4e562f9eded6c15d34351">flowcontrol_t</a> flowcontrol=<a class="el" href="namespaceserial.html#a93ef57a314b4e562f9eded6c15d34351a083bc02a6e8e7c6540a28654c0f95bb0">flowcontrol_none</a>)</td></tr>
 <tr class="memitem:a5b32c394c0ff923a4ef1c13cfb20a6ba"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserial_1_1_serial.html#a5b32c394c0ff923a4ef1c13cfb20a6ba">~Serial</a> ()</td></tr>
 <tr class="memitem:af3644ed1a9d899b70e9d63bb9b808d62"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserial_1_1_serial.html#af3644ed1a9d899b70e9d63bb9b808d62">open</a> ()</td></tr>
 <tr class="memitem:af9895af496189f7f0aba7c097f5fa9c1"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserial_1_1_serial.html#af9895af496189f7f0aba7c097f5fa9c1">isOpen</a> () const </td></tr>
@@ -131,9 +131,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a7c92c0307b86a935f6623953eec66460"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserial_1_1_serial.html#a7c92c0307b86a935f6623953eec66460">write</a> (const std::string &amp;data)</td></tr>
 <tr class="memitem:acecb0a5102ae0c944fe4b78e4adf839a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserial_1_1_serial.html#acecb0a5102ae0c944fe4b78e4adf839a">setPort</a> (const std::string &amp;port)</td></tr>
 <tr class="memitem:ae95cd057e90258b1b3203ff8972a3567"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserial_1_1_serial.html#ae95cd057e90258b1b3203ff8972a3567">getPort</a> () const </td></tr>
-<tr class="memitem:acb18e62d340695e2f7ab158633863b20"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserial_1_1_serial.html#acb18e62d340695e2f7ab158633863b20">setTimeout</a> (<a class="el" href="structserial_1_1timeout__t.html">timeout_t</a> &amp;timeout)</td></tr>
+<tr class="memitem:a4fc63af4b800a9f9e757414f38f3e8b3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserial_1_1_serial.html#a4fc63af4b800a9f9e757414f38f3e8b3">setTimeout</a> (<a class="el" href="structserial_1_1_timeout.html">Timeout</a> &amp;timeout)</td></tr>
 <tr class="memitem:a1316ecb01d266e2698317c390ff7af80"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserial_1_1_serial.html#a1316ecb01d266e2698317c390ff7af80">setTimeout</a> (long inter_byte_timeout, long read_timeout_constant, long read_timeout_multiplier, long write_timeout_constant, long write_timeout_multiplier)</td></tr>
-<tr class="memitem:a655e62319e089961aa02fb47fbc1b198"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structserial_1_1timeout__t.html">timeout_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserial_1_1_serial.html#a655e62319e089961aa02fb47fbc1b198">getTimeout</a> () const </td></tr>
+<tr class="memitem:a765fccd0e53562773626fb39bb2efcb6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structserial_1_1_timeout.html">Timeout</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserial_1_1_serial.html#a765fccd0e53562773626fb39bb2efcb6">getTimeout</a> () const </td></tr>
 <tr class="memitem:aec535895c800e3fd7c52d60b9f6b08a5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserial_1_1_serial.html#aec535895c800e3fd7c52d60b9f6b08a5">setBaudrate</a> (unsigned long baudrate)</td></tr>
 <tr class="memitem:acd0e5a25e4484d6f08fe02c1911ab5e0"><td class="memItemLeft" align="right" valign="top">unsigned long&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserial_1_1_serial.html#acd0e5a25e4484d6f08fe02c1911ab5e0">getBaudrate</a> () const </td></tr>
 <tr class="memitem:adba430fd704f6898a5a1d99fd39a94fa"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserial_1_1_serial.html#adba430fd704f6898a5a1d99fd39a94fa">setBytesize</a> (<a class="el" href="namespaceserial.html#a00b3281fa11cea770c0b0c8a106080f8">bytesize_t</a> bytesize)</td></tr>
@@ -160,12 +160,12 @@ Public Member Functions</h2></td></tr>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
 <div class="textblock"><p>Class that provides a portable serial port interface. </p>
 </div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
-<a class="anchor" id="a5c7bf8dcebe4dcf4269641fcd6d773e7"></a>
+<a class="anchor" id="a3cb99baa1eca537742cb81117def8e9b"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classserial_1_1_serial.html#a5c7bf8dcebe4dcf4269641fcd6d773e7">serial::Serial::Serial</a> </td>
+          <td class="memname"><a class="el" href="classserial_1_1_serial.html#a3cb99baa1eca537742cb81117def8e9b">serial::Serial::Serial</a> </td>
           <td>(</td>
           <td class="paramtype">const std::string &amp;&#160;</td>
           <td class="paramname"><em>port</em> = <code>&quot;&quot;</code>, </td>
@@ -175,6 +175,12 @@ Public Member Functions</h2></td></tr>
           <td></td>
           <td class="paramtype">unsigned long&#160;</td>
           <td class="paramname"><em>baudrate</em> = <code>9600</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structserial_1_1_timeout.html">Timeout</a>&#160;</td>
+          <td class="paramname"><em>timeout</em> = <code><a class="el" href="structserial_1_1_timeout.html">Timeout</a>()</code>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -213,6 +219,13 @@ Public Member Functions</h2></td></tr>
   <table class="params">
     <tr><td class="paramname">port</td><td>A std::string containing the address of the serial port, which would be something like 'COM1' on Windows and '/dev/ttyS0' on Linux.</td></tr>
     <tr><td class="paramname">baudrate</td><td>An integer that represents the baudrate</td></tr>
+    <tr><td class="paramname">timeout</td><td>A <a class="el" href="structserial_1_1_timeout.html">serial::Timeout</a> struct that defines the timeout conditions for the serial port. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section see"><dt>See also:</dt><dd><a class="el" href="structserial_1_1_timeout.html">serial::Timeout</a></dd></dl>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
     <tr><td class="paramname">bytesize</td><td>Size of each byte in the serial transmission of data, default is eightbits, possible values are: fivebits, sixbits, sevenbits, eightbits</td></tr>
     <tr><td class="paramname">parity</td><td>Method of parity, default is parity_none, possible values are: parity_none, parity_odd, parity_even</td></tr>
     <tr><td class="paramname">stopbits</td><td>Number of stop bits used, default is stopbits_one, possible values are: stopbits_one, stopbits_one_point_five, stopbits_two</td></tr>
@@ -599,12 +612,12 @@ Public Member Functions</h2></td></tr>
 </pre></div>
 </div>
 </div>
-<a class="anchor" id="a655e62319e089961aa02fb47fbc1b198"></a>
+<a class="anchor" id="a765fccd0e53562773626fb39bb2efcb6"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="structserial_1_1timeout__t.html">serial::timeout_t</a> <a class="el" href="classserial_1_1_serial.html#a655e62319e089961aa02fb47fbc1b198">Serial::getTimeout</a> </td>
+          <td class="memname"><a class="el" href="structserial_1_1_timeout.html">serial::Timeout</a> <a class="el" href="classserial_1_1_serial.html#a765fccd0e53562773626fb39bb2efcb6">Serial::getTimeout</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -613,10 +626,10 @@ Public Member Functions</h2></td></tr>
 </div>
 <div class="memdoc">
 <p>Gets the timeout for reads in seconds.</p>
-<dl class="section return"><dt>Returns:</dt><dd>A <a class="el" href="structserial_1_1timeout__t.html">timeout_t</a> struct containing the inter_byte_timeout, and read and write timeout constants and multipliers.</dd></dl>
-<dl class="section see"><dt>See also:</dt><dd><a class="el" href="classserial_1_1_serial.html#acb18e62d340695e2f7ab158633863b20">Serial::setTimeout</a> </dd></dl>
+<dl class="section return"><dt>Returns:</dt><dd>A <a class="el" href="structserial_1_1_timeout.html">Timeout</a> struct containing the inter_byte_timeout, and read and write timeout constants and multipliers.</dd></dl>
+<dl class="section see"><dt>See also:</dt><dd><a class="el" href="classserial_1_1_serial.html#a4fc63af4b800a9f9e757414f38f3e8b3">Serial::setTimeout</a> </dd></dl>
 <div class="fragment"><pre class="fragment">                          {
-  <span class="keywordflow">return</span> pimpl_-&gt;<a class="code" href="classserial_1_1serial_1_1_serial_1_1_serial_impl.html#a09ae38ff5e46514027888eaa631796cd">getTimeout</a> ();
+  <span class="keywordflow">return</span> pimpl_-&gt;<a class="code" href="classserial_1_1serial_1_1_serial_1_1_serial_impl.html#a3523fd0100ba27787042b257cb1b3e63">getTimeout</a> ();
 }
 </pre></div>
 </div>
@@ -657,7 +670,7 @@ Public Member Functions</h2></td></tr>
 <div class="memdoc">
 <p>Opens the serial port as long as the port is set and the port isn't already open.</p>
 <p>If the port is provided to the constructor then an explicit call to open is not needed.</p>
-<dl class="section see"><dt>See also:</dt><dd><a class="el" href="classserial_1_1_serial.html#a5c7bf8dcebe4dcf4269641fcd6d773e7">Serial::Serial</a></dd></dl>
+<dl class="section see"><dt>See also:</dt><dd><a class="el" href="classserial_1_1_serial.html#a3cb99baa1eca537742cb81117def8e9b">Serial::Serial</a></dd></dl>
 <dl class="exception"><dt><b>Exceptions:</b></dt><dd>
   <table class="exception">
     <tr><td class="paramname">std::invalid_argument</td><td></td></tr>
@@ -1287,31 +1300,43 @@ Public Member Functions</h2></td></tr>
 </pre></div>
 </div>
 </div>
-<a class="anchor" id="acb18e62d340695e2f7ab158633863b20"></a>
+<a class="anchor" id="a4fc63af4b800a9f9e757414f38f3e8b3"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void <a class="el" href="classserial_1_1_serial.html#acb18e62d340695e2f7ab158633863b20">Serial::setTimeout</a> </td>
+          <td class="memname">void <a class="el" href="classserial_1_1_serial.html#a4fc63af4b800a9f9e757414f38f3e8b3">Serial::setTimeout</a> </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structserial_1_1timeout__t.html">serial::timeout_t</a> &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="structserial_1_1_timeout.html">serial::Timeout</a> &amp;&#160;</td>
           <td class="paramname"><em>timeout</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Sets the timeout for reads and writes using the <a class="el" href="structserial_1_1timeout__t.html">timeout_t</a> struct.</p>
-<p>There are two basic conditions for timeout described here, the inter byte timeout is the maximum amount of time in milliseconds allowed between receiving bytes from the serial port. The second condition is where the total timeout expires during a read or write. The total timeout can be calculated as the multiplier times the number of requested bytes plus the constant. In this way a single constant time timeout can be specified with zero for the inter byte timeout and zero for the multiplier. Alternatively, you could have only an inter byte timeout and zero for both the constant and multiplier to prevent a total time timeout from occurring.You can use the multiplier to increase the total time timeout based on the number of bytes requested. The user can combine any of these timeout metrics in order to achieve the desired trade-off between efficiency and responsiveness.</p>
+<p>Sets the timeout for reads and writes using the <a class="el" href="structserial_1_1_timeout.html">Timeout</a> struct.</p>
+<p>There are two timeout conditions described here:</p>
+<ul>
+<li>The inter byte timeout:<ul>
+<li>The inter_byte_timeout component of <a class="el" href="structserial_1_1_timeout.html">serial::Timeout</a> defines the maximum amount of time, in milliseconds, between receiving bytes on the serial port that can pass before a timeout occurs. Setting this to zero will prevent inter byte timeouts from occurring.</li>
+</ul>
+</li>
+<li>Total time timeout:<ul>
+<li>The the constant and multiplier component of this timeout condition, for both read and write, are defined in <a class="el" href="structserial_1_1_timeout.html">serial::Timeout</a>. This timeout occurs if the total time since the read or write call was made exceeds the specified time in milliseconds.</li>
+<li>The limit is defined by multiplying the multiplier component by the number of requested bytes and adding that product to the constant component. In this way if you want a read call, for example, to timeout after exactly one second regardless of the number of bytes you asked for then set the read_timeout_constant component of <a class="el" href="structserial_1_1_timeout.html">serial::Timeout</a> to 1000 and the read_timeout_multiplier to zero. This timeout condition can be used in conjunction with the inter byte timeout condition with out any problems, timeout will simply occur when one of the two timeout conditions is met. This allows users to have maximum control over the trade-off between responsiveness and efficiency.</li>
+</ul>
+</li>
+</ul>
+<p>Read and write functions will return in one of three cases. When the reading or writing is complete, when a timeout occurs, or when an exception occurs.</p>
 <dl class="params"><dt><b>Parameters:</b></dt><dd>
   <table class="params">
-    <tr><td class="paramname">timeout</td><td>A <a class="el" href="structserial_1_1timeout__t.html">timeout_t</a> struct containing the inter byte timeout, and the read and write timeout constants and multipliers.</td></tr>
+    <tr><td class="paramname">timeout</td><td>A <a class="el" href="structserial_1_1_timeout.html">serial::Timeout</a> struct containing the inter byte timeout, and the read and write timeout constants and multipliers.</td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section see"><dt>See also:</dt><dd><a class="el" href="structserial_1_1timeout__t.html">serial::timeout_t</a> </dd></dl>
+<dl class="section see"><dt>See also:</dt><dd><a class="el" href="structserial_1_1_timeout.html">serial::Timeout</a> </dd></dl>
 <div class="fragment"><pre class="fragment">{
-  pimpl_-&gt;<a class="code" href="classserial_1_1serial_1_1_serial_1_1_serial_impl.html#a2a0cecc10007288116c1bc1398b139aa">setTimeout</a> (timeout);
+  pimpl_-&gt;<a class="code" href="classserial_1_1serial_1_1_serial_1_1_serial_impl.html#a18365f4a89637103fafb16bc97b8ec2c">setTimeout</a> (timeout);
 }
 </pre></div>
 </div>
@@ -1321,7 +1346,7 @@ Public Member Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void <a class="el" href="classserial_1_1_serial.html#acb18e62d340695e2f7ab158633863b20">serial::Serial::setTimeout</a> </td>
+          <td class="memname">void <a class="el" href="classserial_1_1_serial.html#a4fc63af4b800a9f9e757414f38f3e8b3">serial::Serial::setTimeout</a> </td>
           <td>(</td>
           <td class="paramtype">long&#160;</td>
           <td class="paramname"><em>inter_byte_timeout</em>, </td>
@@ -1360,10 +1385,10 @@ Public Member Functions</h2></td></tr>
 <div class="memdoc">
 <p>Sets the timeout for reads and writes. </p>
 <div class="fragment"><pre class="fragment">  {
-    timeout_t timeout(inter_byte_timeout, read_timeout_constant,
+    Timeout timeout(inter_byte_timeout, read_timeout_constant,
                       read_timeout_multiplier, write_timeout_constant,
                       write_timeout_multiplier);
-    <span class="keywordflow">return</span> <a class="code" href="classserial_1_1_serial.html#acb18e62d340695e2f7ab158633863b20">setTimeout</a>(timeout);
+    <span class="keywordflow">return</span> <a class="code" href="classserial_1_1_serial.html#a4fc63af4b800a9f9e757414f38f3e8b3">setTimeout</a>(timeout);
   }
 </pre></div>
 </div>
@@ -1381,8 +1406,9 @@ Public Member Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Returns true on CTS, DSR, RI, or CD changing.</p>
+<p>Blocks until CTS, DSR, RI, CD changes or something interrupts it.</p>
 <p>Can throw an exception if an error occurs while waiting. You can check the status of CTS, DSR, RI, and CD once this returns. Uses TIOCMIWAIT via ioctl if available (mostly only on Linux) with a resolution of less than +-1ms and as good as +-0.2ms. Otherwise a polling method is used which can give +-2ms.</p>
+<dl class="section return"><dt>Returns:</dt><dd>Returns true if one of the lines changed, false if something else occurred.</dd></dl>
 <dl class="exception"><dt><b>Exceptions:</b></dt><dd>
   <table class="exception">
     <tr><td class="paramname">SerialException</td><td></td></tr>
@@ -1489,7 +1515,7 @@ Public Member Functions</h2></td></tr>
 
 
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed May 2 2012 00:34:19 for serial by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed May 2 2012 21:49:41 for serial by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.0
 </small></address>

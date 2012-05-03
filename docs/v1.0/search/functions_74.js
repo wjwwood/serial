@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['timeout_5ft',['timeout_t',['../structserial_1_1timeout__t.html#a66a9f8ddc185a5c94b95fa2b0b7e6fbc',1,'serial::timeout_t']]]
+  ['timeout',['Timeout',['../structserial_1_1_timeout.html#ad4ed0d5f1332e795f4ddd12e999a157d',1,'serial::Timeout']]]
 ];
