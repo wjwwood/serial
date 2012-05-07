@@ -39,6 +39,7 @@
 #include <limits>
 #include <vector>
 #include <string>
+#include <cstring>
 #include <sstream>
 #include <exception>
 #include <stdexcept>
