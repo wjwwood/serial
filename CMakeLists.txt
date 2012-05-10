@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.4.6)
 
 set(ROS_ROOT $ENV{ROS_ROOT})
 
-option(SERIAL_BUILD_WIHOUT_ROS "Build without ROS?" OFF)
+option(SERIAL_BUILD_WIHOUT_ROS "Build without ROS?" ON)
 
 if(DEFINED ROS_ROOT AND NOT SERIAL_BUILD_WIHOUT_ROS)
   # Build with ROS
