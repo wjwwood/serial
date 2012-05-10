@@ -1,4 +1,6 @@
 {
+	"word_wrap": "on",
+    "wrap_width": 80,
 	"folders":
 	[
 		{
