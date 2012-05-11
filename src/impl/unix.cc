@@ -711,7 +711,7 @@ Serial::SerialImpl::getDSR ()
 }
 
 bool
-Serial::SerialImpl::getRI()
+Serial::SerialImpl::getRI ()
 {
   if (is_open_ == false) {
     throw PortNotOpenedException ("Serial::getRI");
@@ -721,7 +721,7 @@ Serial::SerialImpl::getRI()
 }
 
 bool
-Serial::SerialImpl::getCD()
+Serial::SerialImpl::getCD ()
 {
   if (is_open_ == false) {
     throw PortNotOpenedException ("Serial::getCD");
@@ -731,7 +731,7 @@ Serial::SerialImpl::getCD()
 }
 
 void
-Serial::SerialImpl::readLock()
+Serial::SerialImpl::readLock ()
 {
   int result = pthread_mutex_lock(&this->read_mutex);
   if (result) {
@@ -740,7 +740,7 @@ Serial::SerialImpl::readLock()
 }
 
 void
-Serial::SerialImpl::readUnlock()
+Serial::SerialImpl::readUnlock ()
 {
   int result = pthread_mutex_unlock(&this->read_mutex);
   if (result) {
@@ -749,7 +749,7 @@ Serial::SerialImpl::readUnlock()
 }
 
 void
-Serial::SerialImpl::writeLock()
+Serial::SerialImpl::writeLock ()
 {
   int result = pthread_mutex_lock(&this->write_mutex);
   if (result) {
@@ -758,7 +758,7 @@ Serial::SerialImpl::writeLock()
 }
 
 void
-Serial::SerialImpl::writeUnlock()
+Serial::SerialImpl::writeUnlock ()
 {
   int result = pthread_mutex_unlock(&this->write_mutex);
   if (result) {
