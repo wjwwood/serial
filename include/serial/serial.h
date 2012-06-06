@@ -39,6 +39,7 @@
 #include <limits>
 #include <vector>
 #include <string>
+#include <cstring>
 #include <sstream>
 #include <exception>
 #include <stdexcept>
@@ -99,6 +100,20 @@ struct Timeout {
       write_timeout_constant(write_timeout_constant_),
       write_timeout_multiplier(write_timeout_multiplier_)
     {}
+
+    /*!
+     * Convenience function to generate Timeout structs using a
+     * single absolute timeout.
+     *
+     * \param timeout A long that defines the time in milliseconds until a 
+     * timeout occurs after a call to read or write is made.
+     *
+     * \return Timeout struct that represents this simple timeout provided.
+     */
+    static Timeout simpleTimeout(long timeout) {
+      return Timeout(0, timeout, 0, timeout, 0);
+    }
+
     /*! Number of milliseconds between bytes received to timeout on. */
     int32_t inter_byte_timeout;
     /*! A constant number of milliseconds to wait after calling read. */

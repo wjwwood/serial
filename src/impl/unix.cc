@@ -371,47 +371,65 @@ inline void get_time_now(struct timespec &time)
 size_t
 Serial::SerialImpl::read (uint8_t *buf, size_t size)
 {
+  // If the port is not open, throw
   if (!is_open_) {
     throw PortNotOpenedException ("Serial::read");
   }
   fd_set readfds;
   size_t bytes_read = 0;
-  struct timeval timeout;
-  timeout.tv_sec =                    timeout_.read_timeout_constant / 1000;
-  timeout.tv_usec = static_cast<int> (timeout_.read_timeout_constant % 1000);
-  timeout.tv_usec *= 1000; // To convert to micro seconds
+  // Setup the total_timeout timeval
+  //  This timeout is maximum time before a timeout after read is called
+  struct timeval total_timeout;
+  // Calculate total timeout in milliseconds t_c + (t_m * N)
+  long total_timeout_ms = timeout_.read_timeout_constant;
+  total_timeout_ms += timeout_.read_timeout_multiplier*static_cast<long>(size);
+  total_timeout.tv_sec = total_timeout_ms / 1000;
+  total_timeout.tv_usec = static_cast<int>(total_timeout_ms % 1000);
+  total_timeout.tv_usec *= 1000; // To convert to micro seconds
+  // Setup the inter byte timeout
+  struct timeval inter_byte_timeout;
+  inter_byte_timeout.tv_sec = timeout_.inter_byte_timeout / 1000;
+  inter_byte_timeout.tv_usec =
+    static_cast<int> (timeout_.inter_byte_timeout % 1000);
+  inter_byte_timeout.tv_usec *= 1000; // To convert to micro seconds
   while (bytes_read < size) {
+    // Setup the select timeout timeval
+    struct timeval timeout;
+    // If the total_timeout is less than the inter_byte_timeout
+    if (total_timeout.tv_sec < inter_byte_timeout.tv_sec
+     || (total_timeout.tv_sec == inter_byte_timeout.tv_sec
+      && total_timeout.tv_usec < inter_byte_timeout.tv_sec))
+    {
+      // Then set the select timeout to use the total time
+      timeout = total_timeout;
+    } else {
+      // Else set the select timeout to use the inter byte time
+      timeout = inter_byte_timeout;
+    }
     FD_ZERO (&readfds);
     FD_SET (fd_, &readfds);
-    // On Linux the timeout struct is updated by select to contain the time
-    // left on the timeout to make looping easier, but on other platforms this
-    // does not occur.
-#if !defined(__linux__)
     // Begin timing select
     struct timespec start, end;
-    get_time_now(start);
-#endif
-    // Do the select
+    get_time_now (start);
+    // Call select to block for serial data or a timeout
     int r = select (fd_ + 1, &readfds, NULL, NULL, &timeout);
-#if !defined(__linux__)
     // Calculate difference and update the structure
-    get_time_now(end);
+    get_time_now (end);
     // Calculate the time select took
     struct timeval diff;
     diff.tv_sec = end.tv_sec - start.tv_sec;
     diff.tv_usec = static_cast<int> ((end.tv_nsec - start.tv_nsec) / 1000);
     // Update the timeout
-    if (timeout.tv_sec <= diff.tv_sec) {
-      timeout.tv_sec = 0;
+    if (total_timeout.tv_sec <= diff.tv_sec) {
+      total_timeout.tv_sec = 0;
     } else {
-      timeout.tv_sec -= diff.tv_sec;
+      total_timeout.tv_sec -= diff.tv_sec;
     }
-    if (timeout.tv_usec <= diff.tv_usec) {
-      timeout.tv_usec = 0;
+    if (total_timeout.tv_usec <= diff.tv_usec) {
+      total_timeout.tv_usec = 0;
     } else {
-      timeout.tv_usec -= diff.tv_usec;
+      total_timeout.tv_usec -= diff.tv_usec;
     }
-#endif
 
     // Figure out what happened by looking at select's response 'r'
     /** Error **/
@@ -431,7 +449,7 @@ Serial::SerialImpl::read (uint8_t *buf, size_t size)
     if (r > 0) {
       // Make sure our file descriptor is in the ready to read list
       if (FD_ISSET (fd_, &readfds)) {
-        // This should be non-blocking returning only what is avaialble now
+        // This should be non-blocking returning only what is available now
         //  Then returning so that select can block again.
         ssize_t bytes_read_now =
           ::read (fd_, buf + bytes_read, size - bytes_read);
@@ -785,7 +803,7 @@ Serial::SerialImpl::getDSR ()
 }
 
 bool
-Serial::SerialImpl::getRI()
+Serial::SerialImpl::getRI ()
 {
   if (is_open_ == false) {
     throw PortNotOpenedException ("Serial::getRI");
@@ -795,7 +813,7 @@ Serial::SerialImpl::getRI()
 }
 
 bool
-Serial::SerialImpl::getCD()
+Serial::SerialImpl::getCD ()
 {
   if (is_open_ == false) {
     throw PortNotOpenedException ("Serial::getCD");
@@ -805,7 +823,7 @@ Serial::SerialImpl::getCD()
 }
 
 void
-Serial::SerialImpl::readLock()
+Serial::SerialImpl::readLock ()
 {
   int result = pthread_mutex_lock(&this->read_mutex);
   if (result) {
@@ -814,7 +832,7 @@ Serial::SerialImpl::readLock()
 }
 
 void
-Serial::SerialImpl::readUnlock()
+Serial::SerialImpl::readUnlock ()
 {
   int result = pthread_mutex_unlock(&this->read_mutex);
   if (result) {
@@ -823,7 +841,7 @@ Serial::SerialImpl::readUnlock()
 }
 
 void
-Serial::SerialImpl::writeLock()
+Serial::SerialImpl::writeLock ()
 {
   int result = pthread_mutex_lock(&this->write_mutex);
   if (result) {
@@ -832,7 +850,7 @@ Serial::SerialImpl::writeLock()
 }
 
 void
-Serial::SerialImpl::writeUnlock()
+Serial::SerialImpl::writeUnlock ()
 {
   int result = pthread_mutex_unlock(&this->write_mutex);
   if (result) {
