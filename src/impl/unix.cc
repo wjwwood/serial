@@ -369,7 +369,7 @@ inline void get_time_now(struct timespec &time)
 }
 
 size_t
-Serial::SerialImpl::read (unsigned char *buf, size_t size)
+Serial::SerialImpl::read (uint8_t *buf, size_t size)
 {
   if (!is_open_) {
     throw PortNotOpenedException ("Serial::read");
@@ -470,12 +470,104 @@ Serial::SerialImpl::read (unsigned char *buf, size_t size)
 }
 
 size_t
-Serial::SerialImpl::write (const string &data)
+Serial::SerialImpl::write (const uint8_t *data, size_t length)
 {
   if (is_open_ == false) {
     throw PortNotOpenedException ("Serial::write");
   }
-  return static_cast<size_t> (::write (fd_, data.c_str (), data.length ()));
+  fd_set writefds;
+  size_t bytes_written = 0;
+  struct timeval timeout;
+  timeout.tv_sec =                    timeout_.write_timeout_constant / 1000;
+  timeout.tv_usec = static_cast<int> (timeout_.write_timeout_multiplier % 1000);
+  timeout.tv_usec *= 1000; // To convert to micro seconds
+  while (bytes_written < length) {
+    FD_ZERO (&writefds);
+    FD_SET (fd_, &writefds);
+    // On Linux the timeout struct is updated by select to contain the time
+    // left on the timeout to make looping easier, but on other platforms this
+    // does not occur.
+#if !defined(__linux__)
+    // Begin timing select
+    struct timespec start, end;
+    get_time_now(start);
+#endif
+    // Do the select
+    int r = select (fd_ + 1, &writefds, NULL, NULL, &timeout);
+#if !defined(__linux__)
+    // Calculate difference and update the structure
+    get_time_now(end);
+    // Calculate the time select took
+    struct timeval diff;
+    diff.tv_sec = end.tv_sec - start.tv_sec;
+    diff.tv_usec = static_cast<int> ((end.tv_nsec - start.tv_nsec) / 1000);
+    // Update the timeout
+    if (timeout.tv_sec <= diff.tv_sec) {
+      timeout.tv_sec = 0;
+    } else {
+      timeout.tv_sec -= diff.tv_sec;
+    }
+    if (timeout.tv_usec <= diff.tv_usec) {
+      timeout.tv_usec = 0;
+    } else {
+      timeout.tv_usec -= diff.tv_usec;
+    }
+#endif
+
+    // Figure out what happened by looking at select's response 'r'
+    /** Error **/
+    if (r < 0) {
+      // Select was interrupted, try again
+      if (errno == EINTR) {
+        continue;
+      }
+      // Otherwise there was some error
+      THROW (IOException, errno);
+    }
+    /** Timeout **/
+    if (r == 0) {
+      break;
+    }
+    /** Something ready to read **/
+    if (r > 0) {
+      // Make sure our file descriptor is in the ready to read list
+      if (FD_ISSET (fd_, &writefds)) {
+        // This should be non-blocking returning only what is avaialble now
+        //  Then returning so that select can block again.
+        ssize_t bytes_written_now =
+          ::write (fd_, data + bytes_written, length - bytes_written);
+        // read should always return some data as select reported it was
+        // ready to read when we get to this point.
+        if (bytes_written_now < 1) {
+          // Disconnected devices, at least on Linux, show the
+          // behavior that they are always ready to read immediately
+          // but reading returns nothing.
+          throw SerialExecption ("device reports readiness to write but "
+                                 "returned no data (device disconnected?)");
+        }
+        // Update bytes_read
+        bytes_written += static_cast<size_t> (bytes_written_now);
+        // If bytes_read == size then we have read everything we need
+        if (bytes_written == length) {
+          break;
+        }
+        // If bytes_read < size then we have more to read
+        if (bytes_written < length) {
+          continue;
+        }
+        // If bytes_read > size then we have over read, which shouldn't happen
+        if (bytes_written > length) {
+          throw SerialExecption ("read over read, too many bytes where "
+                                 "read, this shouldn't happen, might be "
+                                 "a logical error!");
+        }
+      }
+      // This shouldn't happen, if r > 0 our fd has to be in the list!
+      THROW (IOException, "select reports ready to read, but our fd isn't"
+             " in the list, this shouldn't happen!");
+    }
+  }
+  return bytes_written;
 }
 
 void

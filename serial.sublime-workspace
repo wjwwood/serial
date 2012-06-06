@@ -4,6 +4,46 @@
 		"selected_items":
 		[
 			[
+				"baudr",
+				"baudrate_"
+			],
+			[
+				"dcb",
+				"dcbSerialParams"
+			],
+			[
+				"byte",
+				"bytes_written	size_t"
+			],
+			[
+				"write",
+				"write_timeout_multiplier	int32_t"
+			],
+			[
+				"read",
+				"read_timeout_multiplier"
+			],
+			[
+				"read_",
+				"read_timeout_multiplier"
+			],
+			[
+				"inter",
+				"inter_byte_timeout"
+			],
+			[
+				"write_",
+				"write_timeout_constant"
+			],
+			[
+				"string",
+				"stringstream"
+			],
+			[
+				"Seri",
+				"SerialExecption"
+			],
+			[
 				"tour",
 				"toupper(int _c)	int"
 			],
@@ -275,40 +315,24 @@
 	},
 	"buffers":
 	[
-		{
-			"file": "include/serial/serial.h",
-			"settings":
-			{
-				"buffer_size": 17876,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "src/serial.cc",
-			"settings":
-			{
-				"buffer_size": 7015,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "src/impl/unix.cc",
-			"settings":
-			{
-				"buffer_size": 16696,
-				"line_ending": "Unix"
-			}
-		}
 	],
 	"build_system": "Packages/Python/Python.sublime-build",
 	"command_palette":
 	{
-		"height": 47.0,
+		"height": 87.0,
 		"selected_items":
 		[
 			[
+				"convert sp",
+				"Indentation: Convert to Spaces"
+			],
+			[
 				"install",
 				"Package Control: Install Package"
+			],
+			[
+				"Package Control: remo",
+				"Package Control: Remove Package"
 			],
 			[
 				"late",
@@ -332,6 +356,27 @@
 	},
 	"file_history":
 	[
+		"/Users/william/devel/serial/include/serial/serial.h",
+		"/Users/william/devel/serial/include/serial/impl/win.h",
+		"/Users/william/devel/serial/src/impl/win.cc",
+		"/Users/william/devel/serial/src/impl/unix.cc",
+		"/Users/william/devel/serial/include/serial/impl/unix.h",
+		"/Users/william/devel/serial/src/serial.cc",
+		"/Users/william/devel/serial/Findserial.cmake",
+		"/Users/william/devel/serial/src/impl/windows.cc",
+		"/Users/william/devel/serial/serial.sublime-project",
+		"/Users/william/Library/Application Support/Sublime Text 2/Packages/SublimeClang/SublimeClang.sublime-settings",
+		"/Users/william/Library/Application Support/Sublime Text 2/Packages/User/SublimeClang.sublime-settings",
+		"/Users/william/devel/serial/README.md",
+		"/Users/william/devel/serial/doc/html/serial_8h.html",
+		"/Users/william/devel/serial/doc/html/unix_8h.html",
+		"/Users/william/devel/serial/doc/html/windows_8h.html",
+		"/Users/william/devel/serial/include/serial/impl/windows.h",
+		"/Users/william/devel/serial/doc/Doxyfile",
+		"/Users/william/Library/Application Support/Sublime Text 2/Packages/Terminal/Default (OSX).sublime-keymap",
+		"/Users/william/Library/Application Support/Sublime Text 2/Packages/SublimeAStyleFormatter/SublimeAStyleFormatter.sublime-settings",
+		"/Users/william/Library/Application Support/Sublime Text 2/Packages/SublimeClang/Default.sublime-keymap",
+		"/Users/william/Library/Application Support/Sublime Text 2/Packages/SublimeAStyleFormatter/Default (OSX).sublime-keymap",
 		"/Users/william/devel/automow_ws/au_automow_common/automow_planning/tests/test_path_planner.py",
 		"/Users/william/devel/automow_ws/au_automow_common/automow_planning/tests/test_coverage_planner.py",
 		"/Users/william/devel/automow_ws/au_automow_common/automow_planning/tests/test_costmap.py",
@@ -343,7 +388,6 @@
 		"/Users/william/devel/xbow400/src/xbow_400.cpp",
 		"/Users/william/devel/xbow400/README",
 		"/Users/william/devel/xbow400/xbow400.sublime-project",
-		"/Users/william/Library/Application Support/Sublime Text 2/Packages/SublimeClang/SublimeClang.sublime-settings",
 		"/Users/william/devel/comp6400/homework6/homework6.sublime-project",
 		"/Users/william/devel/comp6400/homework6/src/main.cc",
 		"/Users/william/devel/comp6400/homework6/models/student.obj",
@@ -405,9 +449,10 @@
 	},
 	"find_in_files":
 	{
-		"height": 0.0,
+		"height": 93.0,
 		"where_history":
 		[
+			"<open files>",
 			""
 		]
 	},
@@ -416,6 +461,18 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"flowcon",
+			"xonxoff_",
+			"rtscts_",
+			"#ifdef B",
+			"baud = B",
+			"write",
+			"char",
+			"unsigned char",
+			"char",
+			"long",
+			"2011",
+			"  *",
 			"cts",
 			" ",
 			"o ",
@@ -444,6 +501,10 @@
 		"regex": false,
 		"replace_history":
 		[
+			"#ifdef CBR_",
+			"dcbSerialParams.BaudRate = CBR_",
+			"2012",
+			"   *",
 			", ",
 			"min.z",
 			"min.y",
@@ -462,95 +523,8 @@
 	"groups":
 	[
 		{
-			"selected": 2,
 			"sheets":
 			[
-				{
-					"buffer": 0,
-					"file": "include/serial/serial.h",
-					"settings":
-					{
-						"buffer_size": 17876,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								11407,
-								11407
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true,
-							"word_wrap": true,
-							"wrap_width": 80
-						},
-						"translation.x": 0.0,
-						"translation.y": 6934.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "src/serial.cc",
-					"settings":
-					{
-						"buffer_size": 7015,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 479.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"file": "src/impl/unix.cc",
-					"settings":
-					{
-						"buffer_size": 16696,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								15521,
-								15521
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 10013.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				}
 			]
 		},
 		{
@@ -587,7 +561,7 @@
 		"cols":
 		[
 			0.0,
-			0.61784814072,
+			0.71805886817,
 			1.0
 		],
 		"rows":

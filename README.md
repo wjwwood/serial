@@ -70,7 +70,7 @@ Run the example:
 
 The BSD License
 
-Copyright (c) 2011 William Woodall
+Copyright (c) 2012 William Woodall
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

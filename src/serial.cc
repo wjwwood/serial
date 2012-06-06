@@ -48,7 +48,7 @@ private:
   SerialImpl *pimpl_;
 };
 
-Serial::Serial (const string &port, unsigned long baudrate, Timeout timeout,
+Serial::Serial (const string &port, uint32_t baudrate, Timeout timeout,
                 bytesize_t bytesize, parity_t parity, stopbits_t stopbits,
                 flowcontrol_t flowcontrol)
  : read_cache_("")
@@ -88,23 +88,23 @@ Serial::available ()
 }
 
 size_t
-Serial::read_ (unsigned char *buffer, size_t size)
+Serial::read_ (uint8_t *buffer, size_t size)
 {
   return this->pimpl_->read (buffer, size);
 }
 
 size_t
-Serial::read (unsigned char *buffer, size_t size)
+Serial::read (uint8_t *buffer, size_t size)
 {
   ScopedReadLock (this->pimpl_);
   return this->pimpl_->read (buffer, size);
 }
 
 size_t
-Serial::read (std::vector<unsigned char> &buffer, size_t size)
+Serial::read (std::vector<uint8_t> &buffer, size_t size)
 {
   ScopedReadLock (this->pimpl_);
-  unsigned char *buffer_ = new unsigned char[size];
+  uint8_t *buffer_ = new uint8_t[size];
   size_t bytes_read = this->pimpl_->read (buffer_, size);
   buffer.insert (buffer.end (), buffer_, buffer_+bytes_read);
   delete[] buffer_;
@@ -115,7 +115,7 @@ size_t
 Serial::read (std::string &buffer, size_t size)
 {
   ScopedReadLock (this->pimpl_);
-  unsigned char *buffer_ = new unsigned char[size];
+  uint8_t *buffer_ = new uint8_t[size];
   size_t bytes_read = this->pimpl_->read (buffer_, size);
   buffer.append (reinterpret_cast<const char*>(buffer_), bytes_read);
   delete[] buffer_;
@@ -135,8 +135,8 @@ Serial::readline (string &buffer, size_t size, string eol)
 {
   ScopedReadLock (this->pimpl_);
   size_t eol_len = eol.length ();
-  unsigned char *buffer_ = static_cast<unsigned char*>
-                              (alloca (size * sizeof (unsigned char)));
+  uint8_t *buffer_ = static_cast<uint8_t*>
+                              (alloca (size * sizeof (uint8_t)));
   size_t read_so_far = 0;
   while (true)
   {
@@ -171,8 +171,8 @@ Serial::readlines (size_t size, string eol)
   ScopedReadLock (this->pimpl_);
   std::vector<std::string> lines;
   size_t eol_len = eol.length ();
-  unsigned char *buffer_ = static_cast<unsigned char*>
-    (alloca (size * sizeof (unsigned char)));
+  uint8_t *buffer_ = static_cast<uint8_t*>
+    (alloca (size * sizeof (uint8_t)));
   size_t read_so_far = 0;
   size_t start_of_line = 0;
   while (read_so_far < size) {
@@ -210,7 +210,28 @@ size_t
 Serial::write (const string &data)
 {
   ScopedWriteLock(this->pimpl_);
-  return pimpl_->write (data);
+  return this->write_ (reinterpret_cast<const uint8_t*>(data.c_str()),
+                       data.length());
+}
+
+size_t
+Serial::write (const std::vector<uint8_t> &data)
+{
+  ScopedWriteLock(this->pimpl_);
+  return this->write_ (&data[0], data.size());
+}
+
+size_t
+Serial::write (const uint8_t *data, size_t size)
+{
+  ScopedWriteLock(this->pimpl_);
+  return this->write_(data, size);
+}
+
+size_t
+Serial::write_ (const uint8_t *data, size_t length)
+{
+  return pimpl_->write (data, length);
 }
 
 void
@@ -242,15 +263,15 @@ Serial::getTimeout () const {
 }
 
 void
-Serial::setBaudrate (unsigned long baudrate)
+Serial::setBaudrate (uint32_t baudrate)
 {
   pimpl_->setBaudrate (baudrate);
 }
 
-unsigned long
+uint32_t
 Serial::getBaudrate () const
 {
-  return pimpl_->getBaudrate ();
+  return uint32_t(pimpl_->getBaudrate ());
 }
 
 void

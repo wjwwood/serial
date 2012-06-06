@@ -8,7 +8,7 @@
  *
  * The MIT License
  *
- * Copyright (c) 2011 William Woodall
+ * Copyright (c) 2012 William Woodall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -42,6 +42,7 @@
 #include <sstream>
 #include <exception>
 #include <stdexcept>
+#include <stdint.h>
 
 #define THROW(exceptionClass, message) throw exceptionClass(__FILE__, \
 __LINE__, (message) )
@@ -89,9 +90,9 @@ typedef enum {
  * in milliseconds.
  */
 struct Timeout {
-    Timeout (long inter_byte_timeout_=0, long read_timeout_constant_=0,
-               long read_timeout_multiplier_=0, long write_timeout_constant_=0,
-               long write_timeout_multiplier_=0)
+    Timeout (int32_t inter_byte_timeout_=0, int32_t read_timeout_constant_=0,
+             int32_t read_timeout_multiplier_=0, int32_t write_timeout_constant_=0,
+             int32_t write_timeout_multiplier_=0)
     : inter_byte_timeout(inter_byte_timeout_),
       read_timeout_constant(read_timeout_constant_),
       read_timeout_multiplier(read_timeout_multiplier_),
@@ -99,19 +100,19 @@ struct Timeout {
       write_timeout_multiplier(write_timeout_multiplier_)
     {}
     /*! Number of milliseconds between bytes received to timeout on. */
-    long inter_byte_timeout;
+    int32_t inter_byte_timeout;
     /*! A constant number of milliseconds to wait after calling read. */
-    long read_timeout_constant;
+    int32_t read_timeout_constant;
     /*! A multiplier against the number of requested bytes to wait after 
      *  calling read.
      */
-    long read_timeout_multiplier;
+    int32_t read_timeout_multiplier;
     /*! A constant number of milliseconds to wait after calling write. */
-    long write_timeout_constant;
+    int32_t write_timeout_constant;
     /*! A multiplier against the number of requested bytes to wait after 
      *  calling write.
      */
-    long write_timeout_multiplier;
+    int32_t write_timeout_multiplier;
 };
 
 /*!
@@ -149,7 +150,7 @@ public:
    * \throw PortNotOpenedException
    */
   Serial (const std::string &port = "",
-          unsigned long baudrate = 9600,
+          uint32_t baudrate = 9600,
           Timeout timeout = Timeout(),
           bytesize_t bytesize = eightbits,
           parity_t parity = parity_none,
@@ -209,25 +210,25 @@ public:
    *      occur.
    *  * An exception occurred, in this case an actual exception will be thrown.
    * 
-   * \param buffer An unsigned char array of at least the requested size.
+   * \param buffer An uint8_t array of at least the requested size.
    * \param size A size_t defining how many bytes to be read.
    *
    * \return A size_t representing the number of bytes read as a result of the 
    *         call to read.
    */
   size_t
-  read (unsigned char *buffer, size_t size);
+  read (uint8_t *buffer, size_t size);
 
   /*! Read a given amount of bytes from the serial port into a give buffer.
    * 
-   * \param buffer A reference to a std::vector of unsigned char.
+   * \param buffer A reference to a std::vector of uint8_t.
    * \param size A size_t defining how many bytes to be read.
    *
    * \return A size_t representing the number of bytes read as a result of the 
    *         call to read.
    */
   size_t
-  read (std::vector<unsigned char> &buffer, size_t size = 1);
+  read (std::vector<uint8_t> &buffer, size_t size = 1);
 
   /*! Read a given amount of bytes from the serial port into a give buffer.
    * 
@@ -301,7 +302,7 @@ public:
    * the serial port.
    */
   size_t
-  write (const unsigned char *data, size_t size);
+  write (const uint8_t *data, size_t size);
 
   /*! Write a string to the serial port.
    *
@@ -312,7 +313,7 @@ public:
    * the serial port.
    */
   size_t
-  write (const std::vector<unsigned char> &data);
+  write (const std::vector<uint8_t> &data);
 
   /*! Write a string to the serial port.
    *
@@ -384,9 +385,9 @@ public:
 
   /*! Sets the timeout for reads and writes. */
   void
-  setTimeout (long inter_byte_timeout, long read_timeout_constant,
-              long read_timeout_multiplier, long write_timeout_constant,
-              long write_timeout_multiplier)
+  setTimeout (int32_t inter_byte_timeout, int32_t read_timeout_constant,
+              int32_t read_timeout_multiplier, int32_t write_timeout_constant,
+              int32_t write_timeout_multiplier)
   {
     Timeout timeout(inter_byte_timeout, read_timeout_constant,
                       read_timeout_multiplier, write_timeout_constant,
@@ -417,7 +418,7 @@ public:
    * \throw InvalidConfigurationException
    */
   void
-  setBaudrate (unsigned long baudrate);
+  setBaudrate (uint32_t baudrate);
 
   /*! Gets the baudrate for the serial port.
    *
@@ -427,7 +428,7 @@ public:
    *
    * \throw InvalidConfigurationException
    */
-  unsigned long
+  uint32_t
   getBaudrate () const;
 
   /*! Sets the bytesize for the serial port.
@@ -587,7 +588,10 @@ private:
 
   // Read common function
   size_t
-  read_ (unsigned char *buffer, size_t size);
+  read_ (uint8_t *buffer, size_t size);
+  // Write common function
+  size_t
+  write_ (const uint8_t *data, size_t length);
 
 };
 
@@ -644,11 +648,6 @@ public:
     ss << e_what_ << " called before port was opened.";
     return ss.str ().c_str ();
   }
-};
-
-class SerialExceptionBase : public std::exception
-{
-  
 };
 
 } // namespace serial

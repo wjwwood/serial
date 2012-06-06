@@ -8,7 +8,7 @@
  *
  * The MIT License
  *
- * Copyright (c) 2011 William Woodall, John Harrison
+ * Copyright (c) 2012 William Woodall, John Harrison
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -74,10 +74,10 @@ public:
   available ();
 
   size_t
-  read (unsigned char *buf, size_t size = 1);
+  read (uint8_t *buf, size_t size = 1);
 
   size_t
-  write (const string &data);
+  write (const uint8_t *data, size_t length);
 
   void
   flush ();
