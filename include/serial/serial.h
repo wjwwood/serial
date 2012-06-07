@@ -615,6 +615,10 @@ private:
 
 class SerialExecption : public std::exception
 {
+  // Disable copy constructors
+  SerialExecption(const SerialExecption&);
+  void operator=(const SerialExecption&);
+  const SerialExecption& operator=(SerialExecption);
   const char* e_what_;
 public:
   SerialExecption (const char *description) : e_what_ (description) {}
@@ -629,6 +633,10 @@ public:
 
 class IOException : public std::exception
 {
+  // Disable copy constructors
+  IOException(const IOException&);
+  void operator=(const IOException&);
+  const IOException& operator=(IOException);
   std::string file_;
   int line_;
   const char* e_what_;
@@ -656,6 +664,10 @@ public:
 
 class PortNotOpenedException : public std::exception
 {
+  // Disable copy constructors
+  PortNotOpenedException(const PortNotOpenedException&);
+  void operator=(const PortNotOpenedException&);
+  const PortNotOpenedException& operator=(PortNotOpenedException);
   const char * e_what_;
 public:
   PortNotOpenedException (const char * description) : e_what_ (description) {}
