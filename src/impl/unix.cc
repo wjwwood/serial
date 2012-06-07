@@ -111,17 +111,17 @@ Serial::SerialImpl::reconfigurePort ()
   }
 
   // set up raw mode / no echo / binary
-  options.c_cflag |= (unsigned long)  (CLOCAL | CREAD);
-  options.c_lflag &= (unsigned long) ~(ICANON | ECHO | ECHOE | ECHOK | ECHONL |
+  options.c_cflag |= (tcflag_t)  (CLOCAL | CREAD);
+  options.c_lflag &= (tcflag_t) ~(ICANON | ECHO | ECHOE | ECHOK | ECHONL |
                                        ISIG | IEXTEN); //|ECHOPRT
 
-  options.c_oflag &= (unsigned long) ~(OPOST);
-  options.c_iflag &= (unsigned long) ~(INLCR | IGNCR | ICRNL | IGNBRK);
+  options.c_oflag &= (tcflag_t) ~(OPOST);
+  options.c_iflag &= (tcflag_t) ~(INLCR | IGNCR | ICRNL | IGNBRK);
 #ifdef IUCLC
-  options.c_iflag &= (unsigned long) ~IUCLC;
+  options.c_iflag &= (tcflag_t) ~IUCLC;
 #endif
 #ifdef PARMRK
-  options.c_iflag &= (unsigned long) ~PARMRK;
+  options.c_iflag &= (tcflag_t) ~PARMRK;
 #endif
 
   // setup baud rate
@@ -226,7 +226,7 @@ Serial::SerialImpl::reconfigurePort ()
     struct serial_struct ser;
     ioctl (fd_, TIOCGSERIAL, &ser);
     // set custom divisor
-    ser.custom_divisor = ser.baud_base / baudrate_;
+    ser.custom_divisor = ser.baud_base / (int) baudrate_;
     // update flags
     ser.flags &= ~ASYNC_SPD_MASK;
     ser.flags |= ASYNC_SPD_CUST;
@@ -248,7 +248,7 @@ Serial::SerialImpl::reconfigurePort ()
   }
 
   // setup char len
-  options.c_cflag &= (unsigned long) ~CSIZE;
+  options.c_cflag &= (tcflag_t) ~CSIZE;
   if (bytesize_ == eightbits)
     options.c_cflag |= CS8;
   else if (bytesize_ == sevenbits)
@@ -261,7 +261,7 @@ Serial::SerialImpl::reconfigurePort ()
     throw invalid_argument ("invalid char len");
   // setup stopbits
   if (stopbits_ == stopbits_one)
-    options.c_cflag &= (unsigned long) ~(CSTOPB);
+    options.c_cflag &= (tcflag_t) ~(CSTOPB);
   else if (stopbits_ == stopbits_one_point_five)
     // ONE POINT FIVE same as TWO.. there is no POSIX support for 1.5
     options.c_cflag |=  (CSTOPB);
@@ -270,11 +270,11 @@ Serial::SerialImpl::reconfigurePort ()
   else
     throw invalid_argument ("invalid stop bit");
   // setup parity
-  options.c_iflag &= (unsigned long) ~(INPCK | ISTRIP);
+  options.c_iflag &= (tcflag_t) ~(INPCK | ISTRIP);
   if (parity_ == parity_none) {
-    options.c_cflag &= (unsigned long) ~(PARENB | PARODD);
+    options.c_cflag &= (tcflag_t) ~(PARENB | PARODD);
   } else if (parity_ == parity_even) {
-    options.c_cflag &= (unsigned long) ~(PARODD);
+    options.c_cflag &= (tcflag_t) ~(PARODD);
     options.c_cflag |=  (PARENB);
   } else if (parity_ == parity_odd) {
     options.c_cflag |=  (PARENB | PARODD);
@@ -287,12 +287,12 @@ Serial::SerialImpl::reconfigurePort ()
   if (xonxoff_)
     options.c_iflag |=  (IXON | IXOFF); //|IXANY)
   else
-    options.c_iflag &= (unsigned long) ~(IXON | IXOFF | IXANY);
+    options.c_iflag &= (tcflag_t) ~(IXON | IXOFF | IXANY);
 #else
   if (xonxoff_)
     options.c_iflag |=  (IXON | IXOFF);
   else
-    options.c_iflag &= (unsigned long) ~(IXON | IXOFF);
+    options.c_iflag &= (tcflag_t) ~(IXON | IXOFF);
 #endif
   // rtscts
 #ifdef CRTSCTS
