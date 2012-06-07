@@ -91,16 +91,6 @@ typedef enum {
  * in milliseconds.
  */
 struct Timeout {
-    Timeout (int32_t inter_byte_timeout_=0, int32_t read_timeout_constant_=0,
-             int32_t read_timeout_multiplier_=0, int32_t write_timeout_constant_=0,
-             int32_t write_timeout_multiplier_=0)
-    : inter_byte_timeout(inter_byte_timeout_),
-      read_timeout_constant(read_timeout_constant_),
-      read_timeout_multiplier(read_timeout_multiplier_),
-      write_timeout_constant(write_timeout_constant_),
-      write_timeout_multiplier(write_timeout_multiplier_)
-    {}
-
     /*!
      * Convenience function to generate Timeout structs using a
      * single absolute timeout.
@@ -115,19 +105,31 @@ struct Timeout {
     }
 
     /*! Number of milliseconds between bytes received to timeout on. */
-    int32_t inter_byte_timeout;
+    uint32_t inter_byte_timeout;
     /*! A constant number of milliseconds to wait after calling read. */
-    int32_t read_timeout_constant;
+    uint32_t read_timeout_constant;
     /*! A multiplier against the number of requested bytes to wait after 
      *  calling read.
      */
-    int32_t read_timeout_multiplier;
+    uint32_t read_timeout_multiplier;
     /*! A constant number of milliseconds to wait after calling write. */
-    int32_t write_timeout_constant;
+    uint32_t write_timeout_constant;
     /*! A multiplier against the number of requested bytes to wait after 
      *  calling write.
      */
-    int32_t write_timeout_multiplier;
+    uint32_t write_timeout_multiplier;
+
+    typedef std::numeric_limits<uint32_t>::max() max;
+
+    Timeout (unsigned int32_t inter_byte_timeout_=0, unsigned int32_t read_timeout_constant_=0,
+             uint32_t read_timeout_multiplier_=0, uint32_t write_timeout_constant_=0,
+             uint32_t write_timeout_multiplier_=0)
+    : inter_byte_timeout(inter_byte_timeout_),
+      read_timeout_constant(read_timeout_constant_),
+      read_timeout_multiplier(read_timeout_multiplier_),
+      write_timeout_constant(write_timeout_constant_),
+      write_timeout_multiplier(write_timeout_multiplier_)
+    {}
 };
 
 /*!
