@@ -616,12 +616,14 @@ private:
 class SerialExecption : public std::exception
 {
   // Disable copy constructors
-  SerialExecption(const SerialExecption&);
   void operator=(const SerialExecption&);
   const SerialExecption& operator=(SerialExecption);
   const char* e_what_;
 public:
   SerialExecption (const char *description) : e_what_ (description) {}
+  SerialExecption (const SerialExecption& other) {
+    e_what_ = other.e_what_;
+  }
 
   virtual const char* what () const throw ()
   {
@@ -634,7 +636,6 @@ public:
 class IOException : public std::exception
 {
   // Disable copy constructors
-  IOException(const IOException&);
   void operator=(const IOException&);
   const IOException& operator=(IOException);
   std::string file_;
@@ -647,6 +648,9 @@ public:
   explicit IOException (std::string file, int line, const char * description)
   : file_(file), line_(line), e_what_ (description), errno_(0) {}
   virtual ~IOException() throw() {}
+  IOException (const IOException& other) {
+    e_what_ = other.e_what_;
+  }
 
   int getErrorNumber () { return errno_; }
 
@@ -665,12 +669,14 @@ public:
 class PortNotOpenedException : public std::exception
 {
   // Disable copy constructors
-  PortNotOpenedException(const PortNotOpenedException&);
   void operator=(const PortNotOpenedException&);
   const PortNotOpenedException& operator=(PortNotOpenedException);
   const char * e_what_;
 public:
   PortNotOpenedException (const char * description) : e_what_ (description) {}
+  PortNotOpenedException (const PortNotOpenedException& other) {
+    e_what_ = other.e_what_;
+  }
 
   virtual const char* what () const throw ()
   {
