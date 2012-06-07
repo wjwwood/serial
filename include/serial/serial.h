@@ -43,7 +43,7 @@
 #include <sstream>
 #include <exception>
 #include <stdexcept>
-#include <stdint.h>
+#include <serial/v8stdint.h>
 
 #define THROW(exceptionClass, message) throw exceptionClass(__FILE__, \
 __LINE__, (message) )
@@ -89,47 +89,48 @@ typedef enum {
 /*!
  * Structure for setting the timeout of the serial port, times are 
  * in milliseconds.
+ * 
+ * In order to disable the interbyte timeout, set it to Timeout::max().
  */
 struct Timeout {
-    /*!
-     * Convenience function to generate Timeout structs using a
-     * single absolute timeout.
-     *
-     * \param timeout A long that defines the time in milliseconds until a 
-     * timeout occurs after a call to read or write is made.
-     *
-     * \return Timeout struct that represents this simple timeout provided.
-     */
-    static Timeout simpleTimeout(long timeout) {
-      return Timeout(0, timeout, 0, timeout, 0);
-    }
+  static uint32_t max() {return std::numeric_limits<uint32_t>::max();}
+  /*!
+   * Convenience function to generate Timeout structs using a
+   * single absolute timeout.
+   *
+   * \param timeout A long that defines the time in milliseconds until a 
+   * timeout occurs after a call to read or write is made.
+   *
+   * \return Timeout struct that represents this simple timeout provided.
+   */
+  static Timeout simpleTimeout(uint32_t timeout) {
+    return Timeout(max(), timeout, 0, timeout, 0);
+  }
 
-    /*! Number of milliseconds between bytes received to timeout on. */
-    uint32_t inter_byte_timeout;
-    /*! A constant number of milliseconds to wait after calling read. */
-    uint32_t read_timeout_constant;
-    /*! A multiplier against the number of requested bytes to wait after 
-     *  calling read.
-     */
-    uint32_t read_timeout_multiplier;
-    /*! A constant number of milliseconds to wait after calling write. */
-    uint32_t write_timeout_constant;
-    /*! A multiplier against the number of requested bytes to wait after 
-     *  calling write.
-     */
-    uint32_t write_timeout_multiplier;
+  /*! Number of milliseconds between bytes received to timeout on. */
+  uint32_t inter_byte_timeout;
+  /*! A constant number of milliseconds to wait after calling read. */
+  uint32_t read_timeout_constant;
+  /*! A multiplier against the number of requested bytes to wait after 
+   *  calling read.
+   */
+  uint32_t read_timeout_multiplier;
+  /*! A constant number of milliseconds to wait after calling write. */
+  uint32_t write_timeout_constant;
+  /*! A multiplier against the number of requested bytes to wait after 
+   *  calling write.
+   */
+  uint32_t write_timeout_multiplier;
 
-    typedef std::numeric_limits<uint32_t>::max() max;
-
-    Timeout (unsigned int32_t inter_byte_timeout_=0, unsigned int32_t read_timeout_constant_=0,
-             uint32_t read_timeout_multiplier_=0, uint32_t write_timeout_constant_=0,
-             uint32_t write_timeout_multiplier_=0)
-    : inter_byte_timeout(inter_byte_timeout_),
-      read_timeout_constant(read_timeout_constant_),
-      read_timeout_multiplier(read_timeout_multiplier_),
-      write_timeout_constant(write_timeout_constant_),
-      write_timeout_multiplier(write_timeout_multiplier_)
-    {}
+  Timeout (uint32_t inter_byte_timeout_=0, uint32_t read_timeout_constant_=0,
+           uint32_t read_timeout_multiplier_=0, uint32_t write_timeout_constant_=0,
+           uint32_t write_timeout_multiplier_=0)
+  : inter_byte_timeout(inter_byte_timeout_),
+    read_timeout_constant(read_timeout_constant_),
+    read_timeout_multiplier(read_timeout_multiplier_),
+    write_timeout_constant(write_timeout_constant_),
+    write_timeout_multiplier(write_timeout_multiplier_)
+  {}
 };
 
 /*!
@@ -145,7 +146,7 @@ public:
    *        which would be something like 'COM1' on Windows and '/dev/ttyS0'
    *        on Linux.
    *
-   * \param baudrate An integer that represents the baudrate
+   * \param baudrate An unsigned 32-bit integer that represents the baudrate
    *
    * \param timeout A serial::Timeout struct that defines the timeout 
    * conditions for the serial port. \see serial::Timeout
@@ -402,13 +403,13 @@ public:
 
   /*! Sets the timeout for reads and writes. */
   void
-  setTimeout (int32_t inter_byte_timeout, int32_t read_timeout_constant,
-              int32_t read_timeout_multiplier, int32_t write_timeout_constant,
-              int32_t write_timeout_multiplier)
+  setTimeout (uint32_t inter_byte_timeout, uint32_t read_timeout_constant,
+              uint32_t read_timeout_multiplier, uint32_t write_timeout_constant,
+              uint32_t write_timeout_multiplier)
   {
     Timeout timeout(inter_byte_timeout, read_timeout_constant,
-                      read_timeout_multiplier, write_timeout_constant,
-                      write_timeout_multiplier);
+                    read_timeout_multiplier, write_timeout_constant,
+                    write_timeout_multiplier);
     return setTimeout(timeout);
   }
 
