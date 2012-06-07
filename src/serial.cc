@@ -60,10 +60,9 @@ private:
 Serial::Serial (const string &port, uint32_t baudrate, Timeout timeout,
                 bytesize_t bytesize, parity_t parity, stopbits_t stopbits,
                 flowcontrol_t flowcontrol)
- : read_cache_("")
+ : read_cache_(""), pimpl_(new SerialImpl (port, baudrate, bytesize, parity,
+                                           stopbits, flowcontrol))
 {
-  pimpl_ = new SerialImpl (port, baudrate, bytesize, parity,
-                           stopbits, flowcontrol);
   pimpl_->setTimeout(timeout);
 }
 
