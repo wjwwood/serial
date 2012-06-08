@@ -1,5 +1,5 @@
 /* Copyright 2012 William Woodall and John Harrison */
-#include <alloca.h>
+//#include <alloca.h>
 
 #include "serial/serial.h"
 
@@ -57,7 +57,7 @@ private:
   SerialImpl *pimpl_;
 };
 
-Serial::Serial (const string &port, uint32_t baudrate, Timeout timeout,
+Serial::Serial (const string &port, uint32_t baudrate, serial::Timeout timeout,
                 bytesize_t bytesize, parity_t parity, stopbits_t stopbits,
                 flowcontrol_t flowcontrol)
  : read_cache_(""), pimpl_(new SerialImpl (port, baudrate, bytesize, parity,

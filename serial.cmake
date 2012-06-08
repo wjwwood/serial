@@ -59,7 +59,7 @@ macro(build_serial)
   # Add default source files
   set(SERIAL_SRCS src/serial.cc)
   IF(WIN32)
-    list(APPEND SERIAL_SRCS src/impl/windows.cc)
+    list(APPEND SERIAL_SRCS src/impl/win.cc)
   ELSE(WIN32)
     list(APPEND SERIAL_SRCS src/impl/unix.cc)
   ENDIF(WIN32)
