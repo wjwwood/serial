@@ -8,7 +8,7 @@
  *
  * The MIT License
  *
- * Copyright (c) 2011 William Woodall, John Harrison
+ * Copyright (c) 2012 William Woodall, John Harrison
  *
  * Permission is hereby granted, free of charge, to any person obtaining a 
  * copy of this software and associated documentation files (the "Software"),
@@ -39,6 +39,8 @@
 
 #include "serial/serial.h"
 
+#include "windows.h"
+
 namespace serial {
 
 using std::string;
@@ -51,7 +53,6 @@ class serial::Serial::SerialImpl {
 public:
   SerialImpl (const string &port,
               unsigned long baudrate,
-              long timeout,
               bytesize_t bytesize,
               parity_t parity,
               stopbits_t stopbits,
@@ -72,10 +73,10 @@ public:
   available ();
 
   size_t
-  read (char* buf, size_t size = 1);
+  read (uint8_t *buf, size_t size = 1);
 
   size_t
-  write (const string &data);
+  write (const uint8_t *data, size_t length);
 
   void
   flush ();
@@ -87,50 +88,53 @@ public:
   flushOutput ();
 
   void
-  sendBreak(int duration);
+  sendBreak (int duration);
 
   void
-  setBreak(bool level);
+  setBreak (bool level);
 
   void
-  setRTS(bool level);
+  setRTS (bool level);
 
   void
-  setDTR(bool level);
-  
+  setDTR (bool level);
+
   bool
-  getCTS();
-  
+  waitForChange ();
+
   bool
-  getDSR();
-  
+  getCTS ();
+
   bool
-  getRI();
-  
+  getDSR ();
+
   bool
-  getCD();
+  getRI ();
+
+  bool
+  getCD ();
 
   void
   setPort (const string &port);
-  
+
   string
   getPort () const;
 
   void
-  setTimeout (long timeout);
-  
-  long
+  setTimeout (Timeout &timeout);
+
+  Timeout
   getTimeout () const;
 
   void
   setBaudrate (unsigned long baudrate);
-  
+
   unsigned long
   getBaudrate () const;
 
   void
   setBytesize (bytesize_t bytesize);
-  
+
   bytesize_t
   getBytesize () const;
 
@@ -152,24 +156,39 @@ public:
   flowcontrol_t
   getFlowcontrol () const;
 
+  void
+  readLock ();
+
+  void
+  readUnlock ();
+
+  void
+  writeLock ();
+
+  void
+  writeUnlock ();
+
 protected:
   void reconfigurePort ();
 
 private:
   string port_;               // Path to the file descriptor
-  int fd_;                    // The current file descriptor
+  HANDLE fd_;
 
-  bool isOpen_;
-  bool xonxoff_;
-  bool rtscts_;
+  bool is_open_;
 
-  long timeout_;              // Timeout for read operations
+  Timeout timeout_;           // Timeout for read operations
   unsigned long baudrate_;    // Baudrate
 
   parity_t parity_;           // Parity
   bytesize_t bytesize_;       // Size of the bytes
   stopbits_t stopbits_;       // Stop Bits
   flowcontrol_t flowcontrol_; // Flow Control
+
+  // Mutex used to lock the read functions
+  HANDLE read_mutex;
+  // Mutex used to lock the write functions
+  HANDLE write_mutex;
 };
 
 }

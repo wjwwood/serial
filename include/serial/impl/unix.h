@@ -8,9 +8,9 @@
  *
  * The MIT License
  *
- * Copyright (c) 2011 William Woodall, John Harrison
+ * Copyright (c) 2012 William Woodall, John Harrison
  *
- * Permission is hereby granted, free of charge, to any person obtaining a 
+ * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation
  * the rights to use, copy, modify, merge, publish, distribute, sublicense,
@@ -24,8 +24,8 @@
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  *
  * \section DESCRIPTION
@@ -54,7 +54,6 @@ class serial::Serial::SerialImpl {
 public:
   SerialImpl (const string &port,
               unsigned long baudrate,
-              long timeout,
               bytesize_t bytesize,
               parity_t parity,
               stopbits_t stopbits,
@@ -75,10 +74,10 @@ public:
   available ();
 
   size_t
-  read (unsigned char* buf, size_t size = 1);
+  read (uint8_t *buf, size_t size = 1);
 
   size_t
-  write (const string &data);
+  write (const uint8_t *data, size_t length);
 
   void
   flush ();
@@ -90,28 +89,31 @@ public:
   flushOutput ();
 
   void
-  sendBreak(int duration);
+  sendBreak (int duration);
 
   void
-  setBreak(bool level);
+  setBreak (bool level);
 
   void
-  setRTS(bool level);
+  setRTS (bool level);
 
   void
-  setDTR(bool level);
+  setDTR (bool level);
 
   bool
-  getCTS();
+  waitForChange ();
 
   bool
-  getDSR();
+  getCTS ();
 
   bool
-  getRI();
+  getDSR ();
 
   bool
-  getCD();
+  getRI ();
+
+  bool
+  getCD ();
 
   void
   setPort (const string &port);
@@ -120,9 +122,9 @@ public:
   getPort () const;
 
   void
-  setTimeout (long timeout);
+  setTimeout (Timeout &timeout);
 
-  long
+  Timeout
   getTimeout () const;
 
   void
@@ -156,16 +158,16 @@ public:
   getFlowcontrol () const;
 
   void
-  readLock();
+  readLock ();
 
   void
-  readUnlock();
+  readUnlock ();
 
   void
-  writeLock();
+  writeLock ();
 
   void
-  writeUnlock();
+  writeUnlock ();
 
 protected:
   void reconfigurePort ();
@@ -178,7 +180,7 @@ private:
   bool xonxoff_;
   bool rtscts_;
 
-  long timeout_;              // Timeout for read operations
+  Timeout timeout_;         // Timeout for read operations
   unsigned long baudrate_;    // Baudrate
 
   parity_t parity_;           // Parity
