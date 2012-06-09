@@ -20,6 +20,13 @@ clean:
 	-cd build && make clean
 	rm -rf build bin lib
 
+.PHONY: doc
+doc:
+	@doxygen doc/Doxyfile
+ifeq ($(UNAME),Darwin)
+	@open doc/html/index.html
+endif
+
 .PHONY: test
 test:
 	@mkdir -p build
@@ -30,4 +37,4 @@ ifneq ($(MAKE),)
 else
 	cd build && make
 endif
-    # cd bin && ./serial_tests
+	cd bin && ./serial_tests

@@ -7,7 +7,6 @@ Coming Soon!
 ## Dependencies
 
 * CMake, for the build system: http://www.cmake.org/
-* Boost, for threading: http://www.boost.org/
 * (Optional) ROS
 
 ## Stand Alone Installation
@@ -49,7 +48,7 @@ Setup workspace (skip if you already have one):
     rosws init some_ros_workspace
     cd some_ros_workspace
     source setup.bash
-    
+
 Add the rosinstall entry for this stack:
     
     echo "- git: {local-name: serial, uri: 'https://github.com/wjwwood/serial.git', version: 'master'}" >> .rosinstall
