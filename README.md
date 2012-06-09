@@ -1,5 +1,15 @@
 # Serial Communication Library
 
+## Note about Repository Changes
+
+If you had the serial library checked previously and now those settings seem broken, it is because I recently reorganized the serial repository.  I wanted these checkouts to break so that you were forced to update.
+
+If you previously were using the `master` branch, that version is now under the git tag `v0.1`.
+
+If you were previously using the `boostless` branch, that version is now tagged as `v0.2` or `boostless`.
+
+If you were previously using the `new_api` branch, that has become the new `master` branch and will be the new `v1.0` version tag soon.
+
 ## Documentation
 
 Coming Soon!
