@@ -1,0 +1,64 @@
+/*!
+\mainpage Serial Library
+
+\author William Woodall <wjwwood@gmail.com>, John Harrison <ash@greaterthaninfinity.com>
+
+\section what_is What is serial?
+Serial is a cross-platform, simple to use library for using serial ports on computers.  This library provides a C++, object oriented interface for interacting with RS-232 like devices on Linux and Windows.
+
+Want to use it with ROS(Robot Operating System)? No problem, it compiles as a unary stack.
+
+\section getting_started Getting Started
+
+Ready to jump in?
+- Checkout our examples: \ref serial_example.cc
+- Look at the main class documentation: \ref serial::Serial
+
+\section features Features
+- Linux, Mac OS X, and Windows Support
+- Easy to use interface (modeled after PySerial)
+- Minimal dependencies (cmake)
+- Complete timeout control \ref serial::Serial::setTimeout
+- Check and set handshaking lines (CTS, DSR, RI, CD and RTS, DTR)
+- Block for changes in handshaking lines (Linux and Windows)
+- Flush I/O separately and block until all writing done
+
+\section install Installation
+
+\subsection Dependencies
+
+- CMake:
+ - CMake is required for building the system and can be located here: http://www.cmake.org/
+
+\subsection building Compiling
+
+Once you have gathered the dependencies, you need to checkout the software from github.com: 
+
+<pre>
+    git clone git://github.com/wjwwood/serial.git
+</pre>
+
+Once you have checked out the source code from github.com you can enter the directory and build the software.
+
+<pre>
+    cd serial
+    make
+    make test # (optional) builds the example and tests, and runs the tests.
+    make doc  # (optional) builds _this_ documentation.
+</pre>
+
+\subsection installing Installing
+
+To install simply:
+
+<pre>
+    sudo make install
+</pre>
+
+To uninstall simply:
+
+<pre>
+    sudo make uninstall
+</pre>
+
+ */

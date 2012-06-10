@@ -4,7 +4,7 @@
 	"folders":
 	[
 		{
-			"path": "/Users/william/devel/serial"
+			"path": "./"
 		}
 	],
 	"settings":
@@ -13,7 +13,6 @@
 		[
 			"-I/usr/include",
 			"-I/usr/local/include",
-			// "-I/usr/lib/clang/3.1/include/",
 			"-I${folder:${project_path:serial.sublime-project}}/include"
 		]
 	}
