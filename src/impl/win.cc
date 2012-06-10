@@ -6,6 +6,11 @@ using std::string;
 using std::stringstream;
 using std::invalid_argument;
 using serial::Serial;
+using serial::Timeout;
+using serial::bytesize_t;
+using serial::parity_t;
+using serial::stopbits_t;
+using serial::flowcontrol_t;
 using serial::SerialExecption;
 using serial::PortNotOpenedException;
 using serial::IOException;
@@ -42,7 +47,7 @@ Serial::SerialImpl::open ()
     throw SerialExecption ("Serial port already open.");
   }
 
-  fd_ = CreateFile(port_,
+  fd_ = CreateFile(port_.c_str(),
                    GENERIC_READ | GENERIC_WRITE,
                    0,
                    0,
@@ -51,14 +56,13 @@ Serial::SerialImpl::open ()
                    0);
 
   if (fd_ == INVALID_HANDLE_VALUE) {
-    DWORD errno = GetLastError();
-    switch (errno) {
+    DWORD errno_ = GetLastError();
+	stringstream ss;
+    switch (errno_) {
     case ERROR_FILE_NOT_FOUND:
-      stringstream ss;
-      ss << "Specified port, " << port_ << ", does not exist."
+      ss << "Specified port, " << port_ << ", does not exist.";
       THROW (IOException, ss.str().c_str());
     default:
-      stringstream ss;
       ss << "Unknown error opening the serial port: " << errno;
       THROW (IOException, ss.str().c_str());
     }
@@ -78,7 +82,7 @@ Serial::SerialImpl::reconfigurePort ()
 
   DCB dcbSerialParams = {0};
 
-  dcbSerial.DCBlength=sizeof(dcbSerialParams);
+  dcbSerialParams.DCBlength=sizeof(dcbSerialParams);
 
   if (!GetCommState(fd_, &dcbSerialParams)) {
     //error getting state
@@ -251,7 +255,7 @@ Serial::SerialImpl::read (uint8_t *buf, size_t size)
     ss << "Error while reading from the serial port: " << GetLastError();
     THROW (IOException, ss.str().c_str());
   }
-  return reinterpret_cast<size_t> (bytes_read);
+  return (size_t) (bytes_read);
 }
 
 size_t
@@ -261,12 +265,12 @@ Serial::SerialImpl::write (const uint8_t *data, size_t length)
     throw PortNotOpenedException ("Serial::write");
   }
   DWORD bytes_written;
-  if (!ReadFile(fd_, buf, size, &bytes_written, NULL)) {
+  if (!WriteFile(fd_, data, length, &bytes_written, NULL)) {
     stringstream ss;
     ss << "Error while writing to the serial port: " << GetLastError();
     THROW (IOException, ss.str().c_str());
   }
-  return reinterpret_cast<size_t> (bytes_written);
+  return (size_t) (bytes_written);
 }
 
 void
@@ -471,7 +475,7 @@ Serial::SerialImpl::getCTS ()
     // Error in GetCommModemStatus;
     THROW (IOException, "Error getting the status of the CTS line.");
 
-  return MS_CTS_ON & dwModemStatus;
+  return (bool) (MS_CTS_ON & dwModemStatus);
 }
 
 bool
@@ -485,7 +489,7 @@ Serial::SerialImpl::getDSR ()
     // Error in GetCommModemStatus;
     THROW (IOException, "Error getting the status of the DSR line.");
 
-  return MS_DSR_ON & dwModemStatus;
+  return (bool) (MS_DSR_ON & dwModemStatus);
 }
 
 bool
@@ -499,7 +503,7 @@ Serial::SerialImpl::getRI()
     // Error in GetCommModemStatus;
     THROW (IOException, "Error getting the status of the DSR line.");
 
-  return MS_RING_ON & dwModemStatus;
+  return (bool) (MS_RING_ON & dwModemStatus);
 }
 
 bool
@@ -513,7 +517,7 @@ Serial::SerialImpl::getCD()
     // Error in GetCommModemStatus;
     THROW (IOException, "Error getting the status of the DSR line.");
 
-  return MS_RLSD_ON & dwModemStatus;
+  return (bool) (MS_RLSD_ON & dwModemStatus);
 }
 
 void

@@ -93,6 +93,9 @@ typedef enum {
  * In order to disable the interbyte timeout, set it to Timeout::max().
  */
 struct Timeout {
+#ifdef max
+# undef max
+#endif
   static uint32_t max() {return std::numeric_limits<uint32_t>::max();}
   /*!
    * Convenience function to generate Timeout structs using a

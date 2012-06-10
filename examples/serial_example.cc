@@ -21,7 +21,7 @@
 #include <cstdio>
 
 // OS Specific sleep
-#ifdef __WIN32__
+#ifdef _WIN32
 #include <windows.h>
 #else
 #include <unistd.h>
@@ -36,7 +36,7 @@ using std::cerr;
 using std::endl;
 
 void my_sleep(unsigned long milliseconds) {
-#ifdef __WIN32__
+#ifdef _WIN32
       Sleep(milliseconds); // 100 ms
 #else
       usleep(milliseconds*1000); // 100 ms
@@ -58,7 +58,7 @@ int run(int argc, char **argv)
   sscanf(argv[2], "%lu", &baud);
 
   // port, baudrate, timeout in milliseconds
-  serial::Serial my_serial(port, baud, 1000);
+  serial::Serial my_serial(port, baud, serial::Timeout::simpleTimeout(1000));
 
   cout << "Is the serial port open?";
   if(my_serial.isOpen())
@@ -90,7 +90,7 @@ int run(int argc, char **argv)
   }
 
   // Test the timeout at 250ms
-  my_serial.setTimeout(250);
+  my_serial.setTimeout(serial::Timeout::max(), 250, 0, 250, 0);
   count = 0;
   cout << "Timeout == 250ms, asking for 1 more byte than written." << endl;
   while (count < 10) {
