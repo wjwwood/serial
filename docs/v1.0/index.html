@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>serial: Main Page</title>
+<title>serial: Serial Library</title>
 
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
@@ -30,7 +30,7 @@
    <div id="projectname">serial
    &#160;<span id="projectnumber">1.0</span>
    </div>
-   <div id="projectbrief">Cross-platform serial port library for C++</div>
+   <div id="projectbrief">Cross-platform serial port library written in C++</div>
   </td>
   
   
@@ -85,14 +85,66 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div class="header">
   <div class="headertitle">
-<div class="title">serial Documentation</div>  </div>
+<div class="title">Serial Library </div>  </div>
 </div><!--header-->
 <div class="contents">
-</div><!-- contents -->
+<div class="textblock"><dl class="section author"><dt>Author:</dt><dd>William Woodall <a href="#" onclick="location.href='mai'+'lto:'+'wjw'+'wo'+'od@'+'gm'+'ail'+'.c'+'om'; return false;">wjwwo<span style="display: none;">.nosp@m.</span>od@g<span style="display: none;">.nosp@m.</span>mail.<span style="display: none;">.nosp@m.</span>com</a>, John Harrison <a href="#" onclick="location.href='mai'+'lto:'+'ash'+'@g'+'rea'+'te'+'rth'+'an'+'inf'+'in'+'ity'+'.c'+'om'; return false;">ash@g<span style="display: none;">.nosp@m.</span>reat<span style="display: none;">.nosp@m.</span>ertha<span style="display: none;">.nosp@m.</span>ninf<span style="display: none;">.nosp@m.</span>inity<span style="display: none;">.nosp@m.</span>.com</a></dd></dl>
+<h2><a class="anchor" id="what_is"></a>
+What is serial?</h2>
+<p>Serial is a cross-platform, simple to use library for using serial ports on computers. This library provides a C++, object oriented interface for interacting with RS-232 like devices on Linux and Windows.</p>
+<p>Want to use it with ROS(Robot Operating System)? No problem, it compiles as a unary stack.</p>
+<h2><a class="anchor" id="getting_started"></a>
+Getting Started</h2>
+<p>Ready to jump in?</p>
+<ul>
+<li>Checkout our examples: <a class="el" href="serial__example_8cc.html">serial_example.cc</a></li>
+<li>Look at the main class documentation: <a class="el" href="classserial_1_1_serial.html">serial::Serial</a></li>
+</ul>
+<h2><a class="anchor" id="features"></a>
+Features</h2>
+<ul>
+<li>Linux, Mac OS X, and Windows Support</li>
+<li>Easy to use interface (modeled after PySerial)</li>
+<li>Minimal dependencies (cmake)</li>
+<li>Complete timeout control <a class="el" href="classserial_1_1_serial.html#a4fc63af4b800a9f9e757414f38f3e8b3">serial::Serial::setTimeout</a></li>
+<li>Check and set handshaking lines (CTS, DSR, RI, CD and RTS, DTR)</li>
+<li>Block for changes in handshaking lines (Linux and Windows)</li>
+<li>Flush I/O separately and block until all writing done</li>
+</ul>
+<h2><a class="anchor" id="install"></a>
+Installation</h2>
+<h3><a class="anchor" id="Dependencies"></a>
+Dependencies</h3>
+<ul>
+<li>CMake:<ul>
+<li>CMake is required for building the system and can be located here: <a href="http://www.cmake.org/">http://www.cmake.org/</a></li>
+</ul>
+</li>
+</ul>
+<h3><a class="anchor" id="building"></a>
+Compiling</h3>
+<p>Once you have gathered the dependencies, you need to checkout the software from github.com:</p>
+<pre>
+    git clone git://github.com/wjwwood/serial.git
+</pre><p>Once you have checked out the source code from github.com you can enter the directory and build the software.</p>
+<pre>
+    cd serial
+    make
+    make test # (optional) builds the example and tests, and runs the tests.
+    make doc  # (optional) builds _this_ documentation.
+</pre><h3><a class="anchor" id="installing"></a>
+Installing</h3>
+<p>To install simply:</p>
+<pre>
+    sudo make install
+</pre><p>To uninstall simply:</p>
+<pre>
+    sudo make uninstall
+</pre> </div></div><!-- contents -->
 
 
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed May 2 2012 23:38:24 for serial by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sat Jun 9 2012 19:35:05 for serial by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.0
 </small></address>

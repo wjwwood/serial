@@ -46,26 +46,25 @@
       <span class="small"><br/>by <a href="https://github.com/wjwwood">William Woodall</a> and <a href="https://github.com/wjwwood">John Harrison</a></span></h1>
 
     <div class="description">
-      Cross-platform, Serial Port library for C++
+      Cross-platform, Serial Port library written in C++
     </div>
 
     
       <p>This is a cross-platform library for interfacing with rs-232 serial like ports written in C++.  It provides a modern C++ interface with a workflow designed to look and feel like <a href="http://pyserial.sourceforge.net/">PySerial</a>, but with the speed and control provided by C++.
 <br/><br/>
-This library is in use in several robotics related projects and can be built and installed to the OS like most unix libraries with <it>make</it> and then <it>sudo make install</it>, but if you wish to use it with ROS then it will build as a unary stack.
+This library is in use in several robotics related projects and can be built and installed to the OS like most unix libraries with <i>make</i> and then <i>sudo make install</i>, but if you wish to use it with ROS then it will build as a unary stack.
 <br/><br/>
-The library has two main components currently: Serial and SerialListener.  
+Serial is a class that provides the basic interface common to serial libraries (open, close, read, write, etc..) and requires no extra dependencies.  It also provides tight control over timeouts and control over handshaking lines.
 <br/><br/>
-Serial is a class that provides the basic interface common to serial libraries (open, close, read, write, etc..) and requires no extra dependencies.
-<br/><br/>
-The SerialListener class is a convenience class that provides a method for easily asynchronously reading from a serial port, we have found this setup useful when interfacing with devices that send data asynchronously as well as use command-response type message interleaved.  The SerialListener has an extra dependency of Boost for C++, which provides some feature not yet fully adopted by all C++ compilers like function types, shared_ptr's, and convenient threading.</p>
+If you are looking for more utilities related to interfacing with sensors and serial devices, checkout my serial_utils github project: <a href="https://github.com/wjwwood/serial_utils">serial_utils</a>.  It provides tools for asynchronous reading and related tasks.</p>
     
 
+      <h2>Documentation</h2>
+      <p>The documentation for all versions of the serial library can be found <a href="docs/index.html">here</a>.</p>
     
       <h2>Dependencies</h2>
       <ul>
           <li><a href="http://www.cmake.org/">cmake</a> - for the build system</li>
-          <li><a href="http://www.boost.org/">boost</a> - for SerialListener only (optional)</li>
           <li><a href="http://www.ros.org/wiki/">ROS</a> - for building in a ROS ecosystem (optional)</li>
       </ul>
     
@@ -101,7 +100,10 @@ Uninstall:
 
     
       <h2>License</h2>
-      <p>Copyright (c) 2011 William Woodall
+      <p>The BSD License<br/><br/>
+
+        Copyright (c) 2012 William Woodall, John Harrison
+        <br/><br/>
 
 Permission is hereby granted, free of charge, to any person obtaining a
 copy of this software and associated documentation files (the "Software"),

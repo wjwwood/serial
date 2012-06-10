@@ -30,7 +30,7 @@
    <div id="projectname">serial
    &#160;<span id="projectnumber">1.0</span>
    </div>
-   <div id="projectbrief">Cross-platform serial port library for C++</div>
+   <div id="projectbrief">Cross-platform serial port library written in C++</div>
   </td>
   
   
@@ -111,6 +111,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:acb2f2cf7a5cc8090945f6cbfcef3ef1e"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserial_1_1_i_o_exception.html#acb2f2cf7a5cc8090945f6cbfcef3ef1e">IOException</a> (std::string file, int line, int errnum)</td></tr>
 <tr class="memitem:acc1d2c650832cc8127f2cd777072b2cd"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserial_1_1_i_o_exception.html#acc1d2c650832cc8127f2cd777072b2cd">IOException</a> (std::string file, int line, const char *description)</td></tr>
 <tr class="memitem:a026ae2e6abc57c6069915f0f8c701390"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserial_1_1_i_o_exception.html#a026ae2e6abc57c6069915f0f8c701390">~IOException</a> ()  throw ()</td></tr>
+<tr class="memitem:af65196a71b800d11b5e5c367caf5b354"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserial_1_1_i_o_exception.html#af65196a71b800d11b5e5c367caf5b354">IOException</a> (const <a class="el" href="classserial_1_1_i_o_exception.html">IOException</a> &amp;other)</td></tr>
 <tr class="memitem:a91d5ee5241dd49fb39e8e762564b6cc5"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserial_1_1_i_o_exception.html#a91d5ee5241dd49fb39e8e762564b6cc5">getErrorNumber</a> ()</td></tr>
 <tr class="memitem:a5151f78cf0309db2c79f3dc4c779c774"><td class="memItemLeft" align="right" valign="top">virtual const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserial_1_1_i_o_exception.html#a5151f78cf0309db2c79f3dc4c779c774">what</a> () const   throw ()</td></tr>
 </table>
@@ -200,6 +201,26 @@ Public Member Functions</h2></td></tr>
 </pre></div>
 </div>
 </div>
+<a class="anchor" id="af65196a71b800d11b5e5c367caf5b354"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classserial_1_1_i_o_exception.html#acb2f2cf7a5cc8090945f6cbfcef3ef1e">serial::IOException::IOException</a> </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classserial_1_1_i_o_exception.html">IOException</a> &amp;&#160;</td>
+          <td class="paramname"><em>other</em></td><td>)</td>
+          <td><code> [inline]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<div class="fragment"><pre class="fragment">                                         {
+    e_what_ = other.e_what_;
+  }
+</pre></div>
+</div>
+</div>
 <hr/><h2>Member Function Documentation</h2>
 <a class="anchor" id="a91d5ee5241dd49fb39e8e762564b6cc5"></a>
 <div class="memitem">
@@ -250,7 +271,7 @@ Public Member Functions</h2></td></tr>
 
 
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed May 2 2012 23:38:24 for serial by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sat Jun 9 2012 19:35:05 for serial by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.0
 </small></address>

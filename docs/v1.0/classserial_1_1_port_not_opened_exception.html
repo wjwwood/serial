@@ -30,7 +30,7 @@
    <div id="projectname">serial
    &#160;<span id="projectnumber">1.0</span>
    </div>
-   <div id="projectbrief">Cross-platform serial port library for C++</div>
+   <div id="projectbrief">Cross-platform serial port library written in C++</div>
   </td>
   
   
@@ -109,6 +109,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <tr><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:acd2213fae864534eae6a580f74c5ab1b"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserial_1_1_port_not_opened_exception.html#acd2213fae864534eae6a580f74c5ab1b">PortNotOpenedException</a> (const char *description)</td></tr>
+<tr class="memitem:ae8b466d10d496a53ed8e9f949e9e628c"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserial_1_1_port_not_opened_exception.html#ae8b466d10d496a53ed8e9f949e9e628c">PortNotOpenedException</a> (const <a class="el" href="classserial_1_1_port_not_opened_exception.html">PortNotOpenedException</a> &amp;other)</td></tr>
 <tr class="memitem:a314c997ecfe3990c4af147b247e8d9ce"><td class="memItemLeft" align="right" valign="top">virtual const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserial_1_1_port_not_opened_exception.html#a314c997ecfe3990c4af147b247e8d9ce">what</a> () const   throw ()</td></tr>
 </table>
 <hr/><h2>Constructor &amp; Destructor Documentation</h2>
@@ -127,6 +128,26 @@ Public Member Functions</h2></td></tr>
 </div>
 <div class="memdoc">
 <div class="fragment"><pre class="fragment">: e_what_ (description) {}
+</pre></div>
+</div>
+</div>
+<a class="anchor" id="ae8b466d10d496a53ed8e9f949e9e628c"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classserial_1_1_port_not_opened_exception.html#acd2213fae864534eae6a580f74c5ab1b">serial::PortNotOpenedException::PortNotOpenedException</a> </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classserial_1_1_port_not_opened_exception.html">PortNotOpenedException</a> &amp;&#160;</td>
+          <td class="paramname"><em>other</em></td><td>)</td>
+          <td><code> [inline]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<div class="fragment"><pre class="fragment">                                                               {
+    e_what_ = other.e_what_;
+  }
 </pre></div>
 </div>
 </div>
@@ -159,7 +180,7 @@ Public Member Functions</h2></td></tr>
 
 
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed May 2 2012 23:38:24 for serial by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sat Jun 9 2012 19:35:05 for serial by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.0
 </small></address>

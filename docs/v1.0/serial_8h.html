@@ -30,7 +30,7 @@
    <div id="projectname">serial
    &#160;<span id="projectnumber">1.0</span>
    </div>
-   <div id="projectbrief">Cross-platform serial port library for C++</div>
+   <div id="projectbrief">Cross-platform serial port library written in C++</div>
   </td>
   
   
@@ -102,20 +102,24 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="textblock"><code>#include &lt;limits&gt;</code><br/>
 <code>#include &lt;vector&gt;</code><br/>
 <code>#include &lt;string&gt;</code><br/>
+<code>#include &lt;cstring&gt;</code><br/>
 <code>#include &lt;sstream&gt;</code><br/>
 <code>#include &lt;exception&gt;</code><br/>
 <code>#include &lt;stdexcept&gt;</code><br/>
+<code>#include &lt;<a class="el" href="v8stdint_8h_source.html">serial/v8stdint.h</a>&gt;</code><br/>
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for serial.h:</div>
 <div class="dyncontent">
 <div class="center"><img src="serial_8h__incl.png" border="0" usemap="#include_2serial_2serial_8h" alt=""/></div>
+<map name="include_2serial_2serial_8h" id="include_2serial_2serial_8h">
+<area shape="rect" id="node17" href="v8stdint_8h.html" title="serial/v8stdint.h" alt="" coords="629,80,744,107"/></map>
 </div>
 </div><div class="textblock"><div class="dynheader">
 This graph shows which files directly or indirectly include this file:</div>
 <div class="dyncontent">
 <div class="center"><img src="serial_8h__dep__incl.png" border="0" usemap="#include_2serial_2serial_8hdep" alt=""/></div>
 <map name="include_2serial_2serial_8hdep" id="include_2serial_2serial_8hdep">
-<area shape="rect" id="node3" href="unix_8h.html" title="include/serial/impl/unix.h" alt="" coords="5,80,171,107"/><area shape="rect" id="node7" href="serial_8cc.html" title="src/serial.cc" alt="" coords="162,155,253,181"/><area shape="rect" id="node9" href="windows_8h.html" title="include/serial/impl/windows.h" alt="" coords="250,80,443,107"/><area shape="rect" id="node5" href="unix_8cc.html" title="src/impl/unix.cc" alt="" coords="25,155,137,181"/><area shape="rect" id="node11" href="windows_8cc.html" title="src/impl/windows.cc" alt="" coords="278,155,417,181"/></map>
+<area shape="rect" id="node3" href="unix_8h.html" title="include/serial/impl/unix.h" alt="" coords="5,80,171,107"/><area shape="rect" id="node7" href="serial_8cc.html" title="src/serial.cc" alt="" coords="161,155,252,181"/><area shape="rect" id="node9" href="win_8h.html" title="include/serial/impl/win.h" alt="" coords="247,80,409,107"/><area shape="rect" id="node14" href="serial__example_8cc.html" title="examples/serial_example.cc" alt="" coords="433,80,623,107"/><area shape="rect" id="node5" href="unix_8cc.html" title="src/impl/unix.cc" alt="" coords="23,155,136,181"/><area shape="rect" id="node11" href="win_8cc.html" title="src/impl/win.cc" alt="" coords="277,155,387,181"/></map>
 </div>
 </div>
 <p><a href="serial_8h_source.html">Go to the source code of this file.</a></p>
@@ -127,7 +131,6 @@ Data Structures</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserial_1_1_serial_execption.html">serial::SerialExecption</a></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserial_1_1_i_o_exception.html">serial::IOException</a></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserial_1_1_port_not_opened_exception.html">serial::PortNotOpenedException</a></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserial_1_1_serial_exception_base.html">serial::SerialExceptionBase</a></td></tr>
 <tr><td colspan="2"><h2><a name="namespaces"></a>
 Namespaces</h2></td></tr>
 <tr class="memitem:namespaceserial"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceserial.html">serial</a></td></tr>
@@ -161,7 +164,7 @@ John Harrison <a href="#" onclick="location.href='mai'+'lto:'+'ash'+'.g'+'ti@'+'
 <h2><a class="anchor" id="LICENSE"></a>
 LICENSE</h2>
 <p>The MIT License</p>
-<p>Copyright (c) 2011 William Woodall</p>
+<p>Copyright (c) 2012 William Woodall</p>
 <p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:</p>
 <p>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</p>
 <p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
@@ -202,7 +205,7 @@ __LINE__, (message) )
 
 
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed May 2 2012 23:38:24 for serial by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sat Jun 9 2012 19:35:04 for serial by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.0
 </small></address>
