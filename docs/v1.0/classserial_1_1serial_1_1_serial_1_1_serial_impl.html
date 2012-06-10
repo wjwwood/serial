@@ -1168,17 +1168,17 @@ Protected Member Functions</h2></td></tr>
   }
 
   <span class="comment">// set up raw mode / no echo / binary</span>
-  options.c_cflag |= (<span class="keywordtype">unsigned</span> long)  (CLOCAL | CREAD);
-  options.c_lflag &amp;= (<span class="keywordtype">unsigned</span> long) ~(ICANON | ECHO | ECHOE | ECHOK | ECHONL |
+  options.c_cflag |= (tcflag_t)  (CLOCAL | CREAD);
+  options.c_lflag &amp;= (tcflag_t) ~(ICANON | ECHO | ECHOE | ECHOK | ECHONL |
                                        ISIG | IEXTEN); <span class="comment">//|ECHOPRT</span>
 
-  options.c_oflag &amp;= (<span class="keywordtype">unsigned</span> long) ~(OPOST);
-  options.c_iflag &amp;= (<span class="keywordtype">unsigned</span> long) ~(INLCR | IGNCR | ICRNL | IGNBRK);
+  options.c_oflag &amp;= (tcflag_t) ~(OPOST);
+  options.c_iflag &amp;= (tcflag_t) ~(INLCR | IGNCR | ICRNL | IGNBRK);
 <span class="preprocessor">#ifdef IUCLC</span>
-<span class="preprocessor"></span>  options.c_iflag &amp;= (<span class="keywordtype">unsigned</span> long) ~IUCLC;
+<span class="preprocessor"></span>  options.c_iflag &amp;= (tcflag_t) ~IUCLC;
 <span class="preprocessor">#endif</span>
 <span class="preprocessor"></span><span class="preprocessor">#ifdef PARMRK</span>
-<span class="preprocessor"></span>  options.c_iflag &amp;= (<span class="keywordtype">unsigned</span> long) ~PARMRK;
+<span class="preprocessor"></span>  options.c_iflag &amp;= (tcflag_t) ~PARMRK;
 <span class="preprocessor">#endif</span>
 <span class="preprocessor"></span>
   <span class="comment">// setup baud rate</span>
@@ -1283,7 +1283,7 @@ Protected Member Functions</h2></td></tr>
 <span class="preprocessor"></span>    <span class="keyword">struct </span>serial_struct ser;
     ioctl (fd_, TIOCGSERIAL, &amp;ser);
     <span class="comment">// set custom divisor</span>
-    ser.custom_divisor = ser.baud_base / baudrate_;
+    ser.custom_divisor = ser.baud_base / (int) baudrate_;
     <span class="comment">// update flags</span>
     ser.flags &amp;= ~ASYNC_SPD_MASK;
     ser.flags |= ASYNC_SPD_CUST;
@@ -1305,7 +1305,7 @@ Protected Member Functions</h2></td></tr>
 <span class="preprocessor"></span>  }
 
   <span class="comment">// setup char len</span>
-  options.c_cflag &amp;= (<span class="keywordtype">unsigned</span> long) ~CSIZE;
+  options.c_cflag &amp;= (tcflag_t) ~CSIZE;
   <span class="keywordflow">if</span> (bytesize_ == <a class="code" href="namespaceserial.html#a00b3281fa11cea770c0b0c8a106080f8a47f14d952cf9bed6c3f7ae5985161990">eightbits</a>)
     options.c_cflag |= CS8;
   <span class="keywordflow">else</span> <span class="keywordflow">if</span> (bytesize_ == <a class="code" href="namespaceserial.html#a00b3281fa11cea770c0b0c8a106080f8a7cf0a3607e326ff6736941008ea8174d">sevenbits</a>)
@@ -1318,7 +1318,7 @@ Protected Member Functions</h2></td></tr>
     <span class="keywordflow">throw</span> invalid_argument (<span class="stringliteral">&quot;invalid char len&quot;</span>);
   <span class="comment">// setup stopbits</span>
   <span class="keywordflow">if</span> (stopbits_ == <a class="code" href="namespaceserial.html#af5b116611d6628a3aa8f788fdc09f469ab70806555a14cb43e5cc43f6f3d01157">stopbits_one</a>)
-    options.c_cflag &amp;= (<span class="keywordtype">unsigned</span> long) ~(CSTOPB);
+    options.c_cflag &amp;= (tcflag_t) ~(CSTOPB);
   <span class="keywordflow">else</span> <span class="keywordflow">if</span> (stopbits_ == <a class="code" href="namespaceserial.html#af5b116611d6628a3aa8f788fdc09f469abb25fb831662d361d99cf12fb0da45ec">stopbits_one_point_five</a>)
     <span class="comment">// ONE POINT FIVE same as TWO.. there is no POSIX support for 1.5</span>
     options.c_cflag |=  (CSTOPB);
@@ -1327,11 +1327,11 @@ Protected Member Functions</h2></td></tr>
   <span class="keywordflow">else</span>
     <span class="keywordflow">throw</span> invalid_argument (<span class="stringliteral">&quot;invalid stop bit&quot;</span>);
   <span class="comment">// setup parity</span>
-  options.c_iflag &amp;= (<span class="keywordtype">unsigned</span> long) ~(INPCK | ISTRIP);
+  options.c_iflag &amp;= (tcflag_t) ~(INPCK | ISTRIP);
   <span class="keywordflow">if</span> (parity_ == <a class="code" href="namespaceserial.html#a8f45d26bf7c9a06659e75b5004a50481a31cbb2b3cf0870d1a089d66295918416">parity_none</a>) {
-    options.c_cflag &amp;= (<span class="keywordtype">unsigned</span> long) ~(PARENB | PARODD);
+    options.c_cflag &amp;= (tcflag_t) ~(PARENB | PARODD);
   } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (parity_ == <a class="code" href="namespaceserial.html#a8f45d26bf7c9a06659e75b5004a50481abe15d241d407528bc8a199b02301ed46">parity_even</a>) {
-    options.c_cflag &amp;= (<span class="keywordtype">unsigned</span> long) ~(PARODD);
+    options.c_cflag &amp;= (tcflag_t) ~(PARODD);
     options.c_cflag |=  (PARENB);
   } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (parity_ == <a class="code" href="namespaceserial.html#a8f45d26bf7c9a06659e75b5004a50481affd8fd58edf7c25bab458cafaebecb10">parity_odd</a>) {
     options.c_cflag |=  (PARENB | PARODD);
@@ -1344,12 +1344,12 @@ Protected Member Functions</h2></td></tr>
 <span class="preprocessor"></span>  <span class="keywordflow">if</span> (xonxoff_)
     options.c_iflag |=  (IXON | IXOFF); <span class="comment">//|IXANY)</span>
   <span class="keywordflow">else</span>
-    options.c_iflag &amp;= (<span class="keywordtype">unsigned</span> long) ~(IXON | IXOFF | IXANY);
+    options.c_iflag &amp;= (tcflag_t) ~(IXON | IXOFF | IXANY);
 <span class="preprocessor">#else</span>
 <span class="preprocessor"></span>  <span class="keywordflow">if</span> (xonxoff_)
     options.c_iflag |=  (IXON | IXOFF);
   <span class="keywordflow">else</span>
-    options.c_iflag &amp;= (<span class="keywordtype">unsigned</span> long) ~(IXON | IXOFF);
+    options.c_iflag &amp;= (tcflag_t) ~(IXON | IXOFF);
 <span class="preprocessor">#endif</span>
 <span class="preprocessor"></span>  <span class="comment">// rtscts</span>
 <span class="preprocessor">#ifdef CRTSCTS</span>
@@ -2105,7 +2105,7 @@ Protected Member Functions</h2></td></tr>
 
 
 <hr class="footer"/><address class="footer"><small>
-Generated on Sat Jun 9 2012 19:35:05 for serial by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sat Jun 9 2012 20:04:37 for serial by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.0
 </small></address>

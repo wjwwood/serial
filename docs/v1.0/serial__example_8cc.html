@@ -165,7 +165,7 @@ Functions</h2></td></tr>
 </div>
 <div class="memdoc">
 <div class="fragment"><pre class="fragment">                                          {
-<span class="preprocessor">#ifdef __WIN32__</span>
+<span class="preprocessor">#ifdef _WIN32</span>
 <span class="preprocessor"></span>      Sleep(milliseconds); <span class="comment">// 100 ms</span>
 <span class="preprocessor">#else</span>
 <span class="preprocessor"></span>      usleep(milliseconds*1000); <span class="comment">// 100 ms</span>
@@ -212,7 +212,7 @@ Functions</h2></td></tr>
   sscanf(argv[2], <span class="stringliteral">&quot;%lu&quot;</span>, &amp;baud);
 
   <span class="comment">// port, baudrate, timeout in milliseconds</span>
-  <a class="code" href="classserial_1_1_serial.html">serial::Serial</a> my_serial(port, baud, 1000);
+  <a class="code" href="classserial_1_1_serial.html">serial::Serial</a> my_serial(port, baud, <a class="code" href="structserial_1_1_timeout.html#aa4fbd72e16f47c9aea9fb3c32ca17828">serial::Timeout::simpleTimeout</a>(1000));
 
   cout &lt;&lt; <span class="stringliteral">&quot;Is the serial port open?&quot;</span>;
   <span class="keywordflow">if</span>(my_serial.isOpen())
@@ -244,7 +244,7 @@ Functions</h2></td></tr>
   }
 
   <span class="comment">// Test the timeout at 250ms</span>
-  my_serial.setTimeout(250);
+  my_serial.setTimeout(<a class="code" href="structserial_1_1_timeout.html#adc68e33d2f94bfa33ba1062c363b9151">serial::Timeout::max</a>(), 250, 0, 250, 0);
   count = 0;
   cout &lt;&lt; <span class="stringliteral">&quot;Timeout == 250ms, asking for 1 more byte than written.&quot;</span> &lt;&lt; endl;
   <span class="keywordflow">while</span> (count &lt; 10) {
@@ -298,7 +298,7 @@ Functions</h2></td></tr>
 
 
 <hr class="footer"/><address class="footer"><small>
-Generated on Sat Jun 9 2012 19:35:04 for serial by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sat Jun 9 2012 20:04:37 for serial by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.0
 </small></address>
