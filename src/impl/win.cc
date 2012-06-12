@@ -213,6 +213,26 @@ Serial::SerialImpl::reconfigurePort ()
     throw invalid_argument ("invalid parity");
   }
 
+  // setup flowcontrol
+  if (flowcontrol_ == flowcontrol_none) {
+    dcbSerialParams.fOutxCtsFlow = false;
+    dcbSerialParams.fRtsControl = 0x00;
+    dcbSerialParams.fOutX = false;
+    dcbSerialParams.fInX = false;
+  }
+  if (flowcontrol_ == flowcontrol_software) {
+    dcbSerialParams.fOutxCtsFlow = false;
+    dcbSerialParams.fRtsControl = 0x00;
+    dcbSerialParams.fOutX = true;
+    dcbSerialParams.fInX = true;
+  }
+  if (flowcontrol_ == flowcontrol_hardware) {
+    dcbSerialParams.fOutxCtsFlow = true;
+    dcbSerialParams.fRtsControl = 0x03;
+    dcbSerialParams.fOutX = false;
+    dcbSerialParams.fInX = false;
+  }
+
   // activate settings
   if(!SetCommState(fd_, &dcbSerialParams)){
     THROW (IOException, "Error setting serial port settings.");

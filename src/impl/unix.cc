@@ -49,7 +49,7 @@ Serial::SerialImpl::SerialImpl (const string &port, unsigned long baudrate,
                                 bytesize_t bytesize,
                                 parity_t parity, stopbits_t stopbits,
                                 flowcontrol_t flowcontrol)
-  : port_ (port), fd_ (-1), is_open_ (false), xonxoff_ (true), rtscts_ (false),
+  : port_ (port), fd_ (-1), is_open_ (false), xonxoff_ (false), rtscts_ (false),
     baudrate_ (baudrate), parity_ (parity),
     bytesize_ (bytesize), stopbits_ (stopbits), flowcontrol_ (flowcontrol)
 {
@@ -282,6 +282,18 @@ Serial::SerialImpl::reconfigurePort ()
     throw invalid_argument ("invalid parity");
   }
   // setup flow control
+  if (flowcontrol_ == flowcontrol_none) {
+    xonxoff_ = false;
+    rtscts_ = false;
+  }
+  if (flowcontrol_ == flowcontrol_software) {
+    xonxoff_ = true;
+    rtscts_ = false;
+  }
+  if (flowcontrol_ == flowcontrol_hardware) {
+    xonxoff_ = false;
+    rtscts_ = true;
+  }
   // xonxoff
 #ifdef IXANY
   if (xonxoff_)
