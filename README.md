@@ -8,16 +8,16 @@ If you previously were using the `master` branch, that version is now under the 
 
 If you were previously using the `boostless` branch, that version is now tagged as `v0.2` or `boostless`.
 
-If you were previously using the `new_api` branch, that has become the new `master` branch and will be the new `v1.0` version tag soon.
+If you were previously using the `new_api` branch, that has become the new `master` branch and is also tagged `v1.0`.
 
 ## Documentation
 
-Coming Soon!
+http://wjwwood.github.com/serial/docs/v1.0/index.html
 
 ## Dependencies
 
 * CMake, for the build system: http://www.cmake.org/
-* (Optional) ROS
+* (Optional) ROS: http://ros.org/wiki
 
 ## Stand Alone Installation
 
@@ -55,15 +55,15 @@ Build the documentation:
 Setup workspace (skip if you already have one):
 
     mkdir some_ros_workspace
-    rosws init some_ros_workspace
     cd some_ros_workspace
+    rosws init . /opt/ros/fuerte # Replace the path here
     source setup.bash
 
-Add the rosinstall entry for this stack:
+Add the serial unary stack to your ROS workspace:
     
-    echo "- git: {local-name: serial, uri: 'https://github.com/wjwwood/serial.git', version: 'master'}" >> .rosinstall
+    rosws merge REPLACEME
     
-Rerun rosinstall (note this will change your $ROS_PACKAGE_PATH):
+Rerun rosinstall to fetch it:
     
     rosinstall .
     source setup.bash
@@ -75,6 +75,10 @@ Build the unary stack:
 Run the example:
 
     rosrun serial serial_example
+
+Use it in your ROS pkg by adding this line to your `manifest.xml`:
+
+    <depend package="serial" />
 
 ## License
 
