@@ -61,7 +61,7 @@ Setup workspace (skip if you already have one):
 
 Add the serial unary stack to your ROS workspace:
     
-    rosws merge REPLACEME
+    rosws merge https://raw.github.com/wjwwood/serial/80c0/serial.rosinstall
     
 Rerun rosinstall to fetch it:
     
