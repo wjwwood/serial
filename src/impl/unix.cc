@@ -769,17 +769,16 @@ Serial::SerialImpl::waitForChange ()
     if ((s & TIOCM_CD) != 0) return true;
     usleep(1000);
   }
+  return false;
 #else
   if (ioctl(fd_, TIOCMIWAIT, (TIOCM_CD|TIOCM_DSR|TIOCM_RI|TIOCM_CTS)) != 0) {
     stringstream ss;
     ss << "waitForDSR failed on a call to ioctl(TIOCMIWAIT): "
        << errno << " " << strerror(errno);
     throw(SerialExecption(ss.str().c_str()));
-    return false;
   }
   return true;
 #endif
-  return false;
 }
 
 bool
