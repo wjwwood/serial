@@ -31,9 +31,15 @@ macro(build_serial)
   # Build the serial library
   rosbuild_add_library(${PROJECT_NAME} ${SERIAL_SRCS})
 
+  # Collect Link Libraries
+  set(SERIAL_LINK_LIBS ${PROJECT_NAME})
+  if(UNIX AND NOT APPLE)
+    list(APPEND SERIAL_LINK_LIBS rt pthread)
+  endif(UNIX AND NOT APPLE)
+
   # Build example
   rosbuild_add_executable(serial_example examples/serial_example.cc)
-  target_link_libraries(serial_example ${PROJECT_NAME})
+  target_link_libraries(serial_example ${SERIAL_LINK_LIBS})
 
   # Create unit tests
   rosbuild_add_gtest(serial_tests tests/serial_tests.cc)
