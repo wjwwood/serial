@@ -523,7 +523,7 @@ Serial::SerialImpl::write (const uint8_t *data, size_t length)
     get_time_now(start);
 #endif
     // Do the select
-    int r = select (fd_ + 1, &writefds, NULL, NULL, &timeout);
+    int r = select (fd_ + 1, NULL, &writefds, NULL, &timeout);
 #if !defined(__linux__)
     // Calculate difference and update the structure
     get_time_now(end);
@@ -558,43 +558,42 @@ Serial::SerialImpl::write (const uint8_t *data, size_t length)
     if (r == 0) {
       break;
     }
-    /** Something ready to read **/
+    /** Port ready to write **/
     if (r > 0) {
-      // Make sure our file descriptor is in the ready to read list
+      // Make sure our file descriptor is in the ready to write list
       if (FD_ISSET (fd_, &writefds)) {
-        // This should be non-blocking returning only what is avaialble now
-        //  Then returning so that select can block again.
+        // This will write some
         ssize_t bytes_written_now =
           ::write (fd_, data + bytes_written, length - bytes_written);
-        // read should always return some data as select reported it was
-        // ready to read when we get to this point.
+        // write should always return some data as select reported it was
+        // ready to write when we get to this point.
         if (bytes_written_now < 1) {
           // Disconnected devices, at least on Linux, show the
-          // behavior that they are always ready to read immediately
-          // but reading returns nothing.
+          // behavior that they are always ready to write immediately
+          // but writing returns nothing.
           throw SerialExecption ("device reports readiness to write but "
                                  "returned no data (device disconnected?)");
         }
-        // Update bytes_read
+        // Update bytes_written
         bytes_written += static_cast<size_t> (bytes_written_now);
-        // If bytes_read == size then we have read everything we need
+        // If bytes_written == size then we have written everything we need to
         if (bytes_written == length) {
           break;
         }
-        // If bytes_read < size then we have more to read
+        // If bytes_written < size then we have more to write
         if (bytes_written < length) {
           continue;
         }
-        // If bytes_read > size then we have over read, which shouldn't happen
+        // If bytes_written > size then we have over written, which shouldn't happen
         if (bytes_written > length) {
-          throw SerialExecption ("read over read, too many bytes where "
-                                 "read, this shouldn't happen, might be "
+          throw SerialExecption ("write over wrote, too many bytes where "
+                                 "written, this shouldn't happen, might be "
                                  "a logical error!");
         }
       }
       // This shouldn't happen, if r > 0 our fd has to be in the list!
-      THROW (IOException, "select reports ready to read, but our fd isn't"
-             " in the list, this shouldn't happen!");
+      THROW (IOException, "select reports ready to write, but our fd isn't"
+                          " in the list, this shouldn't happen!");
     }
   }
   return bytes_written;
