@@ -231,7 +231,7 @@ Serial::SerialImpl::reconfigurePort ()
     ser.flags &= ~ASYNC_SPD_MASK;
     ser.flags |= ASYNC_SPD_CUST;
 
-    if (ioctl (fd_, TIOCSSERIAL, ser) < 0) {
+    if (ioctl (fd_, TIOCSSERIAL, &ser) < 0) {
       THROW (IOException, errno);
     }
 #else
