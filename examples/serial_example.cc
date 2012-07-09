@@ -4,11 +4,11 @@
  * Alternatively, you could use an Arduino:
  * 
  * <pre>
- *  setup() {
+ *  void setup() {
  *    Serial.begin(<insert your baudrate here>);
  *  }
  * 
- *  loop() {
+ *  void loop() {
  *    if (Serial.available()) {
  *      Serial.write(Serial.read());
  *    }
