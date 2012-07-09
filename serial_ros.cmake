@@ -19,7 +19,6 @@ macro(build_serial)
   set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 
   include_directories(include)
-  include_directories(vendor)
 
   set(SERIAL_SRCS src/serial.cc)
   if(UNIX)
@@ -34,7 +33,7 @@ macro(build_serial)
   # Collect Link Libraries
   set(SERIAL_LINK_LIBS ${PROJECT_NAME})
   if(UNIX AND NOT APPLE)
-    list(APPEND SERIAL_LINK_LIBS rt pthread)
+    list(APPEND SERIAL_LINK_LIBS rt pthread util)
   endif(UNIX AND NOT APPLE)
 
   # Build example
@@ -43,6 +42,6 @@ macro(build_serial)
 
   # Create unit tests
   rosbuild_add_gtest(serial_tests tests/serial_tests.cc)
-  target_link_libraries(serial_tests ${PROJECT_NAME})
+  target_link_libraries(serial_tests ${PROJECT_NAME} ${SERIAL_LINK_LIBS})
 
 endmacro(build_serial)
