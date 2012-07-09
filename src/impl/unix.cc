@@ -212,6 +212,30 @@ Serial::SerialImpl::reconfigurePort ()
 #ifdef B921600
   case 921600: baud = B921600; break;
 #endif
+#ifdef B1000000
+  case 1000000: baud = B1000000; break;
+#endif
+#ifdef B1152000
+  case 1152000: baud = B1152000; break;
+#endif
+#ifdef B1500000
+  case 1500000: baud = B1500000; break;
+#endif
+#ifdef B2000000
+  case 2000000: baud = B2000000; break;
+#endif
+#ifdef B2500000
+  case 2500000: baud = B2500000; break;
+#endif
+#ifdef B3000000
+  case 3000000: baud = B3000000; break;
+#endif
+#ifdef B3500000
+  case 3500000: baud = B3500000; break;
+#endif
+#ifdef B4000000
+  case 4000000: baud = B4000000; break;
+#endif
   default:
     custom_baud = true;
     // Mac OS X 10.x Support
@@ -222,7 +246,7 @@ Serial::SerialImpl::reconfigurePort ()
       THROW (IOException, errno);
     }
     // Linux Support
-#elif defined(__linux__)
+#elif defined(__linux__) && defined (TIOCSSERIAL)
     struct serial_struct ser;
     ioctl (fd_, TIOCGSERIAL, &ser);
     // set custom divisor
