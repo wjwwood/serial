@@ -23,13 +23,17 @@ macro(build_serial)
     endif()
   endif(UNIX)
 
+  IF(DEFINED BUILD_NO_CLANG)
+    option(BUILD_NO_CLANG "Do not use the Clang compiler." OFF)
+  ENDIF(DEFINED BUILD_NO_CLANG)
+
   # Use clang if available
-  IF(EXISTS /usr/bin/clang)
+  IF(EXISTS /usr/bin/clang AND NOT BUILD_NO_CLANG)
     set(CMAKE_CXX_COMPILER /usr/bin/clang++)
     set(CMAKE_OSX_DEPLOYMENT_TARGET "")
     set(SERIAL_BUILD_WARNINGS TRUE)
     set(CMAKE_BUILD_TYPE Debug)
-  ENDIF(EXISTS /usr/bin/clang)
+  ENDIF(EXISTS /usr/bin/clang AND NOT BUILD_NO_CLANG)
 
   option(SERIAL_BUILD_TESTS "Build all of the Serial tests." OFF)
   option(SERIAL_BUILD_EXAMPLES "Build all of the Serial examples." OFF)
