@@ -23,9 +23,9 @@ macro(build_serial)
     endif()
   endif(UNIX)
 
-  IF(DEFINED BUILD_NO_CLANG)
+  IF(NOT DEFINED BUILD_NO_CLANG)
     option(BUILD_NO_CLANG "Do not use the Clang compiler." OFF)
-  ENDIF(DEFINED BUILD_NO_CLANG)
+  ENDIF(NOT DEFINED BUILD_NO_CLANG)
 
   # Use clang if available
   IF(EXISTS /usr/bin/clang AND NOT BUILD_NO_CLANG)
