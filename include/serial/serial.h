@@ -126,9 +126,11 @@ struct Timeout {
    */
   uint32_t write_timeout_multiplier;
 
-  Timeout (uint32_t inter_byte_timeout_=0, uint32_t read_timeout_constant_=0,
-           uint32_t read_timeout_multiplier_=0, uint32_t write_timeout_constant_=0,
-           uint32_t write_timeout_multiplier_=0)
+  explicit Timeout (uint32_t inter_byte_timeout_=0,
+                    uint32_t read_timeout_constant_=0,
+                    uint32_t read_timeout_multiplier_=0,
+                    uint32_t write_timeout_constant_=0,
+                    uint32_t write_timeout_multiplier_=0)
   : inter_byte_timeout(inter_byte_timeout_),
     read_timeout_constant(read_timeout_constant_),
     read_timeout_multiplier(read_timeout_multiplier_),
