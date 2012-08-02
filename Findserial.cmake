@@ -7,9 +7,13 @@ find_library(serial_LIBRARIES serial /usr/lib /usr/local/lib
 set(serial_FOUND TRUE)
 
 if (NOT serial_INCLUDE_DIRS)
-    set(serial_FOUND FALSE)
+  set(serial_FOUND FALSE)
 endif (NOT serial_INCLUDE_DIRS)
 
 if (NOT serial_LIBRARIES)
-    set(serial_FOUND FALSE)
+  set(serial_FOUND FALSE)
+else (NOT serial_LIBRARIES)
+  if ("${CMAKE_SYSTEM}" MATCHES "Linux")
+    list(APPEND serial_LIBRARIES rt)
+  endif ("${CMAKE_SYSTEM}" MATCHES "Linux")
 endif (NOT serial_LIBRARIES)
