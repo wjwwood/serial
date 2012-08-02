@@ -53,7 +53,7 @@ protected:
     ASSERT_TRUE(slave_fd > 0);
     ASSERT_TRUE(string(name).length() > 0);
 
-    port1 = new Serial(string(name), 115200, 250);
+    port1 = new Serial(string(name), 115200, Timeout::simpleTimeout(250));
   }
 
   virtual void TearDown() {
