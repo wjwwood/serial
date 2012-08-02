@@ -73,8 +73,12 @@ macro(build_serial)
 
   set(OTHER_LIBS "")
   if(UNIX)
-    set(OTHER_LIBS util rt)
+    set(OTHER_LIBS util)
   endif(UNIX)
+
+  if(UNIX AND NOT APPLE)
+    list(APPEND OTHER_LIBS rt pthread)
+  endif(UNIX AND NOT APPLE)
   
   ## Build the Serial Library
 
