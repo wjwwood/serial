@@ -8,11 +8,11 @@ If you previously were using the `master` branch, that version is now under the 
 
 If you were previously using the `boostless` branch, that version is now tagged as `v0.2` or `boostless`.
 
-If you were previously using the `new_api` branch, that has become the new `master` branch and is also tagged `v1.0`.
+If you were previously using the `new_api` branch, that has become the new `master` branch and is also tagged `v1.0.1`.
 
 ## Documentation
 
-http://wjwwood.github.com/serial/docs/v1.0/index.html
+http://wjwwood.github.com/serial/docs/v1.0.1/index.html
 
 ## Dependencies
 
