@@ -1,0 +1,8 @@
+<map id="G" name="G">
+<area shape="rect" id="node3" href="$unix_8h.html" title="include/serial/impl/unix.h" alt="" coords="5,80,171,107"/>
+<area shape="rect" id="node7" href="$serial_8cc.html" title="src/serial.cc" alt="" coords="161,155,252,181"/>
+<area shape="rect" id="node9" href="$win_8h.html" title="include/serial/impl/win.h" alt="" coords="247,80,409,107"/>
+<area shape="rect" id="node14" href="$serial__example_8cc.html" title="examples/serial_example.cc" alt="" coords="433,80,623,107"/>
+<area shape="rect" id="node5" href="$unix_8cc.html" title="src/impl/unix.cc" alt="" coords="23,155,136,181"/>
+<area shape="rect" id="node11" href="$win_8cc.html" title="src/impl/win.cc" alt="" coords="277,155,387,181"/>
+</map>
