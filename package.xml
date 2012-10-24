@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package>
+  <name>serial</name>
+  <version abi="1.1.0">1.1.0</version>
+  <description>
+    Serial is a cross-platform, simple to use library for using serial ports on computers.  This library provides a C++, object oriented interface for interacting with RS-232 like devices on Linux and Windows.
+  </description>
+
+  <maintainer email="wwoodall@willowgarage.com">William Woodall</maintainer>
+
+  <license>BSD</license>
+
+  <url type="website">http://wjwwood.github.com/serial/</url>
+  <url type="repository">https://github.com/wjwwood/serial</url>
+  <url type="bugtracker">https://github.com/wjwwood/serial/issues</url>
+
+  <author email="wjwwood@gmail.com">William Woodall</author>
+  <author email="ash.gti@gmail.com">John Harrison</author>
+
+  <build_depend>cmake</build_depend>
+  <build_depend>catkin</build_depend>
+
+</package>

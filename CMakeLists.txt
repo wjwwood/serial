@@ -1,21 +1,58 @@
-cmake_minimum_required(VERSION 2.4.6)
+cmake_minimum_required(VERSION 2.8.3)
+project(serial)
 
-set(ROS_ROOT $ENV{ROS_ROOT})
+# Find catkin
+find_package(catkin REQUIRED)
 
-if(DEFINED ROS_ROOT)
-  option(SERIAL_BUILD_WIHOUT_ROS "Build without ROS?" OFF)
-else(DEFINED ROS_ROOT)
-  option(SERIAL_BUILD_WIHOUT_ROS "Build without ROS?" ON)
-endif(DEFINED ROS_ROOT)
+if(UNIX AND NOT APPLE)
+    # If Linux, add rt and pthread
+    catkin_package(
+        LIBRARIES ${PROJECT_NAME}
+        INCLUDE_DIRS include
+        DEPENDS rt pthread
+    )
+else ()
+    # Otherwise normal call
+    catkin_package(
+        LIBRARIES ${PROJECT_NAME}
+        INCLUDE_DIRS include
+    )
+endif ()
 
-if(DEFINED ROS_ROOT AND NOT SERIAL_BUILD_WIHOUT_ROS)
-  # Build with ROS
-  include(serial_ros.cmake)
-  message("Building with ROS")
-  build_serial()
-else(DEFINED ROS_ROOT AND NOT SERIAL_BUILD_WIHOUT_ROS)
-  # Build normally
-  include(serial.cmake)
-  message("Building stand alone")
-  build_serial()
-endif(DEFINED ROS_ROOT AND NOT SERIAL_BUILD_WIHOUT_ROS)
+## Sources
+set(serial_SRCS
+    src/serial.cc
+    # include/serial/serial.h
+    # include/serial/v8stdint.h
+)
+if (UNIX)
+    # If unix
+    list (APPEND serial_SRCS src/impl/unix.cc)
+else()
+    # If windows
+    list (APPEND serial_SRCS src/impl/win.cc)
+endif()
+
+## Add serial library
+add_library(${PROJECT_NAME}
+    ${serial_SRCS}
+)
+
+## Uncomment for example
+add_executable(serial_example examples/serial_example.cc)
+add_dependencies(serial_example ${PROJECT_NAME})
+target_link_libraries(serial_example ${PROJECT_NAME})
+
+## Include headers
+include_directories(include)
+
+## Install executable
+install(
+    TARGETS ${PROJECT_NAME}
+    ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+    LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+)
+
+## Tests
+catkin_add_gtest(${PROJECT_NAME}-test tests/serial_tests.cc)
+target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
