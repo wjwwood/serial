@@ -37,6 +37,9 @@ endif()
 add_library(${PROJECT_NAME}
     ${serial_SRCS}
 )
+if (UNIX)
+    target_link_libraries(${PROJECT_NAME} rt)
+endif()
 
 ## Uncomment for example
 add_executable(serial_example examples/serial_example.cc)
