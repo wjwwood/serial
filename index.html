@@ -29,26 +29,29 @@
       <section>
         <p>This is a cross-platform library for interfacing with rs-232 serial like ports written in C++. It provides a modern C++ interface with a workflow designed to look and feel like PySerial, but with the speed and control provided by C++. </p>
 
-<p>This library is in use in several robotics related projects and can be built and installed to the OS like most unix libraries with make and then sudo make install, but if you wish to use it with ROS then it will build as a unary stack. </p>
+<p>This library is in use in several robotics related projects and can be built and installed to the OS like most unix libraries with make and then sudo make install, but because it is a caktin project it can be built along side other catkin projects in a catkin workspace.</p>
 
 <p>Serial is a class that provides the basic interface common to serial libraries (open, close, read, write, etc..) and requires no extra dependencies. It also provides tight control over timeouts and control over handshaking lines. </p>
 
-<p>If you are looking for more utilities related to interfacing with sensors and serial devices, checkout my serial_utils github project: serial_utils. It provides tools for asynchronous reading and related tasks.</p>
-
 <h3>Documentation</h3>
 
-<p>The documentation for all versions of the serial library can be found here.</p>
+<p>The latest documentation for the serial library can be found <a href="doc/1.1.0/index.html">here</a>.</p>
 
 <h3>Dependencies</h3>
 
 <ul>
-<li>catkin - cmake and Python based buildsystem
+<li>
+<a href="http://www.ros.org/wiki/catkin">catkin</a> - cmake and Python based buildsystem
 
 <ul>
-<li>cmake - buildsystem</li>
-<li>Python - scripting language</li>
-<li>empy - Python templating library</li>
-<li>catkin_pkg - Runtime Python library for catkin</li>
+<li>
+<a href="http://www.cmake.org">cmake</a> - buildsystem</li>
+<li>
+<a href="http://www.python.org">Python</a> - scripting language</li>
+<li>
+<a href="http://www.alcyone.com/pyos/empy/">empy</a> - Python templating library</li>
+<li>
+<a href="http://pypi.python.org/pypi/catkin_pkg/">catkin_pkg</a> - Runtime Python library for catkin</li>
 </ul>
 </li>
 </ul><h3>Install</h3>
