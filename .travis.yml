@@ -7,5 +7,6 @@ install:
   - wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
   - sudo apt-get update
   - sudo apt-get install ros-groovy-catkin
+  - source /opt/ros/groovy/setup.bash
 script:
   - make
