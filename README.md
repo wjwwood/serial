@@ -8,7 +8,9 @@ Serial is a class that provides the basic interface common to serial libraries (
 
 ### Documentation
 
+Website: http://wjwwood.github.com/serial/
 
+API Documentation: http://wjwwood.github.com/serial/doc/1.1.0/index.html
 
 ### Dependencies
 
