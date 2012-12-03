@@ -22,15 +22,15 @@ endif()
 ## Sources
 set(serial_SRCS
     src/serial.cc
-    # include/serial/serial.h
-    # include/serial/v8stdint.h
+    include/serial/serial.h
+    include/serial/v8stdint.h
 )
 if(UNIX)
     # If unix
-    list (APPEND serial_SRCS src/impl/unix.cc)
+    list(APPEND serial_SRCS src/impl/unix.cc)
 else()
     # If windows
-    list (APPEND serial_SRCS src/impl/win.cc)
+    list(APPEND serial_SRCS src/impl/win.cc)
 endif()
 
 ## Add serial library
