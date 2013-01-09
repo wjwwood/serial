@@ -48,11 +48,14 @@ target_link_libraries(serial_example ${PROJECT_NAME})
 include_directories(include)
 
 ## Install executable
-install(
-    TARGETS ${PROJECT_NAME}
+install(TARGETS ${PROJECT_NAME}
     ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
     LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 )
+
+## Install headers
+install(FILES include/serial/serial.h include/serial/v8stdint.h
+  DESTINATION ${CATKIN_GLOBAL_INCLUDE_DESTINATION}/serial)
 
 ## Tests
 catkin_add_gtest(${PROJECT_NAME}-test tests/serial_tests.cc)
