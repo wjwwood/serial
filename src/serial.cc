@@ -1,5 +1,5 @@
 /* Copyright 2012 William Woodall and John Harrison */
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(__OpenBSD__)
 # include <alloca.h>
 #endif
 
