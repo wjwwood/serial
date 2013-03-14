@@ -65,4 +65,4 @@ John Harrison <ash.gti@gmail.com>
 
 ### Contact
 
-William Woodall <wwoodall@willowgarage.com>
+William Woodall <william@osrfoundation.org>
