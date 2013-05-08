@@ -19,7 +19,7 @@ using std::size_t;
 using std::string;
 
 using serial::Serial;
-using serial::SerialExecption;
+using serial::SerialException;
 using serial::IOException;
 using serial::bytesize_t;
 using serial::parity_t;
