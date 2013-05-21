@@ -171,7 +171,9 @@ public:
    * flowcontrol_none, possible values are: flowcontrol_none,
    * flowcontrol_software, flowcontrol_hardware
    *
-   * \throw PortNotOpenedException
+   * \throw serial::PortNotOpenedException
+   * \throw serial::IOException
+   * \throw std::invalid_argument
    */
   Serial (const std::string &port = "",
           uint32_t baudrate = 9600,
