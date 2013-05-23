@@ -389,7 +389,8 @@ Serial::SerialImpl::available ()
   }
 }
 
-inline void get_time_now(struct timespec &time)
+inline void
+get_time_now (struct timespec &time)
 {
 # ifdef __MACH__ // OS X does not have clock_gettime, use clock_get_time
   clock_serv_t cclock;
@@ -402,6 +403,19 @@ inline void get_time_now(struct timespec &time)
 # else
   clock_gettime(CLOCK_REALTIME, &time);
 # endif
+}
+
+inline void
+diff_timespec (timespec &start, timespec &end, timespec &result) {
+  if (start.tv_sec > end.tv_sec) {
+    throw SerialExecption ("Timetravel, start time later than end time.");
+  }
+  result.tv_sec = end.tv_sec - start.tv_sec;
+  result.tv_nsec = end.tv_nsec - start.tv_nsec;
+  if (result.tv_nsec < 0) {
+    result.tv_nsec = 1e9 - result.tv_nsec;
+    result.tv_sec -= 1;
+  }
 }
 
 size_t
@@ -452,19 +466,18 @@ Serial::SerialImpl::read (uint8_t *buf, size_t size)
     // Calculate difference and update the structure
     get_time_now (end);
     // Calculate the time select took
-    struct timeval diff;
-    diff.tv_sec = end.tv_sec - start.tv_sec;
-    diff.tv_usec = static_cast<int> ((end.tv_nsec - start.tv_nsec) / 1000);
+    struct timespec diff;
+    diff_timespec (start, end, diff);
     // Update the timeout
     if (total_timeout.tv_sec <= diff.tv_sec) {
       total_timeout.tv_sec = 0;
     } else {
       total_timeout.tv_sec -= diff.tv_sec;
     }
-    if (total_timeout.tv_usec <= diff.tv_usec) {
+    if (total_timeout.tv_usec <= (diff.tv_nsec / 1000)) {
       total_timeout.tv_usec = 0;
     } else {
-      total_timeout.tv_usec -= diff.tv_usec;
+      total_timeout.tv_usec -= (diff.tv_nsec / 1000);
     }
 
     // Figure out what happened by looking at select's response 'r'
@@ -552,19 +565,18 @@ Serial::SerialImpl::write (const uint8_t *data, size_t length)
     // Calculate difference and update the structure
     get_time_now(end);
     // Calculate the time select took
-    struct timeval diff;
-    diff.tv_sec = end.tv_sec - start.tv_sec;
-    diff.tv_usec = static_cast<int> ((end.tv_nsec - start.tv_nsec) / 1000);
+    struct timespec diff;
+    diff_timespec(start, end, diff);
     // Update the timeout
     if (timeout.tv_sec <= diff.tv_sec) {
       timeout.tv_sec = 0;
     } else {
       timeout.tv_sec -= diff.tv_sec;
     }
-    if (timeout.tv_usec <= diff.tv_usec) {
+    if (timeout.tv_usec <= (diff.tv_nsec / 1000)) {
       timeout.tv_usec = 0;
     } else {
-      timeout.tv_usec -= diff.tv_usec;
+      timeout.tv_usec -= (diff.tv_nsec / 1000);
     }
 #endif
 
