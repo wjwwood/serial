@@ -554,7 +554,7 @@ Serial::SerialImpl::write (const uint8_t *data, size_t length)
     // Calculate the time select took
     struct timeval diff;
     diff.tv_sec = end.tv_sec - start.tv_sec;
-    diff.tv_usec = static_cast<int> ((end.tv_nsec - start.tv_nsec) / 1000);
+    diff.tv_usec = static_cast<int> (((end.tv_nsec+diff.tv_sec*1000000000) - start.tv_nsec) / 1000);
     // Update the timeout
     if (timeout.tv_sec <= diff.tv_sec) {
       timeout.tv_sec = 0;
