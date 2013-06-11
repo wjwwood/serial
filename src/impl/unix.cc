@@ -40,7 +40,7 @@ using std::string;
 using std::stringstream;
 using std::invalid_argument;
 using serial::Serial;
-using serial::SerialExecption;
+using serial::SerialException;
 using serial::PortNotOpenedException;
 using serial::IOException;
 
@@ -73,7 +73,7 @@ Serial::SerialImpl::open ()
     throw invalid_argument ("Empty port is invalid.");
   }
   if (is_open_ == true) {
-    throw SerialExecption ("Serial port already open.");
+    throw SerialException ("Serial port already open.");
   }
 
   fd_ = ::open (port_.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK);
@@ -508,7 +508,7 @@ Serial::SerialImpl::read (uint8_t *buf, size_t size)
           // Disconnected devices, at least on Linux, show the
           // behavior that they are always ready to read immediately
           // but reading returns nothing.
-          throw SerialExecption ("device reports readiness to read but "
+          throw SerialException ("device reports readiness to read but "
                                  "returned no data (device disconnected?)");
         }
         // Update bytes_read
@@ -523,7 +523,7 @@ Serial::SerialImpl::read (uint8_t *buf, size_t size)
         }
         // If bytes_read > size then we have over read, which shouldn't happen
         if (bytes_read > size) {
-          throw SerialExecption ("read over read, too many bytes where "
+          throw SerialException ("read over read, too many bytes where "
                                  "read, this shouldn't happen, might be "
                                  "a logical error!");
         }
@@ -607,7 +607,7 @@ Serial::SerialImpl::write (const uint8_t *data, size_t length)
           // Disconnected devices, at least on Linux, show the
           // behavior that they are always ready to write immediately
           // but writing returns nothing.
-          throw SerialExecption ("device reports readiness to write but "
+          throw SerialException ("device reports readiness to write but "
                                  "returned no data (device disconnected?)");
         }
         // Update bytes_written
@@ -622,7 +622,7 @@ Serial::SerialImpl::write (const uint8_t *data, size_t length)
         }
         // If bytes_written > size then we have over written, which shouldn't happen
         if (bytes_written > length) {
-          throw SerialExecption ("write over wrote, too many bytes where "
+          throw SerialException ("write over wrote, too many bytes where "
                                  "written, this shouldn't happen, might be "
                                  "a logical error!");
         }
@@ -822,7 +822,7 @@ Serial::SerialImpl::waitForChange ()
     stringstream ss;
     ss << "waitForDSR failed on a call to ioctl(TIOCMIWAIT): "
        << errno << " " << strerror(errno);
-    throw(SerialExecption(ss.str().c_str()));
+    throw(SerialException(ss.str().c_str()));
   }
   return true;
 #endif

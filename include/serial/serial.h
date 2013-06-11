@@ -196,7 +196,7 @@ public:
    * \see Serial::Serial
    *
    * \throw std::invalid_argument
-   * \throw serial::SerialExecption
+   * \throw serial::SerialException
    * \throw serial::IOException
    */
   void
@@ -621,23 +621,24 @@ private:
 
 };
 
-class SerialExecption : public std::exception
+class SerialException : public std::exception
 {
   // Disable copy constructors
-  void operator=(const SerialExecption&);
-  const SerialExecption& operator=(SerialExecption);
-  const char* e_what_;
+  void operator=(const SerialException&);
+  const SerialException& operator=(SerialException);
+  std::string e_what_;
 public:
-  SerialExecption (const char *description) : e_what_ (description) {}
-  SerialExecption (const SerialExecption& other) {
+  SerialException (const char *description) {
+      std::stringstream ss;
+      ss << "SerialException " << description << " failed.";
+      e_what_ = ss.str();
+  }
+  SerialException (const SerialException& other) {
     e_what_ = other.e_what_;
   }
-
-  virtual const char* what () const throw ()
-  {
-    std::stringstream ss;
-    ss << "SerialException " << e_what_ << " failed.";
-    return ss.str ().c_str ();
+  virtual ~SerialException() throw() {}
+  virtual const char* what () const throw () {
+    return e_what_.c_str();
   }
 };
 
@@ -648,13 +649,23 @@ class IOException : public std::exception
   const IOException& operator=(IOException);
   std::string file_;
   int line_;
-  const char* e_what_;
+  std::string e_what_;
   int errno_;
 public:
   explicit IOException (std::string file, int line, int errnum)
-  : file_(file), line_(line), e_what_ (strerror (errnum)), errno_(errnum) {}
+    : file_(file), line_(line), errno_(errnum) {
+      std::stringstream ss;
+      ss << "IO Exception (" << errno_ << "): " << strerror (errnum);
+      ss << ", file " << file_ << ", line " << line_ << ".";
+      e_what_ = ss.str();
+  }
   explicit IOException (std::string file, int line, const char * description)
-  : file_(file), line_(line), e_what_ (description), errno_(0) {}
+    : file_(file), line_(line), errno_(0) {
+      std::stringstream ss;
+      ss << "IO Exception: " << description;
+      ss << ", file " << file_ << ", line " << line_ << ".";
+      e_what_ = ss.str();
+  }
   virtual ~IOException() throw() {}
   IOException (const IOException& other) {
     e_what_ = other.e_what_;
@@ -662,15 +673,8 @@ public:
 
   int getErrorNumber () { return errno_; }
 
-  virtual const char* what () const throw ()
-  {
-    std::stringstream ss;
-    if (errno_ == 0)
-      ss << "IO Exception: " << e_what_;
-    else
-      ss << "IO Exception (" << errno_ << "): " << e_what_;
-    ss << ", file " << file_ << ", line " << line_ << ".";
-    return ss.str ().c_str ();
+  virtual const char* what () const throw () {
+    return e_what_.c_str();
   }
 };
 
@@ -679,18 +683,19 @@ class PortNotOpenedException : public std::exception
   // Disable copy constructors
   void operator=(const PortNotOpenedException&);
   const PortNotOpenedException& operator=(PortNotOpenedException);
-  const char * e_what_;
+  std::string e_what_;
 public:
-  PortNotOpenedException (const char * description) : e_what_ (description) {}
+  PortNotOpenedException (const char * description)  {
+      std::stringstream ss;
+      ss << "PortNotOpenedException " << description << " failed.";
+      e_what_ = ss.str();
+  }
   PortNotOpenedException (const PortNotOpenedException& other) {
     e_what_ = other.e_what_;
   }
-
-  virtual const char* what () const throw ()
-  {
-    std::stringstream ss;
-    ss << e_what_ << " called before port was opened.";
-    return ss.str ().c_str ();
+  virtual ~PortNotOpenedException() throw() {}
+  virtual const char* what () const throw () {
+    return e_what_.c_str();
   }
 };
 

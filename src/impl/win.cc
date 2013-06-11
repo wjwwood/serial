@@ -11,7 +11,7 @@ using serial::bytesize_t;
 using serial::parity_t;
 using serial::stopbits_t;
 using serial::flowcontrol_t;
-using serial::SerialExecption;
+using serial::SerialException;
 using serial::PortNotOpenedException;
 using serial::IOException;
 
@@ -44,7 +44,7 @@ Serial::SerialImpl::open ()
     throw invalid_argument ("Empty port is invalid.");
   }
   if (is_open_ == true) {
-    throw SerialExecption ("Serial port already open.");
+    throw SerialException ("Serial port already open.");
   }
 
   fd_ = CreateFile(port_.c_str(),
