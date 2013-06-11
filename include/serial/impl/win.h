@@ -46,7 +46,7 @@ namespace serial {
 using std::string;
 using std::invalid_argument;
 
-using serial::SerialExecption;
+using serial::SerialException;
 using serial::IOException;
 
 class serial::Serial::SerialImpl {
