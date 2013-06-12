@@ -408,7 +408,7 @@ get_time_now (struct timespec &time)
 inline void
 diff_timespec (timespec &start, timespec &end, timespec &result) {
   if (start.tv_sec > end.tv_sec) {
-    throw SerialExecption ("Timetravel, start time later than end time.");
+    throw SerialException ("Timetravel, start time later than end time.");
   }
   result.tv_sec = end.tv_sec - start.tv_sec;
   result.tv_nsec = end.tv_nsec - start.tv_nsec;
