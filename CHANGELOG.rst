@@ -2,8 +2,8 @@
 Changelog for package serial
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.4 (2013-06-12 00:13:18 -0600)
+---------------------------------
 * Timing calculation fix for read and write.
   Fixes `#27 <https://github.com/wjwwood/serial/issues/27>`_
 * Update list of exceptions thrown from constructor.
