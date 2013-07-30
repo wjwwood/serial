@@ -16,6 +16,20 @@ using serial::PortNotOpenedException;
 using serial::IOException;
 
 
+// Convert std::string to LPCWSTR
+// http://stackoverflow.com/questions/27220/how-to-convert-stdstring-to-lpcwstr-in-c-unicode
+std::wstring s2ws(const std::string& s)
+{
+    int len;
+    int slength = (int)s.length() + 1;
+    len = MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, 0, 0);
+    wchar_t* buf = new wchar_t[len];
+    MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, buf, len);
+    std::wstring r(buf);
+    delete[] buf;
+    return r;
+}
+
 Serial::SerialImpl::SerialImpl (const string &port, unsigned long baudrate,
                                 bytesize_t bytesize,
                                 parity_t parity, stopbits_t stopbits,
@@ -47,7 +61,9 @@ Serial::SerialImpl::open ()
     throw SerialException ("Serial port already open.");
   }
 
-  fd_ = CreateFile(port_.c_str(),
+  std::wstring stemp = s2ws(port_);
+  LPCWSTR lpFileName = stemp.c_str();
+  fd_ = CreateFile(lpFileName,
                    GENERIC_READ | GENERIC_WRITE,
                    0,
                    0,
