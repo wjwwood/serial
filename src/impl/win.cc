@@ -3,6 +3,7 @@
 #include "serial/impl/win.h"
 
 using std::string;
+using std::wstring;
 using std::stringstream;
 using std::invalid_argument;
 using serial::Serial;
@@ -20,7 +21,7 @@ Serial::SerialImpl::SerialImpl (const string &port, unsigned long baudrate,
                                 bytesize_t bytesize,
                                 parity_t parity, stopbits_t stopbits,
                                 flowcontrol_t flowcontrol)
-  : port_ (port), fd_ (INVALID_HANDLE_VALUE), is_open_ (false),
+  : port_ (port.begin(), port.end()), fd_ (INVALID_HANDLE_VALUE), is_open_ (false),
     baudrate_ (baudrate), parity_ (parity),
     bytesize_ (bytesize), stopbits_ (stopbits), flowcontrol_ (flowcontrol)
 {
@@ -296,13 +297,13 @@ Serial::SerialImpl::write (const uint8_t *data, size_t length)
 void
 Serial::SerialImpl::setPort (const string &port)
 {
-  port_ = port;
+  port_ = wstring(port.begin(), port.end());
 }
 
 string
 Serial::SerialImpl::getPort () const
 {
-  return port_;
+  return string(port_.begin(), port_.end());
 }
 
 void
