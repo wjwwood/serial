@@ -62,7 +62,8 @@ Serial::SerialImpl::open ()
 	stringstream ss;
     switch (errno_) {
     case ERROR_FILE_NOT_FOUND:
-      ss << "Specified port, " << port_ << ", does not exist.";
+      // Use this->getPort to convert to a std::string
+      ss << "Specified port, " << this->getPort() << ", does not exist.";
       THROW (IOException, ss.str().c_str());
     default:
       ss << "Unknown error opening the serial port: " << errno;
