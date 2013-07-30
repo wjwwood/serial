@@ -381,7 +381,7 @@ public:
    *      the serial port that can pass before a timeout occurs.  Setting this 
    *      to zero will prevent inter byte timeouts from occurring.
    *  * Total time timeout:
-   *    * The the constant and multiplier component of this timeout condition, 
+   *    * The constant and multiplier component of this timeout condition, 
    *      for both read and write, are defined in serial::Timeout.  This 
    *      timeout occurs if the total time since the read or write call was 
    *      made exceeds the specified time in milliseconds.
