@@ -333,8 +333,9 @@ void
 Serial::SerialImpl::setBaudrate (unsigned long baudrate)
 {
   baudrate_ = baudrate;
-  if (is_open_)
+  if (is_open_) {
     reconfigurePort ();
+  }
 }
 
 unsigned long
@@ -347,8 +348,9 @@ void
 Serial::SerialImpl::setBytesize (serial::bytesize_t bytesize)
 {
   bytesize_ = bytesize;
-  if (is_open_)
+  if (is_open_) {
     reconfigurePort ();
+  }
 }
 
 serial::bytesize_t
@@ -361,8 +363,9 @@ void
 Serial::SerialImpl::setParity (serial::parity_t parity)
 {
   parity_ = parity;
-  if (is_open_)
+  if (is_open_) {
     reconfigurePort ();
+  }
 }
 
 serial::parity_t
@@ -375,8 +378,9 @@ void
 Serial::SerialImpl::setStopbits (serial::stopbits_t stopbits)
 {
   stopbits_ = stopbits;
-  if (is_open_)
+  if (is_open_) {
     reconfigurePort ();
+  }
 }
 
 serial::stopbits_t
@@ -389,8 +393,9 @@ void
 Serial::SerialImpl::setFlowcontrol (serial::flowcontrol_t flowcontrol)
 {
   flowcontrol_ = flowcontrol;
-  if (is_open_)
+  if (is_open_) {
     reconfigurePort ();
+  }
 }
 
 serial::flowcontrol_t
@@ -494,9 +499,9 @@ Serial::SerialImpl::getCTS ()
     throw PortNotOpenedException ("Serial::getCTS");
   }
   DWORD dwModemStatus;
-  if (!GetCommModemStatus(fd_, &dwModemStatus))
-    // Error in GetCommModemStatus;
+  if (!GetCommModemStatus(fd_, &dwModemStatus)) {
     THROW (IOException, "Error getting the status of the CTS line.");
+  }
 
   return (bool) (MS_CTS_ON & dwModemStatus);
 }
@@ -508,9 +513,9 @@ Serial::SerialImpl::getDSR ()
     throw PortNotOpenedException ("Serial::getDSR");
   }
   DWORD dwModemStatus;
-  if (!GetCommModemStatus(fd_, &dwModemStatus))
-    // Error in GetCommModemStatus;
+  if (!GetCommModemStatus(fd_, &dwModemStatus)) {
     THROW (IOException, "Error getting the status of the DSR line.");
+  }
 
   return (bool) (MS_DSR_ON & dwModemStatus);
 }
@@ -522,9 +527,9 @@ Serial::SerialImpl::getRI()
     throw PortNotOpenedException ("Serial::getRI");
   }
   DWORD dwModemStatus;
-  if (!GetCommModemStatus(fd_, &dwModemStatus))
-    // Error in GetCommModemStatus;
-    THROW (IOException, "Error getting the status of the DSR line.");
+  if (!GetCommModemStatus(fd_, &dwModemStatus)) {
+    THROW (IOException, "Error getting the status of the RI line.");
+  }
 
   return (bool) (MS_RING_ON & dwModemStatus);
 }
@@ -536,9 +541,10 @@ Serial::SerialImpl::getCD()
     throw PortNotOpenedException ("Serial::getCD");
   }
   DWORD dwModemStatus;
-  if (!GetCommModemStatus(fd_, &dwModemStatus))
+  if (!GetCommModemStatus(fd_, &dwModemStatus)) {
     // Error in GetCommModemStatus;
-    THROW (IOException, "Error getting the status of the DSR line.");
+    THROW (IOException, "Error getting the status of the CD line.");
+  }
 
   return (bool) (MS_RLSD_ON & dwModemStatus);
 }
