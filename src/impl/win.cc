@@ -48,7 +48,8 @@ Serial::SerialImpl::open ()
     throw SerialException ("Serial port already open.");
   }
 
-  fd_ = CreateFile(port_.c_str(),
+  LPCWSTR lp_port = port_.c_str();
+  fd_ = CreateFile(lp_port,
                    GENERIC_READ | GENERIC_WRITE,
                    0,
                    0,
