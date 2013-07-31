@@ -29,7 +29,7 @@ void loop()
 
 #include "serial/serial.h"
 
-#ifdef __linux__
+#if defined(__linux__)
 #include <pty.h>
 #else
 #include <util.h>
