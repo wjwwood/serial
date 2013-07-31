@@ -36,6 +36,10 @@
 #endif
 #endif
 
+#if defined(MAC_OS_X_VERSION_10_3) && (MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_3)
+#include <IOKit/serial/ioss.h>
+#endif
+
 using std::string;
 using std::stringstream;
 using std::invalid_argument;
@@ -238,10 +242,13 @@ Serial::SerialImpl::reconfigurePort ()
 #endif
   default:
     custom_baud = true;
-    // Mac OS X 10.x Support
-#if defined(__APPLE__) && defined(__MACH__)
-#define IOSSIOSPEED _IOW('T', 2, speed_t)
-    int new_baud = static_cast<int> (baudrate_);
+    // OS X support
+#if defined(MAC_OS_X_VERSION_10_4) && (MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_4)
+    // Starting with Tiger, the IOSSIOSPEED ioctl can be used to set arbitrary baud rates
+    // other than those specified by POSIX. The driver for the underlying serial hardware
+    // ultimately determines which baud rates can be used. This ioctl sets both the input
+    // and output speed.
+    speed_t new_baud = static_cast<speed_t>(baudrate_);
     if (ioctl (fd_, IOSSIOSPEED, &new_baud, 1) < 0) {
       THROW (IOException, errno);
     }
