@@ -652,11 +652,11 @@ public:
   explicit IOException (std::string file, int line, int errnum)
     : file_(file), line_(line), errno_(errnum) {
       std::stringstream ss;
-      char error_str [1024];
 #ifdef WIN32
+      char error_str [1024];
       strerror_s(error_str, 1024, errnum);
 #else
-      error_str = strerror(errnum);
+      char * error_str = strerror(errnum);
 #endif
       ss << "IO Exception (" << errno_ << "): " << error_str;
       ss << ", file " << file_ << ", line " << line_ << ".";
