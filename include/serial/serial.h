@@ -599,8 +599,7 @@ public:
 private:
   // Disable copy constructors
   Serial(const Serial&);
-  void operator=(const Serial&);
-  const Serial& operator=(Serial);
+  Serial& operator=(const Serial&);
 
   std::string read_cache_; //!< Cache for doing reads in chunks.
 
@@ -624,8 +623,7 @@ private:
 class SerialException : public std::exception
 {
   // Disable copy constructors
-  void operator=(const SerialException&);
-  const SerialException& operator=(SerialException);
+  SerialException& operator=(const SerialException&);
   std::string e_what_;
 public:
   SerialException (const char *description) {
@@ -645,8 +643,7 @@ public:
 class IOException : public std::exception
 {
   // Disable copy constructors
-  void operator=(const IOException&);
-  const IOException& operator=(IOException);
+  IOException& operator=(const IOException&);
   std::string file_;
   int line_;
   std::string e_what_;
@@ -655,7 +652,13 @@ public:
   explicit IOException (std::string file, int line, int errnum)
     : file_(file), line_(line), errno_(errnum) {
       std::stringstream ss;
-      ss << "IO Exception (" << errno_ << "): " << strerror (errnum);
+      char error_str [1024];
+#ifdef WIN32
+      strerror_s(error_str, 1024, errnum);
+#else
+      error_str = strerror(errnum);
+#endif
+      ss << "IO Exception (" << errno_ << "): " << error_str;
       ss << ", file " << file_ << ", line " << line_ << ".";
       e_what_ = ss.str();
   }
@@ -681,7 +684,6 @@ public:
 class PortNotOpenedException : public std::exception
 {
   // Disable copy constructors
-  void operator=(const PortNotOpenedException&);
   const PortNotOpenedException& operator=(PortNotOpenedException);
   std::string e_what_;
 public:

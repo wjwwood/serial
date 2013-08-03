@@ -37,7 +37,6 @@ public:
 private:
   // Disable copy constructors
   ScopedReadLock(const ScopedReadLock&);
-  void operator=(const ScopedReadLock&);
   const ScopedReadLock& operator=(ScopedReadLock);
 
   SerialImpl *pimpl_;
@@ -54,7 +53,6 @@ public:
 private:
   // Disable copy constructors
   ScopedWriteLock(const ScopedWriteLock&);
-  void operator=(const ScopedWriteLock&);
   const ScopedWriteLock& operator=(ScopedWriteLock);
   SerialImpl *pimpl_;
 };

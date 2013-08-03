@@ -49,13 +49,13 @@ Serial::SerialImpl::open ()
   }
 
   LPCWSTR lp_port = port_.c_str();
-  fd_ = CreateFile(lp_port,
-                   GENERIC_READ | GENERIC_WRITE,
-                   0,
-                   0,
-                   OPEN_EXISTING,
-                   FILE_ATTRIBUTE_NORMAL,
-                   0);
+  fd_ = CreateFileW(lp_port,
+                    GENERIC_READ | GENERIC_WRITE,
+                    0,
+                    0,
+                    OPEN_EXISTING,
+                    FILE_ATTRIBUTE_NORMAL,
+                    0);
 
   if (fd_ == INVALID_HANDLE_VALUE) {
     DWORD errno_ = GetLastError();
@@ -508,7 +508,7 @@ Serial::SerialImpl::getCTS ()
     THROW (IOException, "Error getting the status of the CTS line.");
   }
 
-  return (bool) (MS_CTS_ON & dwModemStatus);
+  return (MS_CTS_ON & dwModemStatus) != 0;
 }
 
 bool
@@ -522,7 +522,7 @@ Serial::SerialImpl::getDSR ()
     THROW (IOException, "Error getting the status of the DSR line.");
   }
 
-  return (bool) (MS_DSR_ON & dwModemStatus);
+  return (MS_DSR_ON & dwModemStatus) != 0;
 }
 
 bool
@@ -536,7 +536,7 @@ Serial::SerialImpl::getRI()
     THROW (IOException, "Error getting the status of the RI line.");
   }
 
-  return (bool) (MS_RING_ON & dwModemStatus);
+  return (MS_RING_ON & dwModemStatus) != 0;
 }
 
 bool
@@ -551,7 +551,7 @@ Serial::SerialImpl::getCD()
     THROW (IOException, "Error getting the status of the CD line.");
   }
 
-  return (bool) (MS_RLSD_ON & dwModemStatus);
+  return (MS_RLSD_ON & dwModemStatus) != 0;
 }
 
 void
