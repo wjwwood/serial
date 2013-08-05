@@ -283,7 +283,7 @@ Serial::SerialImpl::available ()
     ss << "Error while checking status of the serial port: " << GetLastError();
     THROW (IOException, ss.str().c_str());
   }
-  return (size_t) (cs.cbInQue);
+  return static_cast<size_t>(cs.cbInQue);
 }
 
 size_t
