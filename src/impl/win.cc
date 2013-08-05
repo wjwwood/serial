@@ -274,7 +274,16 @@ Serial::SerialImpl::isOpen () const
 size_t
 Serial::SerialImpl::available ()
 {
-  THROW (IOException, "available is not implemented on Windows.");
+  if (!is_open_) {
+    return 0;
+  }
+  COMSTAT cs;
+  if(!ClearCommError(fd_, NULL, &cs)) {
+    stringstream ss;
+    ss << "Error while checking status of the serial port: " << GetLastError();
+    THROW (IOException, ss.str().c_str());
+  }
+  return (size_t) (cs.cbInQue);
 }
 
 size_t
