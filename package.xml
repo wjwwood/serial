@@ -8,7 +8,7 @@
 
   <maintainer email="william@osrfoundation.org">William Woodall</maintainer>
 
-  <license>BSD</license>
+  <license>MIT</license>
 
   <url type="website">http://wjwwood.github.com/serial/</url>
   <url type="repository">https://github.com/wjwwood/serial</url>
@@ -18,7 +18,7 @@
   <author email="ash.gti@gmail.com">John Harrison</author>
 
   <buildtool_depend>catkin</buildtool_depend>
-  
+
   <test_depend>boost</test_depend>
 
 </package>
