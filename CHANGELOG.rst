@@ -2,6 +2,18 @@
 Changelog for package serial
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.5 (2013-09-23)
+------------------
+* Fix license labeling, I put BSD, but the license has always been MIT...
+* Added Microsoft Visual Studio 2010 project to make compiling on Windows easier.
+* Implemented Serial::available() for Windows
+* Update how custom baudrates are handled on OS X
+  This is taken from the example serial program on Apple's developer website, see:
+  http://free-pascal-general.1045716.n5.nabble.com/Non-standard-baud-rates-in-OS-X-IOSSIOSPEED-IOCTL-td4699923.html
+* Timout settings are now applied by reconfigurePort
+* Pass LPCWSTR to CreateFile in Windows impl
+* Use wstring for ``port_`` type in Windows impl
+
 1.1.4 (2013-06-12 00:13:18 -0600)
 ---------------------------------
 * Timing calculation fix for read and write.
