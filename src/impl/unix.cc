@@ -438,12 +438,11 @@ Serial::SerialImpl::read (uint8_t *buf, size_t size)
     FD_ZERO (&readfds);
     FD_SET (fd_, &readfds);
     // Begin timing select
-    struct timespec start, end;
-    get_time_now (start);
+    struct timespec start(get_time_now());
     // Call select to block for serial data or a timeout
     int r = select (fd_ + 1, &readfds, NULL, NULL, &timeout);
     // Calculate difference and update the structure
-    get_time_now (end);
+    struct timespec end(get_time_now());
     // Calculate the time select took
     struct timespec diff(end - start);
 
@@ -535,14 +534,13 @@ Serial::SerialImpl::write (const uint8_t *data, size_t length)
     // does not occur.
 #if !defined(__linux__)
     // Begin timing select
-    struct timespec start, end;
-    get_time_now(start);
+    struct timespec start(get_time_now());
 #endif
     // Do the select
     int r = select (fd_ + 1, NULL, &writefds, NULL, &timeout);
 #if !defined(__linux__)
     // Calculate difference and update the structure
-    get_time_now(end);
+    struct timespec end(get_time_now());
     // Calculate the time select took
     struct timespec diff(end - start);
     // Update the timeout
