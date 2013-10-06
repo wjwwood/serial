@@ -425,6 +425,45 @@ diff_timespec (timespec &start, timespec &end, timespec &result) {
   }
 }
 
+/*! Simple function to normalize the tv_nsec field to [0..1e9), carrying
+ * the remainder into the tv_sec field. */
+void normalize(timespec* ts) {
+  while (ts->tv_nsec < 0) {
+    ts->tv_nsec += 1e9;
+    ts->tv_sec -= 1;
+  }
+  while (ts->tv_nsec >= 1e9) {
+    ts->tv_nsec -= 1e9;
+    ts->tv_sec += 1;
+  }
+}
+
+inline struct timespec
+operator+ (const struct timespec &a, const struct timespec &b) {
+  struct timespec result = { a.tv_sec + b.tv_sec,
+                             a.tv_nsec + b.tv_nsec };
+  normalize(&result);
+  return result;
+}
+
+inline struct timespec
+operator- (const struct timespec &a, const struct timespec &b) {
+  struct timespec result = { a.tv_sec - b.tv_sec,
+                             a.tv_nsec - b.tv_nsec };
+  normalize(&result);
+  return result;
+}
+
+inline struct timespec
+min (const struct timespec &a, const struct timespec &b) {
+  if (a.tv_sec < b.tv_sec
+     || (a.tv_sec == b.tv_sec && a.tv_nsec < b.tv_nsec)) {
+    return a;
+  } else {
+    return b;
+  }
+}
+
 size_t
 Serial::SerialImpl::read (uint8_t *buf, size_t size)
 {
@@ -473,8 +512,8 @@ Serial::SerialImpl::read (uint8_t *buf, size_t size)
     // Calculate difference and update the structure
     get_time_now (end);
     // Calculate the time select took
-    struct timespec diff;
-    diff_timespec (start, end, diff);
+    struct timespec diff(end - start);
+
     // Update the timeout
     if (total_timeout.tv_sec <= diff.tv_sec) {
       total_timeout.tv_sec = 0;
