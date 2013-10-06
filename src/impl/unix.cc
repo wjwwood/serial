@@ -60,6 +60,8 @@ Serial::SerialImpl::SerialImpl (const string &port, unsigned long baudrate,
 {
   pthread_mutex_init(&this->read_mutex, NULL);
   pthread_mutex_init(&this->write_mutex, NULL);
+  serial::Timeout zero_timeout;
+  setTimeout(zero_timeout);
   if (port_.empty () == false)
     open ();
 }
@@ -404,61 +406,27 @@ Serial::SerialImpl::read (uint8_t *buf, size_t size)
   if (!is_open_) {
     throw PortNotOpenedException ("Serial::read");
   }
-  fd_set readfds;
-  size_t bytes_read = 0;
-  // Setup the total_timeout timeval
-  //  This timeout is maximum time before a timeout after read is called
-  struct timeval total_timeout;
-  // Calculate total timeout in milliseconds t_c + (t_m * N)
-  long total_timeout_ms = timeout_.read_timeout_constant;
-  total_timeout_ms += timeout_.read_timeout_multiplier*static_cast<long>(size);
-  total_timeout.tv_sec = total_timeout_ms / 1000;
-  total_timeout.tv_usec = static_cast<int>(total_timeout_ms % 1000);
-  total_timeout.tv_usec *= 1000; // To convert to micro seconds
-  // Setup the inter byte timeout
-  struct timeval inter_byte_timeout;
-  inter_byte_timeout.tv_sec = timeout_.inter_byte_timeout / 1000;
-  inter_byte_timeout.tv_usec =
-    static_cast<int> (timeout_.inter_byte_timeout % 1000);
-  inter_byte_timeout.tv_usec *= 1000; // To convert to micro seconds
+
+  // Add the total timeout time to the current time, and mark that as the
+  // overall expiry point for the function.
+  struct timespec timeout_endtime(timespec_now() +
+      read_timeout_constant_ + (read_timeout_multiplier_ * size));
+
+  size_t bytes_read = 0; 
   while (bytes_read < size) {
-    // Setup the select timeout timeval
-    struct timeval timeout;
-    // If the total_timeout is less than the inter_byte_timeout
-    if (total_timeout.tv_sec < inter_byte_timeout.tv_sec
-     || (total_timeout.tv_sec == inter_byte_timeout.tv_sec
-      && total_timeout.tv_usec < inter_byte_timeout.tv_sec))
-    {
-      // Then set the select timeout to use the total time
-      timeout = total_timeout;
-    } else {
-      // Else set the select timeout to use the inter byte time
-      timeout = inter_byte_timeout;
-    }
+    // Must determine whether the time remaining before endtime (total read
+    // timeout) or the inter-byte timeout is sooner, and use that one as the
+    // timeout for the pselect call.
+    struct timespec timeout_remaining(timeout_endtime - timespec_now());
+    struct timespec timeout(min(timeout_remaining, inter_byte_timeout_));
+
+    // Call pselect to block for serial data or a timeout
+    fd_set readfds;
     FD_ZERO (&readfds);
     FD_SET (fd_, &readfds);
-    // Begin timing select
-    struct timespec start(get_time_now());
-    // Call select to block for serial data or a timeout
-    int r = select (fd_ + 1, &readfds, NULL, NULL, &timeout);
-    // Calculate difference and update the structure
-    struct timespec end(get_time_now());
-    // Calculate the time select took
-    struct timespec diff(end - start);
+    int r = pselect (fd_ + 1, &readfds, NULL, NULL, &timeout, NULL);
 
-    // Update the timeout
-    if (total_timeout.tv_sec <= diff.tv_sec) {
-      total_timeout.tv_sec = 0;
-    } else {
-      total_timeout.tv_sec -= diff.tv_sec;
-    }
-    if (total_timeout.tv_usec <= (diff.tv_nsec / 1000)) {
-      total_timeout.tv_usec = 0;
-    } else {
-      total_timeout.tv_usec -= (diff.tv_nsec / 1000);
-    }
-
-    // Figure out what happened by looking at select's response 'r'
+    // Figure out what happened by looking at pselect's response 'r'
     /** Error **/
     if (r < 0) {
       // Select was interrupted, try again
@@ -477,10 +445,10 @@ Serial::SerialImpl::read (uint8_t *buf, size_t size)
       // Make sure our file descriptor is in the ready to read list
       if (FD_ISSET (fd_, &readfds)) {
         // This should be non-blocking returning only what is available now
-        //  Then returning so that select can block again.
+        //  Then returning so that pselect can block again.
         ssize_t bytes_read_now =
           ::read (fd_, buf + bytes_read, size - bytes_read);
-        // read should always return some data as select reported it was
+        // read should always return some data as pselect reported it was
         // ready to read when we get to this point.
         if (bytes_read_now < 1) {
           // Disconnected devices, at least on Linux, show the
@@ -507,7 +475,7 @@ Serial::SerialImpl::read (uint8_t *buf, size_t size)
         }
       }
       // This shouldn't happen, if r > 0 our fd has to be in the list!
-      THROW (IOException, "select reports ready to read, but our fd isn't"
+      THROW (IOException, "pselect reports ready to read, but our fd isn't"
              " in the list, this shouldn't happen!");
     }
   }
@@ -520,41 +488,22 @@ Serial::SerialImpl::write (const uint8_t *data, size_t length)
   if (is_open_ == false) {
     throw PortNotOpenedException ("Serial::write");
   }
-  fd_set writefds;
+
+  // Add the total timeout time to the current time, and mark that as the
+  // overall expiry point for the function.
+  struct timespec timeout_endtime(timespec_now() +
+      write_timeout_constant_ + (write_timeout_multiplier_ * length));
+
   size_t bytes_written = 0;
-  struct timeval timeout;
-  timeout.tv_sec =                    timeout_.write_timeout_constant / 1000;
-  timeout.tv_usec = static_cast<int> (timeout_.write_timeout_multiplier % 1000);
-  timeout.tv_usec *= 1000; // To convert to micro seconds
   while (bytes_written < length) {
+    // Determine time remaining before the predetermined endpoint.
+    struct timespec timeout_remaining(timeout_endtime - timespec_now());
+
+    // Call pselect to wait on availability of port for writing.
+    fd_set writefds;
     FD_ZERO (&writefds);
     FD_SET (fd_, &writefds);
-    // On Linux the timeout struct is updated by select to contain the time
-    // left on the timeout to make looping easier, but on other platforms this
-    // does not occur.
-#if !defined(__linux__)
-    // Begin timing select
-    struct timespec start(get_time_now());
-#endif
-    // Do the select
-    int r = select (fd_ + 1, NULL, &writefds, NULL, &timeout);
-#if !defined(__linux__)
-    // Calculate difference and update the structure
-    struct timespec end(get_time_now());
-    // Calculate the time select took
-    struct timespec diff(end - start);
-    // Update the timeout
-    if (timeout.tv_sec <= diff.tv_sec) {
-      timeout.tv_sec = 0;
-    } else {
-      timeout.tv_sec -= diff.tv_sec;
-    }
-    if (timeout.tv_usec <= (diff.tv_nsec / 1000)) {
-      timeout.tv_usec = 0;
-    } else {
-      timeout.tv_usec -= (diff.tv_nsec / 1000);
-    }
-#endif
+    int r = pselect (fd_ + 1, NULL, &writefds, NULL, &timeout_remaining, NULL);
 
     // Figure out what happened by looking at select's response 'r'
     /** Error **/
@@ -624,9 +573,17 @@ Serial::SerialImpl::getPort () const
 }
 
 void
-Serial::SerialImpl::setTimeout (serial::Timeout &timeout)
+Serial::SerialImpl::setTimeout (const serial::Timeout &timeout)
 {
   timeout_ = timeout;
+  
+  // Cache the timespec conversions, as that's what the rest of the inner
+  // class operates on.
+  inter_byte_timeout_ = timespec_from_millis(timeout.inter_byte_timeout);
+  read_timeout_constant_ = timespec_from_millis(timeout.read_timeout_constant);
+  read_timeout_multiplier_ = timespec_from_millis(timeout.read_timeout_constant);
+  write_timeout_constant_ = timespec_from_millis(timeout.write_timeout_constant);
+  write_timeout_multiplier_ = timespec_from_millis(timeout.write_timeout_multiplier);
 }
 
 serial::Timeout

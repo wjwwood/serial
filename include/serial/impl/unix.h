@@ -31,7 +31,7 @@
  * \section DESCRIPTION
  *
  * This provides a unix based pimpl for the Serial class. This implementation is
- * based off termios.h and uses select for multiplexing the IO ports.
+ * based off termios.h and uses pselect for multiplexing the IO ports.
  *
  */
 
