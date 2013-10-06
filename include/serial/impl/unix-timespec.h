@@ -71,7 +71,9 @@ normalize(struct timespec* ts) {
   }
 }
 
-/*! Return a timespec which is the sum of two other timespecs. */
+/*! Return a timespec which is the sum of two other timespecs. This
+ * operator only makes logical sense when one or both of the arguments
+ * represents a duration. */
 static inline struct timespec
 operator+ (const struct timespec &a, const struct timespec &b) {
   struct timespec result = { a.tv_sec + b.tv_sec,
@@ -80,7 +82,9 @@ operator+ (const struct timespec &a, const struct timespec &b) {
   return result;
 }
 
-/*! Return a timespec which is the difference of two other timespecs. */
+/*! Return a timespec which is the difference of two other timespecs.
+ * This operator only makes logical sense when one or both of the arguments
+ * represents a duration. */
 static inline struct timespec
 operator- (const struct timespec &a, const struct timespec &b) {
   struct timespec result = { a.tv_sec - b.tv_sec,
@@ -92,7 +96,8 @@ operator- (const struct timespec &a, const struct timespec &b) {
 /*! Return a timespec which is a multiplication of a timespec and a positive
  * integer. No overflow protection-- not suitable for multiplications with 
  * large carries, eg a <1s timespec multiplied by a large enough integer 
- * that the result is muliple seconds. */
+ * that the result is muliple seconds. Only makes sense when the timespec
+ * argument is a duration. */
 static inline struct timespec
 operator* (const struct timespec &ts, const size_t mul) {
   struct timespec result = { ts.tv_sec * mul,
@@ -101,8 +106,8 @@ operator* (const struct timespec &ts, const size_t mul) {
   return result;
 }
 
-/*! Return whichever of two timespecs represents the shortest or most
- * negative duration. */
+/*! Return whichever of two timespec durations represents the shortest or most
+ * negative period. */
 static inline struct timespec
 min (const struct timespec &a, const struct timespec &b) {
   if (a.tv_sec < b.tv_sec
@@ -113,7 +118,7 @@ min (const struct timespec &a, const struct timespec &b) {
   }
 }
 
-/*! Return a timespec set from a provided number of milliseconds. */
+/*! Return a timespec duration set from a provided number of milliseconds. */
 static struct timespec
 timespec_from_millis(const size_t millis) {
   struct timespec result = { 0, millis * 1000000 };
