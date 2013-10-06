@@ -39,7 +39,7 @@
 /*! Smooth over platform variances in getting an accurate timespec
  * representing the present moment. */ 
 static inline struct timespec
-get_time_now ()
+timespec_now ()
 {
   struct timespec ts;
 # ifdef __MACH__ // OS X does not have clock_gettime, use clock_get_time
