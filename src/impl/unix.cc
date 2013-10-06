@@ -27,6 +27,7 @@
 #endif
 
 #include "serial/impl/unix.h"
+#include "serial/impl/unix-timespec.h"
 
 #ifndef TIOCINQ
 #ifdef FIONREAD
@@ -396,74 +397,6 @@ Serial::SerialImpl::available ()
   }
 }
 
-inline void
-get_time_now (struct timespec &time)
-{
-# ifdef __MACH__ // OS X does not have clock_gettime, use clock_get_time
-  clock_serv_t cclock;
-  mach_timespec_t mts;
-  host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
-  clock_get_time(cclock, &mts);
-  mach_port_deallocate(mach_task_self(), cclock);
-  time.tv_sec = mts.tv_sec;
-  time.tv_nsec = mts.tv_nsec;
-# else
-  clock_gettime(CLOCK_REALTIME, &time);
-# endif
-}
-
-inline void
-diff_timespec (timespec &start, timespec &end, timespec &result) {
-  if (start.tv_sec > end.tv_sec) {
-    throw SerialException ("Timetravel, start time later than end time.");
-  }
-  result.tv_sec = end.tv_sec - start.tv_sec;
-  result.tv_nsec = end.tv_nsec - start.tv_nsec;
-  if (result.tv_nsec < 0) {
-    result.tv_nsec = 1e9 - result.tv_nsec;
-    result.tv_sec -= 1;
-  }
-}
-
-/*! Simple function to normalize the tv_nsec field to [0..1e9), carrying
- * the remainder into the tv_sec field. */
-void normalize(timespec* ts) {
-  while (ts->tv_nsec < 0) {
-    ts->tv_nsec += 1e9;
-    ts->tv_sec -= 1;
-  }
-  while (ts->tv_nsec >= 1e9) {
-    ts->tv_nsec -= 1e9;
-    ts->tv_sec += 1;
-  }
-}
-
-inline struct timespec
-operator+ (const struct timespec &a, const struct timespec &b) {
-  struct timespec result = { a.tv_sec + b.tv_sec,
-                             a.tv_nsec + b.tv_nsec };
-  normalize(&result);
-  return result;
-}
-
-inline struct timespec
-operator- (const struct timespec &a, const struct timespec &b) {
-  struct timespec result = { a.tv_sec - b.tv_sec,
-                             a.tv_nsec - b.tv_nsec };
-  normalize(&result);
-  return result;
-}
-
-inline struct timespec
-min (const struct timespec &a, const struct timespec &b) {
-  if (a.tv_sec < b.tv_sec
-     || (a.tv_sec == b.tv_sec && a.tv_nsec < b.tv_nsec)) {
-    return a;
-  } else {
-    return b;
-  }
-}
-
 size_t
 Serial::SerialImpl::read (uint8_t *buf, size_t size)
 {
@@ -611,8 +544,7 @@ Serial::SerialImpl::write (const uint8_t *data, size_t length)
     // Calculate difference and update the structure
     get_time_now(end);
     // Calculate the time select took
-    struct timespec diff;
-    diff_timespec(start, end, diff);
+    struct timespec diff(end - start);
     // Update the timeout
     if (timeout.tv_sec <= diff.tv_sec) {
       timeout.tv_sec = 0;

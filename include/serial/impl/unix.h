@@ -122,7 +122,7 @@ public:
   getPort () const;
 
   void
-  setTimeout (Timeout &timeout);
+  setTimeout (const Timeout &timeout);
 
   Timeout
   getTimeout () const;
@@ -180,7 +180,13 @@ private:
   bool xonxoff_;
   bool rtscts_;
 
-  Timeout timeout_;         // Timeout for read operations
+  Timeout timeout_;         // Timeouts for read/write operations
+  struct timespec inter_byte_timeout_;
+  struct timespec read_timeout_constant_;
+  struct timespec read_timeout_multiplier_;
+  struct timespec write_timeout_constant_;
+  struct timespec write_timeout_multiplier_;
+
   unsigned long baudrate_;    // Baudrate
 
   parity_t parity_;           // Parity
