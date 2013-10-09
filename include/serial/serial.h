@@ -74,8 +74,8 @@ typedef enum {
  */
 typedef enum {
   stopbits_one = 1,
-  stopbits_one_point_five,
-  stopbits_two = 2
+  stopbits_two = 2,
+  stopbits_one_point_five
 } stopbits_t;
 
 /*!
