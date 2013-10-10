@@ -412,7 +412,20 @@ Serial::SerialImpl::read (uint8_t *buf, size_t size)
   struct timespec timeout_endtime(timespec_now() +
       read_timeout_constant_ + (read_timeout_multiplier_ * size));
 
+  // If there are already some bytes waiting to read, put those in the return
+  // buffer before setting up the first select call. This is important for 
+  // performance reasons, as select/pselect can relinquish the thread even 
+  // with data waiting.
   size_t bytes_read = 0; 
+  if (available() > 0) {
+    ssize_t bytes_read_now = ::read (fd_, buf, size); 
+    if (bytes_read_now < 1) {
+      throw SerialException ("device reports readiness to read but "
+                             "returned no data (device disconnected?)");
+    }
+    bytes_read += static_cast<size_t> (bytes_read_now);
+  }
+
   while (bytes_read < size) {
     // Must determine whether the time remaining before endtime (total read
     // timeout) or the inter-byte timeout is sooner, and use that one as the
