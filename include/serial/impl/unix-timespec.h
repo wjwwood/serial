@@ -76,7 +76,7 @@ normalize(struct timespec* ts) {
 /*! Return a timespec which is the sum of two other timespecs. This
  * operator only makes logical sense when one or both of the arguments
  * represents a duration. */
-static inline struct timespec
+static inline timespec
 operator+ (const struct timespec &a, const struct timespec &b) {
   struct timespec result = { a.tv_sec + b.tv_sec,
                              a.tv_nsec + b.tv_nsec };
@@ -87,7 +87,7 @@ operator+ (const struct timespec &a, const struct timespec &b) {
 /*! Return a timespec which is the difference of two other timespecs.
  * This operator only makes logical sense when one or both of the arguments
  * represents a duration. */
-static inline struct timespec
+static inline timespec
 operator- (const struct timespec &a, const struct timespec &b) {
   struct timespec result = { a.tv_sec - b.tv_sec,
                              a.tv_nsec - b.tv_nsec };
@@ -100,7 +100,7 @@ operator- (const struct timespec &a, const struct timespec &b) {
  * large carries, eg a <1s timespec multiplied by a large enough integer 
  * that the result is muliple seconds. Only makes sense when the timespec
  * argument is a duration. */
-static inline struct timespec
+static inline timespec
 operator* (const struct timespec &ts, const size_t mul) {
   struct timespec result = { ts.tv_sec * mul,
                              ts.tv_nsec * mul };
