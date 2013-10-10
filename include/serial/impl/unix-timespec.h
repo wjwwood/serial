@@ -36,6 +36,8 @@
 #ifndef SERIAL_IMPL_UNIX_TIMESPEC_H
 #define SERIAL_IMPL_UNIX_TIMESPEC_H
 
+#include <time.h>
+
 /*! Smooth over platform variances in getting an accurate timespec
  * representing the present moment. */ 
 static inline struct timespec
