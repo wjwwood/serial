@@ -78,17 +78,17 @@ timespec_now ()
  * the remainder into the tv_sec field. This will not protect against the
  * possibility of an overflow in the nsec field--proceed with caution. */
 static inline void
-normalize (struct timespec* ts)
+normalize (struct timespec &ts)
 {
-  while (ts->tv_nsec < 0)
+  while (ts.tv_nsec < 0)
   {
-    ts->tv_nsec += 1e9;
-    ts->tv_sec -= 1;
+    ts.tv_nsec += 1e9;
+    ts.tv_sec -= 1;
   }
-  while (ts->tv_nsec >= 1e9)
+  while (ts.tv_nsec >= 1e9)
   {
-    ts->tv_nsec -= 1e9;
-    ts->tv_sec += 1;
+    ts.tv_nsec -= 1e9;
+    ts.tv_sec += 1;
   }
 }
 
@@ -102,7 +102,7 @@ operator+ (const struct timespec &a, const struct timespec &b)
     a.tv_sec + b.tv_sec,
     a.tv_nsec + b.tv_nsec
   };
-  normalize(&result);
+  normalize(result);
   return result;
 }
 
@@ -116,7 +116,7 @@ operator- (const struct timespec &a, const struct timespec &b)
     a.tv_sec - b.tv_sec,
     a.tv_nsec - b.tv_nsec
   };
-  normalize(&result);
+  normalize(result);
   return result;
 }
 
@@ -132,7 +132,7 @@ operator* (const struct timespec &ts, const size_t mul)
     ts.tv_sec * mul,
     ts.tv_nsec * mul
   };
-  normalize(&result);
+  normalize(result);
   return result;
 }
 
@@ -153,7 +153,7 @@ static struct timespec
 timespec_from_millis (const size_t millis)
 {
   struct timespec result = {0, millis * 1000000};
-  normalize(&result);
+  normalize(result);
   return result;
 }
 
