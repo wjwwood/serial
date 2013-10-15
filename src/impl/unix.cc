@@ -77,7 +77,7 @@ timespec_now ()
 /* Simple function to normalize the tv_nsec field to [0..1e9), carrying
  * the remainder into the tv_sec field. This will not protect against the
  * possibility of an overflow in the nsec field--proceed with caution. */
-static inline void
+inline void
 normalize (struct timespec &ts)
 {
   while (ts.tv_nsec < 0)
@@ -95,7 +95,7 @@ normalize (struct timespec &ts)
 /* Return a timespec which is the sum of two other timespecs. This
  * operator only makes logical sense when one or both of the arguments
  * represents a duration. */
-static inline timespec
+inline timespec
 operator+ (const struct timespec &a, const struct timespec &b)
 {
   struct timespec result = {
@@ -109,7 +109,7 @@ operator+ (const struct timespec &a, const struct timespec &b)
 /* Return a timespec which is the difference of two other timespecs.
  * This operator only makes logical sense when one or both of the arguments
  * represents a duration. */
-static inline timespec
+inline timespec
 operator- (const struct timespec &a, const struct timespec &b)
 {
   struct timespec result = {
@@ -125,7 +125,7 @@ operator- (const struct timespec &a, const struct timespec &b)
  * large carries, eg a <1s timespec multiplied by a large enough integer
  * that the result is muliple seconds. Only makes sense when the timespec
  * argument is a duration. */
-static inline timespec
+inline timespec
 operator* (const struct timespec &ts, const size_t &mul)
 {
   struct timespec result = {
@@ -138,7 +138,7 @@ operator* (const struct timespec &ts, const size_t &mul)
 
 /* Return whichever of two timespec durations represents the shortest or most
  * negative period. */
-static inline struct timespec
+inline struct timespec
 min (const struct timespec &a, const struct timespec &b)
 {
   if (a.tv_sec < b.tv_sec || (a.tv_sec == b.tv_sec && a.tv_nsec < b.tv_nsec))
@@ -149,7 +149,7 @@ min (const struct timespec &a, const struct timespec &b)
 }
 
 /* Return a timespec duration set from a provided number of milliseconds. */
-static struct timespec
+inline struct timespec
 timespec_from_millis (const size_t millis)
 {
   struct timespec result = {0, millis * 1000000};
