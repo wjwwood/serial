@@ -523,12 +523,12 @@ Serial::SerialImpl::read (uint8_t *buf, size_t size)
       read_timeout_constant_ + (read_timeout_multiplier_ * size));
 
   // If there are already some bytes waiting to read, put those in the return
-  // buffer before setting up the first select call. This is important for 
-  // performance reasons, as select/pselect can relinquish the thread even 
+  // buffer before setting up the first select call. This is important for
+  // performance reasons, as select/pselect can relinquish the thread even
   // with data waiting.
-  size_t bytes_read = 0; 
+  size_t bytes_read = 0;
   if (available() > 0) {
-    ssize_t bytes_read_now = ::read (fd_, buf, size); 
+    ssize_t bytes_read_now = ::read (fd_, buf, size);
     if (bytes_read_now < 1) {
       throw SerialException ("device reports readiness to read but "
                              "returned no data (device disconnected?)");
@@ -599,7 +599,7 @@ Serial::SerialImpl::read (uint8_t *buf, size_t size)
       }
       // This shouldn't happen, if r > 0 our fd has to be in the list!
       THROW (IOException, "pselect reports ready to read, but our fd isn't"
-             " in the list, this shouldn't happen!");
+                          " in the list, this shouldn't happen!");
     }
   }
   return bytes_read;
@@ -699,7 +699,7 @@ void
 Serial::SerialImpl::setTimeout (const serial::Timeout &timeout)
 {
   timeout_ = timeout;
-  
+
   // Cache the timespec conversions, as that's what the rest of the inner
   // class operates on.
   inter_byte_timeout_ = timespec_from_millis(timeout.inter_byte_timeout);
