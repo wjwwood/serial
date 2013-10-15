@@ -52,6 +52,8 @@ using serial::SerialException;
 using serial::PortNotOpenedException;
 using serial::IOException;
 
+/* Timespec related functions */
+
 /* Smooth over platform variances in getting an accurate timespec
  * representing the present moment. */
 static inline struct timespec
