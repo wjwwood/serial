@@ -126,7 +126,7 @@ operator- (const struct timespec &a, const struct timespec &b)
  * that the result is muliple seconds. Only makes sense when the timespec
  * argument is a duration. */
 static inline timespec
-operator* (const struct timespec &ts, const size_t mul)
+operator* (const struct timespec &ts, const size_t &mul)
 {
   struct timespec result = {
     ts.tv_sec * mul,
