@@ -2,8 +2,8 @@
 Changelog for package serial
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.6 (2013-10-17)
+------------------
 * Move stopbits_one_point_five to the end of the enum, so that it doesn't alias with stopbits_two.
 
 1.1.5 (2013-09-23)
