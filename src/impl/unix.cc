@@ -251,20 +251,24 @@ Serial::SerialImpl::reconfigurePort ()
     // ultimately determines which baud rates can be used. This ioctl sets both the input
     // and output speed.
     speed_t new_baud = static_cast<speed_t>(baudrate_);
-    if (ioctl (fd_, IOSSIOSPEED, &new_baud, 1) < 0) {
+    if (-1 == ioctl (fd_, IOSSIOSPEED, &new_baud, 1)) {
       THROW (IOException, errno);
     }
     // Linux Support
 #elif defined(__linux__) && defined (TIOCSSERIAL)
     struct serial_struct ser;
-    ioctl (fd_, TIOCGSERIAL, &ser);
+
+    if (-1 == ioctl (fd_, TIOCGSERIAL, &ser)) {
+      THROW (IOException, errno);
+    }
+
     // set custom divisor
     ser.custom_divisor = ser.baud_base / (int) baudrate_;
     // update flags
     ser.flags &= ~ASYNC_SPD_MASK;
     ser.flags |= ASYNC_SPD_CUST;
 
-    if (ioctl (fd_, TIOCSSERIAL, &ser) < 0) {
+    if (-1 == ioctl (fd_, TIOCSSERIAL, &ser)) {
       THROW (IOException, errno);
     }
 #else
@@ -390,11 +394,10 @@ Serial::SerialImpl::available ()
     return 0;
   }
   int count = 0;
-  int result = ioctl (fd_, TIOCINQ, &count);
-  if (result == 0) {
-    return static_cast<size_t> (count);
+  if (-1 == ioctl (fd_, TIOCINQ, &count)) {
+      THROW (IOException, errno);
   } else {
-    THROW (IOException, errno);
+      return static_cast<size_t> (count);
   }
 }
 
@@ -780,10 +783,21 @@ Serial::SerialImpl::setBreak (bool level)
   if (is_open_ == false) {
     throw PortNotOpenedException ("Serial::setBreak");
   }
+
   if (level) {
-    ioctl (fd_, TIOCSBRK);
+    if(-1 == ioctl (fd_, TIOCSBRK))
+    {
+        stringstream ss;
+        ss << "setBreak failed on a call to ioctl(TIOCSBRK): " << errno << " " << strerror(errno);
+        throw(SerialException(ss.str().c_str()));
+    }
   } else {
-    ioctl (fd_, TIOCCBRK);
+    if(-1 == ioctl (fd_, TIOCCBRK))
+    {
+        stringstream ss;
+        ss << "setBreak failed on a call to ioctl(TIOCCBRK): " << errno << " " << strerror(errno);
+        throw(SerialException(ss.str().c_str()));
+    }
   }
 }
 
@@ -793,10 +807,23 @@ Serial::SerialImpl::setRTS (bool level)
   if (is_open_ == false) {
     throw PortNotOpenedException ("Serial::setRTS");
   }
+
+  int command = TIOCM_RTS;
+
   if (level) {
-    ioctl (fd_, TIOCMBIS, TIOCM_RTS);
+    if(-1 == ioctl (fd_, TIOCMBIS, &command))
+    {
+      stringstream ss;
+      ss << "setRTS failed on a call to ioctl(TIOCMBIS): " << errno << " " << strerror(errno);
+      throw(SerialException(ss.str().c_str()));
+    }
   } else {
-    ioctl (fd_, TIOCMBIC, TIOCM_RTS);
+    if(-1 == ioctl (fd_, TIOCMBIC, &command))
+    {
+      stringstream ss;
+      ss << "setRTS failed on a call to ioctl(TIOCMBIC): " << errno << " " << strerror(errno);
+      throw(SerialException(ss.str().c_str()));
+    }
   }
 }
 
@@ -806,10 +833,23 @@ Serial::SerialImpl::setDTR (bool level)
   if (is_open_ == false) {
     throw PortNotOpenedException ("Serial::setDTR");
   }
+
+  int command = TIOCM_DTR;
+
   if (level) {
-    ioctl (fd_, TIOCMBIS, TIOCM_DTR);
+    if(-1 == ioctl (fd_, TIOCMBIS, &command))
+    {
+      stringstream ss;
+      ss << "setDTR failed on a call to ioctl(TIOCMBIS): " << errno << " " << strerror(errno);
+      throw(SerialException(ss.str().c_str()));
+    }
   } else {
-    ioctl (fd_, TIOCMBIC, TIOCM_DTR);
+    if(-1 == ioctl (fd_, TIOCMBIC, &command))
+    {
+      stringstream ss;
+      ss << "setDTR failed on a call to ioctl(TIOCMBIC): " << errno << " " << strerror(errno);
+      throw(SerialException(ss.str().c_str()));
+    }
   }
 }
 
@@ -817,17 +857,34 @@ bool
 Serial::SerialImpl::waitForChange ()
 {
 #ifndef TIOCMIWAIT
-  while (is_open_ == true) {
-    int s = ioctl (fd_, TIOCMGET, 0);
-    if ((s & TIOCM_CTS) != 0) return true;
-    if ((s & TIOCM_DSR) != 0) return true;
-    if ((s & TIOCM_RI) != 0) return true;
-    if ((s & TIOCM_CD) != 0) return true;
+
+while (is_open_ == true) {
+
+    int status;
+
+    if(-1 == ioctl (fd_, TIOCMGET, &status))
+    {
+        stringstream ss;
+        ss << "waitForChange failed on a call to ioctl(TIOCMGET): " << errno << " " << strerror(errno);
+        throw(SerialException(ss.str().c_str()));
+    }
+    else
+    {
+        if (0 != (status & TIOCM_CTS) ||
+            0 != (status & TIOCM_DSR) ||
+            0 != (status & TIOCM_RI)  ||
+            0 != (status & TIOCM_CD)
+            ) return true;
+    }
+
     usleep(1000);
   }
+
   return false;
 #else
-  if (ioctl(fd_, TIOCMIWAIT, (TIOCM_CD|TIOCM_DSR|TIOCM_RI|TIOCM_CTS)) != 0) {
+  int command = (TIOCM_CD|TIOCM_DSR|TIOCM_RI|TIOCM_CTS);
+
+  if (-1 == ioctl (fd_, TIOCMIWAIT, &command)) {
     stringstream ss;
     ss << "waitForDSR failed on a call to ioctl(TIOCMIWAIT): "
        << errno << " " << strerror(errno);
@@ -843,8 +900,19 @@ Serial::SerialImpl::getCTS ()
   if (is_open_ == false) {
     throw PortNotOpenedException ("Serial::getCTS");
   }
-  int s = ioctl (fd_, TIOCMGET, 0);
-  return (s & TIOCM_CTS) != 0;
+
+  int status;
+
+  if(-1 == ioctl (fd_, TIOCMGET, &status))
+  {
+    stringstream ss;
+    ss << "getCTS failed on a call to ioctl(TIOCMGET): " << errno << " " << strerror(errno);
+    throw(SerialException(ss.str().c_str()));
+  }
+  else
+  {
+    return 0 != (status & TIOCM_CTS);
+  }
 }
 
 bool
@@ -853,8 +921,19 @@ Serial::SerialImpl::getDSR ()
   if (is_open_ == false) {
     throw PortNotOpenedException ("Serial::getDSR");
   }
-  int s = ioctl (fd_, TIOCMGET, 0);
-  return (s & TIOCM_DSR) != 0;
+
+  int status;
+
+  if(-1 == ioctl (fd_, TIOCMGET, &status))
+  {
+      stringstream ss;
+      ss << "getDSR failed on a call to ioctl(TIOCMGET): " << errno << " " << strerror(errno);
+      throw(SerialException(ss.str().c_str()));
+  }
+  else
+  {
+      return 0 != (status & TIOCM_DSR);
+  }
 }
 
 bool
@@ -863,8 +942,19 @@ Serial::SerialImpl::getRI ()
   if (is_open_ == false) {
     throw PortNotOpenedException ("Serial::getRI");
   }
-  int s = ioctl (fd_, TIOCMGET, 0);
-  return (s & TIOCM_RI) != 0;
+
+  int status;
+
+  if(-1 == ioctl (fd_, TIOCMGET, &status))
+  {
+    stringstream ss;
+    ss << "getRI failed on a call to ioctl(TIOCMGET): " << errno << " " << strerror(errno);
+    throw(SerialException(ss.str().c_str()));
+  }
+  else
+  {
+    return 0 != (status & TIOCM_RI);
+  }
 }
 
 bool
@@ -873,8 +963,19 @@ Serial::SerialImpl::getCD ()
   if (is_open_ == false) {
     throw PortNotOpenedException ("Serial::getCD");
   }
-  int s = ioctl (fd_, TIOCMGET, 0);
-  return (s & TIOCM_CD) != 0;
+
+  int status;
+
+  if(-1 == ioctl (fd_, TIOCMGET, &status))
+  {
+    stringstream ss;
+    ss << "getCD failed on a call to ioctl(TIOCMGET): " << errno << " " << strerror(errno);
+    throw(SerialException(ss.str().c_str()));
+  }
+  else
+  {
+    return 0 != (status & TIOCM_CD);
+  }
 }
 
 void
