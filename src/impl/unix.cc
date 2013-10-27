@@ -1,5 +1,7 @@
 /* Copyright 2012 William Woodall and John Harrison */
 
+#if !defined(_WIN32)
+
 #include <stdio.h>
 #include <string.h>
 #include <sstream>
@@ -910,3 +912,5 @@ Serial::SerialImpl::writeUnlock ()
     THROW (IOException, result);
   }
 }
+
+#endif // !defined(_WIN32)
