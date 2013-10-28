@@ -1,4 +1,4 @@
-// This header is from the v8 google project: 
+// This header is from the v8 google project:
 // http://code.google.com/p/v8/source/browse/trunk/include/v8stdint.h
 
 // Copyright 2012 the V8 project authors. All rights reserved.
