@@ -48,11 +48,53 @@
 using std::string;
 using std::stringstream;
 using std::invalid_argument;
+using serial::MillisecondTimer;
 using serial::Serial;
+using serial::TimerExpiredException;
 using serial::SerialException;
 using serial::PortNotOpenedException;
 using serial::IOException;
 
+
+MillisecondTimer::MillisecondTimer (const uint32_t millis)
+  : timeout_time(now())
+{
+  int64_t tv_nsec = timeout_time.tv_nsec + (millis * 1e6);
+  if (tv_nsec > 1e9) {
+    timeout_time.tv_nsec = tv_nsec % (int)1e6;
+    timeout_time.tv_sec += tv_nsec / (int)1e6;
+  }
+}
+
+uint32_t
+MillisecondTimer::remaining ()
+{
+  timespec now_time(now());
+  int64_t millis = (timeout_time.tv_sec - now_time.tv_sec) * 1e3;
+  millis += (timeout_time.tv_nsec - now_time.tv_nsec) / 1e6;
+  if (millis <= 0) {
+    throw TimerExpiredException();
+  }
+  return millis;
+}
+
+timespec
+MillisecondTimer::now ()
+{
+  timespec time;
+# ifdef __MACH__ // OS X does not have clock_gettime, use clock_get_time
+  clock_serv_t cclock;
+  mach_timespec_t mts;
+  host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
+  clock_get_time(cclock, &mts);
+  mach_port_deallocate(mach_task_self(), cclock);
+  time.tv_sec = mts.tv_sec;
+  time.tv_nsec = mts.tv_nsec;
+# else
+  clock_gettime(CLOCK_REALTIME, &time);
+# endif
+  return time;
+}
 
 Serial::SerialImpl::SerialImpl (const string &port, unsigned long baudrate,
                                 bytesize_t bytesize,
@@ -401,35 +443,6 @@ Serial::SerialImpl::available ()
       THROW (IOException, errno);
   } else {
       return static_cast<size_t> (count);
-  }
-}
-
-inline void
-get_time_now (struct timespec &time)
-{
-# ifdef __MACH__ // OS X does not have clock_gettime, use clock_get_time
-  clock_serv_t cclock;
-  mach_timespec_t mts;
-  host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
-  clock_get_time(cclock, &mts);
-  mach_port_deallocate(mach_task_self(), cclock);
-  time.tv_sec = mts.tv_sec;
-  time.tv_nsec = mts.tv_nsec;
-# else
-  clock_gettime(CLOCK_REALTIME, &time);
-# endif
-}
-
-inline void
-diff_timespec (timespec &start, timespec &end, timespec &result) {
-  if (start.tv_sec > end.tv_sec) {
-    throw SerialException ("Timetravel, start time later than end time.");
-  }
-  result.tv_sec = end.tv_sec - start.tv_sec;
-  result.tv_nsec = end.tv_nsec - start.tv_nsec;
-  if (result.tv_nsec < 0) {
-    result.tv_nsec = 1e9 - result.tv_nsec;
-    result.tv_sec -= 1;
   }
 }
 
