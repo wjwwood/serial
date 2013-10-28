@@ -631,9 +631,7 @@ public:
       ss << "SerialException " << description << " failed.";
       e_what_ = ss.str();
   }
-  SerialException (const SerialException& other) {
-    e_what_ = other.e_what_;
-  }
+  SerialException (const SerialException& other) : e_what_(other.e_what_) {}
   virtual ~SerialException() throw() {}
   virtual const char* what () const throw () {
     return e_what_.c_str();
@@ -670,9 +668,7 @@ public:
       e_what_ = ss.str();
   }
   virtual ~IOException() throw() {}
-  IOException (const IOException& other) {
-    e_what_ = other.e_what_;
-  }
+  IOException (const IOException& other) : e_what_(other.e_what_), line_(other.line_), errno_(other.errno_) {}
 
   int getErrorNumber () { return errno_; }
 
@@ -692,9 +688,7 @@ public:
       ss << "PortNotOpenedException " << description << " failed.";
       e_what_ = ss.str();
   }
-  PortNotOpenedException (const PortNotOpenedException& other) {
-    e_what_ = other.e_what_;
-  }
+  PortNotOpenedException (const PortNotOpenedException& other) : e_what_(other.e_what_) {}
   virtual ~PortNotOpenedException() throw() {}
   virtual const char* what () const throw () {
     return e_what_.c_str();
