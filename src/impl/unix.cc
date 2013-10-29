@@ -52,21 +52,21 @@ using serial::IOException;
 
 
 MillisecondTimer::MillisecondTimer (const uint32_t millis)
-  : timeout_time(now())
+  : expiry(timespec_now())
 {
-  int64_t tv_nsec = timeout_time.tv_nsec + (millis * 1e6);
+  int64_t tv_nsec = expiry.tv_nsec + (millis * 1e6);
   if (tv_nsec > 1e9) {
-    timeout_time.tv_nsec = tv_nsec % (int)1e6;
-    timeout_time.tv_sec += tv_nsec / (int)1e6;
+    expiry.tv_nsec = tv_nsec % (int)1e6;
+    expiry.tv_sec += tv_nsec / (int)1e6;
   }
 }
 
 uint32_t
 MillisecondTimer::remaining ()
 {
-  timespec now_time(now());
-  int64_t millis = (timeout_time.tv_sec - now_time.tv_sec) * 1e3;
-  millis += (timeout_time.tv_nsec - now_time.tv_nsec) / 1e6;
+  timespec now(timespec_now());
+  int64_t millis = (expiry.tv_sec - now.tv_sec) * 1e3;
+  millis += (expiry.tv_nsec - now.tv_nsec) / 1e6;
   if (millis <= 0) {
     throw TimerExpiredException();
   }
@@ -74,7 +74,7 @@ MillisecondTimer::remaining ()
 }
 
 timespec
-MillisecondTimer::now ()
+MillisecondTimer::timespec_now ()
 {
   timespec time;
 # ifdef __MACH__ // OS X does not have clock_gettime, use clock_get_time
