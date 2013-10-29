@@ -61,8 +61,8 @@ public:
   uint32_t remaining();
 
 private:
-  static timespec now();
-  timespec timeout_time;
+  static timespec timespec_now();
+  timespec expiry;
 };
 
 class serial::Serial::SerialImpl {
