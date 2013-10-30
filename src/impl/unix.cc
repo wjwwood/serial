@@ -1,4 +1,7 @@
-/* Copyright 2012 William Woodall and John Harrison */
+/* Copyright 2012 William Woodall and John Harrison
+ *
+ * Additional Contributors: Christopher Baker @bakercp
+ */
 
 #if !defined(_WIN32)
 
