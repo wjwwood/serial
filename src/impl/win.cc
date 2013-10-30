@@ -1,3 +1,5 @@
+#if defined(_WIN32)
+
 /* Copyright 2012 William Woodall and John Harrison */
 
 #include "serial/impl/win.h"
@@ -594,3 +596,6 @@ Serial::SerialImpl::writeUnlock()
     THROW (IOException, "Error releasing write mutex.");
   }
 }
+
+#endif // #if defined(_WIN32)
+
