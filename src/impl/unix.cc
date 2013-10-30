@@ -785,14 +785,14 @@ Serial::SerialImpl::setBreak (bool level)
   }
 
   if (level) {
-    if(-1 == ioctl (fd_, TIOCSBRK))
+    if (-1 == ioctl (fd_, TIOCSBRK))
     {
         stringstream ss;
         ss << "setBreak failed on a call to ioctl(TIOCSBRK): " << errno << " " << strerror(errno);
         throw(SerialException(ss.str().c_str()));
     }
   } else {
-    if(-1 == ioctl (fd_, TIOCCBRK))
+    if (-1 == ioctl (fd_, TIOCCBRK))
     {
         stringstream ss;
         ss << "setBreak failed on a call to ioctl(TIOCCBRK): " << errno << " " << strerror(errno);
@@ -811,14 +811,14 @@ Serial::SerialImpl::setRTS (bool level)
   int command = TIOCM_RTS;
 
   if (level) {
-    if(-1 == ioctl (fd_, TIOCMBIS, &command))
+    if (-1 == ioctl (fd_, TIOCMBIS, &command))
     {
       stringstream ss;
       ss << "setRTS failed on a call to ioctl(TIOCMBIS): " << errno << " " << strerror(errno);
       throw(SerialException(ss.str().c_str()));
     }
   } else {
-    if(-1 == ioctl (fd_, TIOCMBIC, &command))
+    if (-1 == ioctl (fd_, TIOCMBIC, &command))
     {
       stringstream ss;
       ss << "setRTS failed on a call to ioctl(TIOCMBIC): " << errno << " " << strerror(errno);
@@ -837,14 +837,14 @@ Serial::SerialImpl::setDTR (bool level)
   int command = TIOCM_DTR;
 
   if (level) {
-    if(-1 == ioctl (fd_, TIOCMBIS, &command))
+    if (-1 == ioctl (fd_, TIOCMBIS, &command))
     {
       stringstream ss;
       ss << "setDTR failed on a call to ioctl(TIOCMBIS): " << errno << " " << strerror(errno);
       throw(SerialException(ss.str().c_str()));
     }
   } else {
-    if(-1 == ioctl (fd_, TIOCMBIC, &command))
+    if (-1 == ioctl (fd_, TIOCMBIC, &command))
     {
       stringstream ss;
       ss << "setDTR failed on a call to ioctl(TIOCMBIC): " << errno << " " << strerror(errno);
@@ -862,7 +862,7 @@ while (is_open_ == true) {
 
     int status;
 
-    if(-1 == ioctl (fd_, TIOCMGET, &status))
+    if (-1 == ioctl (fd_, TIOCMGET, &status))
     {
         stringstream ss;
         ss << "waitForChange failed on a call to ioctl(TIOCMGET): " << errno << " " << strerror(errno);
@@ -870,11 +870,13 @@ while (is_open_ == true) {
     }
     else
     {
-        if (0 != (status & TIOCM_CTS) ||
-            0 != (status & TIOCM_DSR) ||
-            0 != (status & TIOCM_RI)  ||
-            0 != (status & TIOCM_CD)
-            ) return true;
+        if (0 != (status & TIOCM_CTS)
+         || 0 != (status & TIOCM_DSR)
+         || 0 != (status & TIOCM_RI)
+         || 0 != (status & TIOCM_CD))
+        {
+          return true;
+        }
     }
 
     usleep(1000);
@@ -903,7 +905,7 @@ Serial::SerialImpl::getCTS ()
 
   int status;
 
-  if(-1 == ioctl (fd_, TIOCMGET, &status))
+  if (-1 == ioctl (fd_, TIOCMGET, &status))
   {
     stringstream ss;
     ss << "getCTS failed on a call to ioctl(TIOCMGET): " << errno << " " << strerror(errno);
@@ -924,7 +926,7 @@ Serial::SerialImpl::getDSR ()
 
   int status;
 
-  if(-1 == ioctl (fd_, TIOCMGET, &status))
+  if (-1 == ioctl (fd_, TIOCMGET, &status))
   {
       stringstream ss;
       ss << "getDSR failed on a call to ioctl(TIOCMGET): " << errno << " " << strerror(errno);
@@ -945,7 +947,7 @@ Serial::SerialImpl::getRI ()
 
   int status;
 
-  if(-1 == ioctl (fd_, TIOCMGET, &status))
+  if (-1 == ioctl (fd_, TIOCMGET, &status))
   {
     stringstream ss;
     ss << "getRI failed on a call to ioctl(TIOCMGET): " << errno << " " << strerror(errno);
@@ -966,7 +968,7 @@ Serial::SerialImpl::getCD ()
 
   int status;
 
-  if(-1 == ioctl (fd_, TIOCMGET, &status))
+  if (-1 == ioctl (fd_, TIOCMGET, &status))
   {
     stringstream ss;
     ss << "getCD failed on a call to ioctl(TIOCMGET): " << errno << " " << strerror(errno);
