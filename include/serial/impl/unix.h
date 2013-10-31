@@ -53,12 +53,10 @@ using std::invalid_argument;
 using serial::SerialException;
 using serial::IOException;
 
-class TimerExpiredException : public std::exception {};
-
 class MillisecondTimer {
 public:
   MillisecondTimer(const uint32_t millis);         
-  uint32_t remaining();
+  int64_t remaining();
 
 private:
   static timespec timespec_now();

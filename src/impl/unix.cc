@@ -50,7 +50,6 @@ using std::stringstream;
 using std::invalid_argument;
 using serial::MillisecondTimer;
 using serial::Serial;
-using serial::TimerExpiredException;
 using serial::SerialException;
 using serial::PortNotOpenedException;
 using serial::IOException;
@@ -67,15 +66,12 @@ MillisecondTimer::MillisecondTimer (const uint32_t millis)
   }
 }
 
-uint32_t
+int64_t
 MillisecondTimer::remaining ()
 {
   timespec now(timespec_now());
   int64_t millis = (expiry.tv_sec - now.tv_sec) * 1e3;
   millis += (expiry.tv_nsec - now.tv_nsec) / 1e6;
-  if (millis <= 0) {
-    throw TimerExpiredException();
-  }
   return millis;
 }
 
@@ -471,15 +467,16 @@ Serial::SerialImpl::read (uint8_t *buf, size_t size)
   MillisecondTimer total_timeout(total_timeout_ms);
 
   while (bytes_read < size) {
-    // Timeout for the next select is whichever is less of the total read
-    // timeout and the inter-byte timeout.
-    timespec timeout;
-    try {
-      timeout = timespec_from_ms(std::min(total_timeout.remaining(), 
-                                          timeout_.inter_byte_timeout));
-    } catch (TimerExpiredException) {
+    int64_t timeout_remaining_ms = total_timeout.remaining();
+    if (timeout_remaining_ms <= 0) {
+      // Timed out
       break;
     }
+
+    // Timeout for the next select is whichever is less of the remaining
+    // total read timeout and the inter-byte timeout.
+    timespec timeout(timespec_from_ms(std::min((uint32_t)timeout_remaining_ms, 
+                                               timeout_.inter_byte_timeout)));
 
     FD_ZERO (&readfds);
     FD_SET (fd_, &readfds);
@@ -558,12 +555,12 @@ Serial::SerialImpl::write (const uint8_t *data, size_t length)
   MillisecondTimer total_timeout(total_timeout_ms);
 
   while (bytes_written < length) { 
-    timespec timeout;
-    try {
-      timeout = timespec_from_ms(total_timeout.remaining());
-    } catch (TimerExpiredException) {
+    int64_t timeout_remaining_ms = total_timeout.remaining();
+    if (timeout_remaining_ms <= 0) {
+      // Timed out
       break;
     }
+    timespec timeout(timespec_from_ms(timeout_remaining_ms));
 
     FD_ZERO (&writefds);
     FD_SET (fd_, &writefds);
