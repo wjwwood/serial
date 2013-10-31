@@ -61,8 +61,9 @@ MillisecondTimer::MillisecondTimer (const uint32_t millis)
 {
   int64_t tv_nsec = expiry.tv_nsec + (millis * 1e6);
   if (tv_nsec > 1e9) {
-    expiry.tv_nsec = tv_nsec % (int)1e6;
-    expiry.tv_sec += tv_nsec / (int)1e6;
+    int64_t sec_diff = tv_nsec / (int)1e6;
+    expiry.tv_nsec = tv_nsec - (int)(1e6 * sec_diff);
+    expiry.tv_sec += sec_diff;
   }
 }
 
@@ -101,7 +102,7 @@ timespec_from_ms (const uint32_t millis)
 {
   timespec time;
   time.tv_sec = millis / 1e3;
-  time.tv_nsec = (millis % (int)1e3) * 1e6;
+  time.tv_nsec = (millis - (time.tv_sec * 1e3)) * 1e6;
 }
 
 Serial::SerialImpl::SerialImpl (const string &port, unsigned long baudrate,
