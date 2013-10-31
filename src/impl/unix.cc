@@ -99,6 +99,7 @@ timespec_from_ms (const uint32_t millis)
   timespec time;
   time.tv_sec = millis / 1e3;
   time.tv_nsec = (millis - (time.tv_sec * 1e3)) * 1e6;
+  return time;
 }
 
 Serial::SerialImpl::SerialImpl (const string &port, unsigned long baudrate,
