@@ -95,6 +95,19 @@ Serial::available ()
   return pimpl_->available ();
 }
 
+bool
+Serial::waitReadable ()
+{
+  serial::Timeout timeout(pimpl_->getTimeout ());
+  return pimpl_->waitReadable(timeout.read_timeout_constant);
+}
+
+void
+Serial::waitByteTimes (size_t count)
+{
+  pimpl_->waitByteTimes(count);
+}
+
 size_t
 Serial::read_ (uint8_t *buffer, size_t size)
 {

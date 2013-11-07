@@ -217,6 +217,20 @@ public:
   size_t
   available ();
 
+  /*! Block until there is serial data to read or read_timeout_constant
+   * number of milliseconds have elapsed. The return value is true when
+   * the function exits with the port in a readable state, false otherwise
+   * (due to timeout or select interruption). */
+  bool
+  waitReadable ();
+
+  /*! Block for a period of time corresponding to the transmission time of
+   * count characters at present serial settings. This may be used in con-
+   * junction with waitReadable to read larger blocks of data from the
+   * port. */
+  void
+  waitByteTimes (size_t count);
+
   /*! Read a given amount of bytes from the serial port into a given buffer.
    *
    * The read function will return in one of three cases:
