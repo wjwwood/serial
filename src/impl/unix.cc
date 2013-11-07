@@ -420,6 +420,16 @@ Serial::SerialImpl::reconfigurePort ()
 
   // activate settings
   ::tcsetattr (fd_, TCSANOW, &options);
+  
+  // Update byte_time_ based on the new settings.
+  uint32_t bit_time_ns = 1e9 / baudrate_;
+  byte_time_ns_ = bit_time_ns * (1 + bytesize_ + parity_ + stopbits_);
+  
+  // Compensate for the stopbits_one_point_five enum being equal to int 3,
+  // and not 1.5.
+  if (stopbits_ == stopbits_one_point_five) {
+    byte_time_ns_ += ((1.5 - stopbits_one_point_five) * bit_time_ns);
+  }
 }
 
 void
@@ -457,11 +467,10 @@ Serial::SerialImpl::available ()
 bool
 Serial::SerialImpl::waitReadable (uint32_t timeout)
 {
+  // Setup a select call to block for serial data or a timeout
   fd_set readfds;
   FD_ZERO (&readfds);
   FD_SET (fd_, &readfds);
-
-  // Call select to block for serial data or a timeout
   timespec timeout_ts (timespec_from_ms (timeout));
   int r = pselect (fd_ + 1, &readfds, NULL, NULL, &timeout_ts, NULL);
 
@@ -473,18 +482,15 @@ Serial::SerialImpl::waitReadable (uint32_t timeout)
     // Otherwise there was some error
     THROW (IOException, errno);
   }
-  
   // Timeout occurred  
   if (r == 0) {
     return false;
   }
-
   // This shouldn't happen, if r > 0 our fd has to be in the list!
   if (!FD_ISSET (fd_, &readfds)) {
     THROW (IOException, "select reports ready to read, but our fd isn't"
            " in the list, this shouldn't happen!");
   }
-
   // Data available to read.
   return true;
 }
@@ -492,7 +498,8 @@ Serial::SerialImpl::waitReadable (uint32_t timeout)
 void
 Serial::SerialImpl::waitByteTimes (size_t count)
 {
-
+  timespec wait_time = { 0, byte_time_ns_ * count };
+  pselect (0, NULL, NULL, NULL, &wait_time, NULL);
 }
 
 size_t
@@ -523,14 +530,21 @@ Serial::SerialImpl::read (uint8_t *buf, size_t size)
       // Timed out
       break;
     }
-
     // Timeout for the next select is whichever is less of the remaining
     // total read timeout and the inter-byte timeout.
     uint32_t timeout = std::min(static_cast<uint32_t> (timeout_remaining_ms),
                                 timeout_.inter_byte_timeout);
-
     // Wait for the device to be readable, and then attempt to read.
     if (waitReadable(timeout)) {
+      // If it's a fixed-length multi-byte read, insert a wait here so that
+      // we can attempt to grab the whole thing in a single IO call. Skip
+      // this wait if a non-max inter_byte_timeout is specified.
+      if (size > 1 && timeout_.inter_byte_timeout == Timeout::max()) {
+        size_t bytes_available = available();
+        if (bytes_available + bytes_read < size) {
+          waitByteTimes(size - (bytes_available + bytes_read));
+        } 
+      }
       // This should be non-blocking returning only what is available now
       //  Then returning so that select can block again.
       ssize_t bytes_read_now =
