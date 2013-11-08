@@ -63,6 +63,8 @@ MillisecondTimer::MillisecondTimer (const uint32_t millis)
     int64_t sec_diff = tv_nsec / static_cast<int> (1e9);
     expiry.tv_nsec = tv_nsec - static_cast<int> (1e9 * sec_diff);
     expiry.tv_sec += sec_diff;
+  } else {
+    expiry.tv_nsec = tv_nsec;
   }
 }
 
