@@ -469,6 +469,14 @@ Serial::SerialImpl::read (uint8_t *buf, size_t size)
   total_timeout_ms += timeout_.read_timeout_multiplier * static_cast<long> (size);
   MillisecondTimer total_timeout(total_timeout_ms);
 
+  // Pre-fill buffer with available bytes 
+  {
+    ssize_t bytes_read_now = ::read (fd_, buf, size);
+    if (bytes_read_now > 0) {
+      bytes_read = bytes_read_now;
+    }
+  }
+
   while (bytes_read < size) {
     int64_t timeout_remaining_ms = total_timeout.remaining();
     if (timeout_remaining_ms <= 0) {
