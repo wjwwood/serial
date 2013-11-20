@@ -48,11 +48,61 @@
 using std::string;
 using std::stringstream;
 using std::invalid_argument;
+using serial::MillisecondTimer;
 using serial::Serial;
 using serial::SerialException;
 using serial::PortNotOpenedException;
 using serial::IOException;
 
+
+MillisecondTimer::MillisecondTimer (const uint32_t millis)
+  : expiry(timespec_now())
+{
+  int64_t tv_nsec = expiry.tv_nsec + (millis * 1e6);
+  if (tv_nsec >= 1e9) {
+    int64_t sec_diff = tv_nsec / static_cast<int> (1e9);
+    expiry.tv_nsec = tv_nsec - static_cast<int> (1e9 * sec_diff);
+    expiry.tv_sec += sec_diff;
+  } else {
+    expiry.tv_nsec = tv_nsec;
+  }
+}
+
+int64_t
+MillisecondTimer::remaining ()
+{
+  timespec now(timespec_now());
+  int64_t millis = (expiry.tv_sec - now.tv_sec) * 1e3;
+  millis += (expiry.tv_nsec - now.tv_nsec) / 1e6;
+  return millis;
+}
+
+timespec
+MillisecondTimer::timespec_now ()
+{
+  timespec time;
+# ifdef __MACH__ // OS X does not have clock_gettime, use clock_get_time
+  clock_serv_t cclock;
+  mach_timespec_t mts;
+  host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
+  clock_get_time(cclock, &mts);
+  mach_port_deallocate(mach_task_self(), cclock);
+  time.tv_sec = mts.tv_sec;
+  time.tv_nsec = mts.tv_nsec;
+# else
+  clock_gettime(CLOCK_REALTIME, &time);
+# endif
+  return time;
+}
+
+timespec
+timespec_from_ms (const uint32_t millis)
+{
+  timespec time;
+  time.tv_sec = millis / 1e3;
+  time.tv_nsec = (millis - (time.tv_sec * 1e3)) * 1e6;
+  return time;
+}
 
 Serial::SerialImpl::SerialImpl (const string &port, unsigned long baudrate,
                                 bytesize_t bytesize,
@@ -253,7 +303,7 @@ Serial::SerialImpl::reconfigurePort ()
     // other than those specified by POSIX. The driver for the underlying serial hardware
     // ultimately determines which baud rates can be used. This ioctl sets both the input
     // and output speed.
-    speed_t new_baud = static_cast<speed_t>(baudrate_);
+    speed_t new_baud = static_cast<speed_t> (baudrate_);
     if (-1 == ioctl (fd_, IOSSIOSPEED, &new_baud, 1)) {
       THROW (IOException, errno);
     }
@@ -266,7 +316,7 @@ Serial::SerialImpl::reconfigurePort ()
     }
 
     // set custom divisor
-    ser.custom_divisor = ser.baud_base / (int) baudrate_;
+    ser.custom_divisor = ser.baud_base / static_cast<int> (baudrate_);
     // update flags
     ser.flags &= ~ASYNC_SPD_MASK;
     ser.flags |= ASYNC_SPD_CUST;
@@ -404,35 +454,6 @@ Serial::SerialImpl::available ()
   }
 }
 
-inline void
-get_time_now (struct timespec &time)
-{
-# ifdef __MACH__ // OS X does not have clock_gettime, use clock_get_time
-  clock_serv_t cclock;
-  mach_timespec_t mts;
-  host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
-  clock_get_time(cclock, &mts);
-  mach_port_deallocate(mach_task_self(), cclock);
-  time.tv_sec = mts.tv_sec;
-  time.tv_nsec = mts.tv_nsec;
-# else
-  clock_gettime(CLOCK_REALTIME, &time);
-# endif
-}
-
-inline void
-diff_timespec (timespec &start, timespec &end, timespec &result) {
-  if (start.tv_sec > end.tv_sec) {
-    throw SerialException ("Timetravel, start time later than end time.");
-  }
-  result.tv_sec = end.tv_sec - start.tv_sec;
-  result.tv_nsec = end.tv_nsec - start.tv_nsec;
-  if (result.tv_nsec < 0) {
-    result.tv_nsec = 1e9 - result.tv_nsec;
-    result.tv_sec -= 1;
-  }
-}
-
 size_t
 Serial::SerialImpl::read (uint8_t *buf, size_t size)
 {
@@ -442,58 +463,37 @@ Serial::SerialImpl::read (uint8_t *buf, size_t size)
   }
   fd_set readfds;
   size_t bytes_read = 0;
-  // Setup the total_timeout timeval
-  //  This timeout is maximum time before a timeout after read is called
-  struct timeval total_timeout;
+
   // Calculate total timeout in milliseconds t_c + (t_m * N)
   long total_timeout_ms = timeout_.read_timeout_constant;
-  total_timeout_ms += timeout_.read_timeout_multiplier*static_cast<long>(size);
-  total_timeout.tv_sec = total_timeout_ms / 1000;
-  total_timeout.tv_usec = static_cast<int>(total_timeout_ms % 1000);
-  total_timeout.tv_usec *= 1000; // To convert to micro seconds
-  // Setup the inter byte timeout
-  struct timeval inter_byte_timeout;
-  inter_byte_timeout.tv_sec = timeout_.inter_byte_timeout / 1000;
-  inter_byte_timeout.tv_usec =
-    static_cast<int> (timeout_.inter_byte_timeout % 1000);
-  inter_byte_timeout.tv_usec *= 1000; // To convert to micro seconds
-  while (bytes_read < size) {
-    // Setup the select timeout timeval
-    struct timeval timeout;
-    // If the total_timeout is less than the inter_byte_timeout
-    if (total_timeout.tv_sec < inter_byte_timeout.tv_sec
-     || (total_timeout.tv_sec == inter_byte_timeout.tv_sec
-      && total_timeout.tv_usec < inter_byte_timeout.tv_sec))
-    {
-      // Then set the select timeout to use the total time
-      timeout = total_timeout;
-    } else {
-      // Else set the select timeout to use the inter byte time
-      timeout = inter_byte_timeout;
+  total_timeout_ms += timeout_.read_timeout_multiplier * static_cast<long> (size);
+  MillisecondTimer total_timeout(total_timeout_ms);
+
+  // Pre-fill buffer with available bytes 
+  {
+    ssize_t bytes_read_now = ::read (fd_, buf, size);
+    if (bytes_read_now > 0) {
+      bytes_read = bytes_read_now;
     }
+  }
+
+  while (bytes_read < size) {
+    int64_t timeout_remaining_ms = total_timeout.remaining();
+    if (timeout_remaining_ms <= 0) {
+      // Timed out
+      break;
+    }
+
+    // Timeout for the next select is whichever is less of the remaining
+    // total read timeout and the inter-byte timeout.
+    timespec timeout(timespec_from_ms(std::min(static_cast<uint32_t> (timeout_remaining_ms),
+                                               timeout_.inter_byte_timeout)));
+
     FD_ZERO (&readfds);
     FD_SET (fd_, &readfds);
-    // Begin timing select
-    struct timespec start, end;
-    get_time_now (start);
+
     // Call select to block for serial data or a timeout
-    int r = select (fd_ + 1, &readfds, NULL, NULL, &timeout);
-    // Calculate difference and update the structure
-    get_time_now (end);
-    // Calculate the time select took
-    struct timespec diff;
-    diff_timespec (start, end, diff);
-    // Update the timeout
-    if (total_timeout.tv_sec <= diff.tv_sec) {
-      total_timeout.tv_sec = 0;
-    } else {
-      total_timeout.tv_sec -= diff.tv_sec;
-    }
-    if (total_timeout.tv_usec <= (diff.tv_nsec / 1000)) {
-      total_timeout.tv_usec = 0;
-    } else {
-      total_timeout.tv_usec -= (diff.tv_nsec / 1000);
-    }
+    int r = pselect (fd_ + 1, &readfds, NULL, NULL, &timeout, NULL);
 
     // Figure out what happened by looking at select's response 'r'
     /** Error **/
@@ -559,41 +559,25 @@ Serial::SerialImpl::write (const uint8_t *data, size_t length)
   }
   fd_set writefds;
   size_t bytes_written = 0;
-  struct timeval timeout;
-  timeout.tv_sec =                    timeout_.write_timeout_constant / 1000;
-  timeout.tv_usec = static_cast<int> (timeout_.write_timeout_multiplier % 1000);
-  timeout.tv_usec *= 1000; // To convert to micro seconds
+
+  // Calculate total timeout in milliseconds t_c + (t_m * N)
+  long total_timeout_ms = timeout_.write_timeout_constant;
+  total_timeout_ms += timeout_.write_timeout_multiplier * static_cast<long> (length);
+  MillisecondTimer total_timeout(total_timeout_ms);
+
   while (bytes_written < length) {
+    int64_t timeout_remaining_ms = total_timeout.remaining();
+    if (timeout_remaining_ms <= 0) {
+      // Timed out
+      break;
+    }
+    timespec timeout(timespec_from_ms(timeout_remaining_ms));
+
     FD_ZERO (&writefds);
     FD_SET (fd_, &writefds);
-    // On Linux the timeout struct is updated by select to contain the time
-    // left on the timeout to make looping easier, but on other platforms this
-    // does not occur.
-#if !defined(__linux__)
-    // Begin timing select
-    struct timespec start, end;
-    get_time_now(start);
-#endif
+
     // Do the select
-    int r = select (fd_ + 1, NULL, &writefds, NULL, &timeout);
-#if !defined(__linux__)
-    // Calculate difference and update the structure
-    get_time_now(end);
-    // Calculate the time select took
-    struct timespec diff;
-    diff_timespec(start, end, diff);
-    // Update the timeout
-    if (timeout.tv_sec <= diff.tv_sec) {
-      timeout.tv_sec = 0;
-    } else {
-      timeout.tv_sec -= diff.tv_sec;
-    }
-    if (timeout.tv_usec <= (diff.tv_nsec / 1000)) {
-      timeout.tv_usec = 0;
-    } else {
-      timeout.tv_usec -= (diff.tv_nsec / 1000);
-    }
-#endif
+    int r = pselect (fd_ + 1, NULL, &writefds, NULL, &timeout, NULL);
 
     // Figure out what happened by looking at select's response 'r'
     /** Error **/

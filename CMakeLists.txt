@@ -59,9 +59,5 @@ install(FILES include/serial/serial.h include/serial/v8stdint.h
 
 ## Tests
 if(CATKIN_ENABLE_TESTING)
-    catkin_add_gtest(${PROJECT_NAME}-test tests/serial_tests.cc)
-    target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME} ${Boost_LIBRARIES})
-    if(UNIX AND NOT APPLE)
-        target_link_libraries(${PROJECT_NAME}-test util)
-    endif()
+    add_subdirectory(tests)
 endif()

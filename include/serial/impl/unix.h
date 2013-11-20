@@ -53,6 +53,16 @@ using std::invalid_argument;
 using serial::SerialException;
 using serial::IOException;
 
+class MillisecondTimer {
+public:
+  MillisecondTimer(const uint32_t millis);         
+  int64_t remaining();
+
+private:
+  static timespec timespec_now();
+  timespec expiry;
+};
+
 class serial::Serial::SerialImpl {
 public:
   SerialImpl (const string &port,
