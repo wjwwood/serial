@@ -668,7 +668,7 @@ public:
       e_what_ = ss.str();
   }
   virtual ~IOException() throw() {}
-  IOException (const IOException& other) : e_what_(other.e_what_), line_(other.line_), errno_(other.errno_) {}
+  IOException (const IOException& other) : line_(other.line_), e_what_(other.e_what_), errno_(other.errno_) {}
 
   int getErrorNumber () { return errno_; }
 
