@@ -55,7 +55,7 @@ int run(int argc, char **argv)
 
   // Argument 2 is the baudrate
   unsigned long baud = 0;
-#ifdef WIN32
+#if defined(WIN32) && !defined(__MINGW32__)
   sscanf_s(argv[2], "%lu", &baud);
 #else
   sscanf(argv[2], "%lu", &baud);
