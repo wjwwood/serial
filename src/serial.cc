@@ -3,6 +3,10 @@
 # include <alloca.h>
 #endif
 
+#if defined (__MINGW32__)
+# define alloca __builtin_alloca
+#endif
+
 #include "serial/serial.h"
 
 #ifdef _WIN32

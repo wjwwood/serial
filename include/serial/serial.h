@@ -650,7 +650,7 @@ public:
   explicit IOException (std::string file, int line, int errnum)
     : file_(file), line_(line), errno_(errnum) {
       std::stringstream ss;
-#if defined(_WIN32)
+#if defined(_WIN32) && !defined(__MINGW32__)
       char error_str [1024];
       strerror_s(error_str, 1024, errnum);
 #else
