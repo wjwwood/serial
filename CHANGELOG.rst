@@ -2,6 +2,17 @@
 Changelog for package serial
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Improved support for mingw (mxe.cc)
+* Fix compilation warning
+  See issue `#53 <https://github.com/wjwwood/serial/issues/53>`_
+* Improved timer handling in unix implementation
+* fix broken ifdef _WIN32
+* Fix broken ioctl calls, add exception handling.
+* Code guards for platform-specific implementations. (when not using cmake / catkin)
+* Contributors: Christopher Baker, Mike Purvis, Nicolas Bigaouette, William Woodall, dawid
+
 1.1.6 (2013-10-17)
 ------------------
 * Move stopbits_one_point_five to the end of the enum, so that it doesn't alias with stopbits_two.
