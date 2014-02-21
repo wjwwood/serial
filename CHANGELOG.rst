@@ -2,8 +2,8 @@
 Changelog for package serial
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.7 (2014-02-20)
+------------------
 * Improved support for mingw (mxe.cc)
 * Fix compilation warning
   See issue `#53 <https://github.com/wjwwood/serial/issues/53>`_
