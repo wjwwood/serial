@@ -695,6 +695,9 @@ public:
   }
 };
 
+std::vector<std::vector<std::string> >
+list_ports();
+
 } // namespace serial
 
 #endif

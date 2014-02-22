@@ -28,6 +28,7 @@ set(serial_SRCS
 if(UNIX)
     # If unix
     list(APPEND serial_SRCS src/impl/unix.cc)
+    list(APPEND serial_SRCS src/impl/list_ports/list_ports_linux.cc)
 else()
     # If windows
     list(APPEND serial_SRCS src/impl/win.cc)

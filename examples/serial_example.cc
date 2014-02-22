@@ -34,6 +34,7 @@ using std::exception;
 using std::cout;
 using std::cerr;
 using std::endl;
+using std::vector;
 
 void my_sleep(unsigned long milliseconds) {
 #ifdef _WIN32
@@ -43,15 +44,44 @@ void my_sleep(unsigned long milliseconds) {
 #endif
 }
 
+void enumerate_ports()
+{
+	vector<vector<string> > devices_found = serial::list_ports();
+
+	vector<vector<string> >::iterator iter = devices_found.begin();
+
+	while( iter != devices_found.end() )
+	{
+		vector<string> device = *iter++;
+
+		printf( "(%s, %s, %s)\n", device[0].c_str(), device[1].c_str(), device[2].c_str() );
+	}
+}
+
+void print_usage()
+{
+	cerr << "Usage: test_serial {-e|<serial port address>} ";
+    cerr << "<baudrate> [test string]" << endl;
+}
+
 int run(int argc, char **argv)
 {
-  if(argc < 3) {
-    cerr << "Usage: test_serial <serial port address> ";
-    cerr << "<baudrate> [test string]" << endl;
+  if(argc < 2) {
+	  print_usage();
     return 0;
   }
-  // Argument 1 is the serial port
+
+  // Argument 1 is the serial port or enumerate flag
   string port(argv[1]);
+
+  if( port == "-e" ) {
+	  enumerate_ports();
+	  return 0;
+  }
+  else if( argc < 3 ) {
+	  print_usage();
+	  return 1;
+  }
 
   // Argument 2 is the baudrate
   unsigned long baud = 0;
