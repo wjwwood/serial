@@ -1,7 +1,7 @@
-/* 
+/*
  * Copyright (c) 2014 Craig Lilley <cralilley@gmail.com>
  * This software is made available under the terms of the MIT licence.
- * A copy of the licence can be obtained from: 
+ * A copy of the licence can be obtained from:
  * http://opensource.org/licenses/MIT
  */
 
@@ -22,6 +22,7 @@
 
 #include "serial/serial.h"
 
+using std::array;
 using std::istringstream;
 using std::ifstream;
 using std::getline;
@@ -41,32 +42,32 @@ static string read_line(const string& file);
 static string usb_sysfs_hw_string(const string& sysfs_path);
 static string format(const char* format, ...);
 
-vector<string> 
+vector<string>
 glob(const vector<string>& patterns)
 {
     vector<string> paths_found;
-	
+
 	if(patterns.size() == 0)
 	    return paths_found;
- 
+
     glob_t glob_results;
- 
+
     int glob_retval = glob(patterns[0].c_str(), 0, NULL, &glob_results);
- 
+
     vector<string>::const_iterator iter = patterns.begin();
- 
+
     while(++iter != patterns.end())
     {
         glob_retval = glob(iter->c_str(), GLOB_APPEND, NULL, &glob_results);
     }
- 
+
     for(int path_index = 0; path_index < glob_results.gl_pathc; path_index++)
     {
         paths_found.push_back(glob_results.gl_pathv[path_index]);
     }
- 
+
     globfree(&glob_results);
- 
+
     return paths_found;
 }
 
@@ -122,7 +123,7 @@ realpath(const string& path)
     return result;
 }
 
-string 
+string
 usb_sysfs_friendly_name(const string& sys_usb_path)
 {
     unsigned int device_number = 0;
@@ -131,7 +132,7 @@ usb_sysfs_friendly_name(const string& sys_usb_path)
 
     string manufacturer = read_line( sys_usb_path + "/manufacturer" );
 
-    string product = read_line( sys_usb_path + "/product" ); 
+    string product = read_line( sys_usb_path + "/product" );
 
     string serial = read_line( sys_usb_path + "/serial" );
 
@@ -231,7 +232,7 @@ format(const char* format, ...)
     unsigned int loop_count = 0;
 
     while(!done)
-    {  
+    {
         va_start(ap, format);
 
         int return_value = vsnprintf(buffer, buffer_size_bytes, format, ap);
@@ -291,16 +292,18 @@ usb_sysfs_hw_string(const string& sysfs_path)
     return format("USB VID:PID=%s:%s %s", vid.c_str(), pid.c_str(), serial_number.c_str() );
 }
 
-vector<vector<string> > 
+vector<array<string, 3> >
 serial::list_ports()
 {
-    vector<vector<string> > results;
+    vector<array<string, 3> > results;
 
     vector<string> search_globs;
     search_globs.push_back("/dev/ttyACM*");
     search_globs.push_back("/dev/ttyS*");
     search_globs.push_back("/dev/ttyUSB*");
-    
+    search_globs.push_back("/dev/tty.*");
+    search_globs.push_back("/dev/cu.*");
+
     vector<string> devices_found = glob( search_globs );
 
     vector<string>::iterator iter = devices_found.begin();
@@ -315,10 +318,10 @@ serial::list_ports()
 
         string hardware_id = sysfs_info[1];
 
-        vector<string> device_entry;
-        device_entry.push_back( device );
-        device_entry.push_back( friendly_name );
-        device_entry.push_back( hardware_id );
+        array<string, 3> device_entry;
+        device_entry[0] = device;
+        device_entry[1] = friendly_name;
+        device_entry[2] = hardware_id;
 
         results.push_back( device_entry );
 

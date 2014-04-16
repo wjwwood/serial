@@ -1,16 +1,18 @@
-/* 
+/*
  * Copyright (c) 2014 Craig Lilley <cralilley@gmail.com>
  * This software is made available under the terms of the MIT licence.
- * A copy of the licence can be obtained from: 
+ * A copy of the licence can be obtained from:
  * http://opensource.org/licenses/MIT
  */
- 
+
 #include "serial/serial.h"
 #include <windows.h>
 #include <SetupAPI.h>
 #include <devguid.h>
 #include <cstring>
+#include <array>
 
+using std::array;
 using std::vector;
 using std::string;
 
@@ -18,7 +20,7 @@ static const DWORD port_name_max_length = 256;
 static const DWORD friendly_name_max_length = 256;
 static const DWORD hardware_id_max_length = 256;
 
-vector<vector<string>>
+vector<array<string, 3> >
 serial::list_ports()
 {
 	decltype( serial::list_ports() ) devices_found;
@@ -41,8 +43,8 @@ serial::list_ports()
 		// Get port name
 
 		HKEY hkey = SetupDiOpenDevRegKey(
-			device_info_set, 
-			&device_info_data, 
+			device_info_set,
+			&device_info_data,
 			DICS_FLAG_GLOBAL,
 			0,
 			DIREG_DEV,
@@ -73,7 +75,7 @@ serial::list_ports()
 
 		if(strstr(port_name, "LPT") != NULL)
 			continue;
-		
+
 		// Get port friendly name
 
 		char friendly_name[friendly_name_max_length];
@@ -112,10 +114,10 @@ serial::list_ports()
 		else
 			hardware_id[0] = '\0';
 
-		vector<string> port_entry;
-		port_entry.push_back(port_name);
-		port_entry.push_back(friendly_name); 
-		port_entry.push_back(hardware_id);
+		array<string, 3> port_entry;
+		port_entry[0] = port_name;
+		port_entry[1] = friendly_name;
+		port_entry[2] = hardware_id;
 
 		devices_found.push_back(port_entry);
 	}

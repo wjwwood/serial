@@ -2,12 +2,12 @@
  * This example expects the serial port has a loopback on it.
  *
  * Alternatively, you could use an Arduino:
- * 
+ *
  * <pre>
  *  void setup() {
  *    Serial.begin(<insert your baudrate here>);
  *  }
- * 
+ *
  *  void loop() {
  *    if (Serial.available()) {
  *      Serial.write(Serial.read());
@@ -29,6 +29,7 @@
 
 #include "serial/serial.h"
 
+using std::array;
 using std::string;
 using std::exception;
 using std::cout;
@@ -46,13 +47,13 @@ void my_sleep(unsigned long milliseconds) {
 
 void enumerate_ports()
 {
-	vector<vector<string> > devices_found = serial::list_ports();
+	vector<array<string, 3> > devices_found = serial::list_ports();
 
-	vector<vector<string> >::iterator iter = devices_found.begin();
+	vector<array<string, 3> >::iterator iter = devices_found.begin();
 
 	while( iter != devices_found.end() )
 	{
-		vector<string> device = *iter++;
+		array<string, 3> device = *iter++;
 
 		printf( "(%s, %s, %s)\n", device[0].c_str(), device[1].c_str(), device[2].c_str() );
 	}

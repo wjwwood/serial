@@ -36,6 +36,7 @@
 #ifndef SERIAL_H
 #define SERIAL_H
 
+#include <array>
 #include <limits>
 #include <vector>
 #include <string>
@@ -695,7 +696,19 @@ public:
   }
 };
 
-std::vector<std::vector<std::string> >
+
+/* Lists the serial ports available on the system
+ *
+ * Returns a vector of available serial ports, each represented
+ * by three strings:
+ *
+ *   - Port (this can be passed to the constructor of Serial)
+ *   - Pretty port (has additional information when availabe)
+ *   - Hardware ID or "n/a" if not avaiable
+ *
+ * \return vector of triplets (port, pretty port, hw id), one for each serial port
+ */
+std::vector<std::array<std::string, 3> >
 list_ports();
 
 } // namespace serial
