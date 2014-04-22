@@ -10,9 +10,8 @@
 #include <SetupAPI.h>
 #include <devguid.h>
 #include <cstring>
-#include <array>
 
-using std::array;
+using serial::PortDescription
 using std::vector;
 using std::string;
 
@@ -20,7 +19,7 @@ static const DWORD port_name_max_length = 256;
 static const DWORD friendly_name_max_length = 256;
 static const DWORD hardware_id_max_length = 256;
 
-vector<array<string, 3> >
+vector<PortDescription>
 serial::list_ports()
 {
 	decltype( serial::list_ports() ) devices_found;
@@ -114,10 +113,10 @@ serial::list_ports()
 		else
 			hardware_id[0] = '\0';
 
-		array<string, 3> port_entry;
-		port_entry[0] = port_name;
-		port_entry[1] = friendly_name;
-		port_entry[2] = hardware_id;
+		PortDescription port_entry;
+		port_entry.port = port_name;
+		port_entry.friendly_name = friendly_name;
+		port_entry.hardware_id = hardware_id;
 
 		devices_found.push_back(port_entry);
 	}

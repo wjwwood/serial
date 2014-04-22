@@ -29,7 +29,6 @@
 
 #include "serial/serial.h"
 
-using std::array;
 using std::string;
 using std::exception;
 using std::cout;
@@ -47,15 +46,16 @@ void my_sleep(unsigned long milliseconds) {
 
 void enumerate_ports()
 {
-	vector<array<string, 3> > devices_found = serial::list_ports();
+	vector<serial::PortDescription> devices_found = serial::list_ports();
 
-	vector<array<string, 3> >::iterator iter = devices_found.begin();
+	vector<serial::PortDescription>::iterator iter = devices_found.begin();
 
 	while( iter != devices_found.end() )
 	{
-		array<string, 3> device = *iter++;
+		serial::PortDescription device = *iter++;
 
-		printf( "(%s, %s, %s)\n", device[0].c_str(), device[1].c_str(), device[2].c_str() );
+		printf( "(%s, %s, %s)\n", device.port.c_str(), device.friendly_name.c_str(),
+     device.hardware_id.c_str() );
 	}
 }
 
