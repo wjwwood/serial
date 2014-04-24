@@ -698,15 +698,15 @@ public:
 /*!
  * Structure that describes a serial device.
  */
-struct PortDescription {
+struct PortInfo {
 
-  /*! Address of port (this can be passed to the constructor of Serial) */
+  /*! Address of port (this can be passed to the constructor of Serial). */
   std::string port;
 
-  /*! Has additional information when available */
-  std::string friendly_name;
+  /*! Human readable description if available. */
+  std::string description;
 
-  /*! Hardware ID or "n/a" if not available */
+  /*! Hardware ID (e.g. VID:PID of USB serial devices) or "n/a" if not available. */
   std::string hardware_id;
 
 };
@@ -714,11 +714,11 @@ struct PortDescription {
 /* Lists the serial ports available on the system
  *
  * Returns a vector of available serial ports, each represented
- * by a serial::PortDescription data structure:
+ * by a serial::PortInfo data structure:
  *
- * \return vector of serial::PortDescription.
+ * \return vector of serial::PortInfo.
  */
-std::vector<PortDescription>
+std::vector<PortInfo>
 list_ports();
 
 } // namespace serial

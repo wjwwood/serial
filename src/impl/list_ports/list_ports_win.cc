@@ -11,7 +11,7 @@
 #include <devguid.h>
 #include <cstring>
 
-using serial::PortDescription
+using serial::PortInfo
 using std::vector;
 using std::string;
 
@@ -19,7 +19,7 @@ static const DWORD port_name_max_length = 256;
 static const DWORD friendly_name_max_length = 256;
 static const DWORD hardware_id_max_length = 256;
 
-vector<PortDescription>
+vector<PortInfo>
 serial::list_ports()
 {
 	decltype( serial::list_ports() ) devices_found;
@@ -113,9 +113,9 @@ serial::list_ports()
 		else
 			hardware_id[0] = '\0';
 
-		PortDescription port_entry;
+		PortInfo port_entry;
 		port_entry.port = port_name;
-		port_entry.friendly_name = friendly_name;
+		port_entry.description = friendly_name;
 		port_entry.hardware_id = hardware_id;
 
 		devices_found.push_back(port_entry);

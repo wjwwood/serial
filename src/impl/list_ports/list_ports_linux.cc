@@ -22,7 +22,7 @@
 
 #include "serial/serial.h"
 
-using serial::PortDescription;
+using serial::PortInfo;
 using std::istringstream;
 using std::ifstream;
 using std::getline;
@@ -292,10 +292,10 @@ usb_sysfs_hw_string(const string& sysfs_path)
     return format("USB VID:PID=%s:%s %s", vid.c_str(), pid.c_str(), serial_number.c_str() );
 }
 
-vector<PortDescription>
+vector<PortInfo>
 serial::list_ports()
 {
-    vector<PortDescription> results;
+    vector<PortInfo> results;
 
     vector<string> search_globs;
     search_globs.push_back("/dev/ttyACM*");
@@ -318,9 +318,9 @@ serial::list_ports()
 
         string hardware_id = sysfs_info[1];
 
-        PortDescription device_entry;
+        PortInfo device_entry;
         device_entry.port = device;
-        device_entry.friendly_name = friendly_name;
+        device_entry.description = friendly_name;
         device_entry.hardware_id = hardware_id;
         
         results.push_back( device_entry );
