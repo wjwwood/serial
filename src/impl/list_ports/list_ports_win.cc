@@ -11,7 +11,7 @@
 #include <devguid.h>
 #include <cstring>
 
-using serial::PortInfo
+using serial::PortInfo;
 using std::vector;
 using std::string;
 
