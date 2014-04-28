@@ -74,6 +74,12 @@ public:
 
   size_t
   available ();
+  
+  bool
+  waitReadable (uint32_t timeout);
+
+  void
+  waitByteTimes (size_t count);
 
   size_t
   read (uint8_t *buf, size_t size = 1);

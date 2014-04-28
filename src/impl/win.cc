@@ -288,6 +288,19 @@ Serial::SerialImpl::available ()
   return static_cast<size_t>(cs.cbInQue);
 }
 
+bool
+Serial::SerialImpl::waitReadable (uint32_t timeout)
+{ 
+  THROW (IOException, "waitReadable is not implemented on Windows.");
+  return false;
+}
+
+void
+Serial::SerialImpl::waitByteTimes (size_t count)
+{
+  THROW (IOException, "waitByteTimes is not implemented on Windows.");
+}
+
 size_t
 Serial::SerialImpl::read (uint8_t *buf, size_t size)
 {
