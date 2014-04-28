@@ -21,6 +21,9 @@
     <ClCompile Include="..\..\src\impl\win.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\impl\list_ports\list_ports_win.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\serial\serial.h">
