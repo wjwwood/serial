@@ -260,7 +260,15 @@ Serial::SerialImpl::close ()
 {
   if (is_open_ == true) {
     if (fd_ != INVALID_HANDLE_VALUE) {
-      CloseHandle(fd_);
+      int retVal;
+      retVal=CloseHandle(fd_);
+      if (retVal==0)
+      {
+        stringstream ss;
+        ss << "Error while closing serial port: " << GetLastError();
+        THROW (IOException, ss.str().c_str());    
+      }
+      else
       fd_ = INVALID_HANDLE_VALUE;
     }
     is_open_ = false;
