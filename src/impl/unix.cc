@@ -420,11 +420,11 @@ Serial::SerialImpl::reconfigurePort ()
 
   // activate settings
   ::tcsetattr (fd_, TCSANOW, &options);
-  
+
   // Update byte_time_ based on the new settings.
   uint32_t bit_time_ns = 1e9 / baudrate_;
   byte_time_ns_ = bit_time_ns * (1 + bytesize_ + parity_ + stopbits_);
-  
+
   // Compensate for the stopbits_one_point_five enum being equal to int 3,
   // and not 1.5.
   if (stopbits_ == stopbits_one_point_five) {
@@ -437,8 +437,13 @@ Serial::SerialImpl::close ()
 {
   if (is_open_ == true) {
     if (fd_ != -1) {
-      ::close (fd_); // Ignoring the outcome
-      fd_ = -1;
+      int ret;
+      ret = ::close (fd_);
+      if (ret == 0) {
+        fd_ = -1;
+      } else {
+        THROW (IOException, errno);
+      }
     }
     is_open_ = false;
   }
@@ -482,7 +487,7 @@ Serial::SerialImpl::waitReadable (uint32_t timeout)
     // Otherwise there was some error
     THROW (IOException, errno);
   }
-  // Timeout occurred  
+  // Timeout occurred
   if (r == 0) {
     return false;
   }
@@ -516,7 +521,7 @@ Serial::SerialImpl::read (uint8_t *buf, size_t size)
   total_timeout_ms += timeout_.read_timeout_multiplier * static_cast<long> (size);
   MillisecondTimer total_timeout(total_timeout_ms);
 
-  // Pre-fill buffer with available bytes 
+  // Pre-fill buffer with available bytes
   {
     ssize_t bytes_read_now = ::read (fd_, buf, size);
     if (bytes_read_now > 0) {
@@ -543,7 +548,7 @@ Serial::SerialImpl::read (uint8_t *buf, size_t size)
         size_t bytes_available = available();
         if (bytes_available + bytes_read < size) {
           waitByteTimes(size - (bytes_available + bytes_read));
-        } 
+        }
       }
       // This should be non-blocking returning only what is available now
       //  Then returning so that select can block again.
