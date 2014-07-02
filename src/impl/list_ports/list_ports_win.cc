@@ -1,3 +1,5 @@
+#if defined(_WIN32)
+
 /*
  * Copyright (c) 2014 Craig Lilley <cralilley@gmail.com>
  * This software is made available under the terms of the MIT licence.
@@ -125,3 +127,5 @@ serial::list_ports()
 
 	return devices_found;
 }
+
+#endif // #if defined(_WIN32)
