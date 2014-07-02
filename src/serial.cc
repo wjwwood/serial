@@ -66,7 +66,7 @@ private:
 Serial::Serial (const string &port, uint32_t baudrate, serial::Timeout timeout,
                 bytesize_t bytesize, parity_t parity, stopbits_t stopbits,
                 flowcontrol_t flowcontrol)
- : read_cache_(""), pimpl_(new SerialImpl (port, baudrate, bytesize, parity,
+ : pimpl_(new SerialImpl (port, baudrate, bytesize, parity,
                                            stopbits, flowcontrol))
 {
   pimpl_->setTimeout(timeout);
@@ -354,7 +354,6 @@ void Serial::flush ()
   ScopedReadLock rlock(this->pimpl_);
   ScopedWriteLock wlock(this->pimpl_);
   pimpl_->flush ();
-  read_cache_.clear ();
 }
 
 void Serial::flushInput ()
@@ -367,7 +366,6 @@ void Serial::flushOutput ()
 {
   ScopedWriteLock lock(this->pimpl_);
   pimpl_->flushOutput ();
-  read_cache_.clear ();
 }
 
 void Serial::sendBreak (int duration)
