@@ -46,7 +46,7 @@ endif()
 ## Add serial library
 add_library(${PROJECT_NAME} ${serial_SRCS})
 if(APPLE)
-	target_link_libraries(${PROJECT_NAME} ${FOUNDATION_LIBRARY} ${IOKIT_LIBRARY}) 
+	target_link_libraries(${PROJECT_NAME} ${FOUNDATION_LIBRARY} ${IOKIT_LIBRARY})
 elseif(UNIX)
 	target_link_libraries(${PROJECT_NAME} rt pthread)
 endif()
