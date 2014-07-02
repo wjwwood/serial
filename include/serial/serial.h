@@ -615,8 +615,6 @@ private:
   Serial(const Serial&);
   Serial& operator=(const Serial&);
 
-  std::string read_cache_; //!< Cache for doing reads in chunks.
-
   // Pimpl idiom, d_pointer
   class SerialImpl;
   SerialImpl *pimpl_;
