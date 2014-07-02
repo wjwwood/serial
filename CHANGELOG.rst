@@ -2,8 +2,8 @@
 Changelog for package serial
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.0 (2014-07-02)
+------------------
 * Removed vestigial ``read_cache_`` private member variable from Serial::Serial
 * Fixed usage of scoped locks
   Previously they were getting destroyed immediately because they were not stored in a temporary scope variable
