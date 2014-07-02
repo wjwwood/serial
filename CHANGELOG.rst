@@ -2,6 +2,18 @@
 Changelog for package serial
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Removed vestigial ``read_cache_`` private member variable from Serial::Serial
+* Fixed usage of scoped locks
+  Previously they were getting destroyed immediately because they were not stored in a temporary scope variable
+* Added check of return value from close in Serial::SerialImpl::close () in unix.cc and win.cc
+* Added ability to enumerate ports on linux and windows.
+  Updated serial_example.cc to show example of port enumeration.
+* Fixed compile on VS2013
+* Added functions ``waitReadable`` and ``waitByteTimes`` with implemenations for Unix to support high performance reading
+* Contributors: Christopher Baker, Craig Lilley, Konstantina Kastanara, Mike Purvis, William Woodall
+
 1.1.7 (2014-02-20)
 ------------------
 * Improved support for mingw (mxe.cc)
