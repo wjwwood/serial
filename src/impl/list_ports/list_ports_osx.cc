@@ -1,4 +1,4 @@
-#if defined(_APPLE_)
+#if defined(__APPLE__)
 
 #include <sys/param.h>
 #include <stdint.h>
@@ -282,4 +282,4 @@ serial::list_ports(void)
     return devices_found;
 }
 
-#endif // defined(_APPLE_)
+#endif // defined(__APPLE__)
