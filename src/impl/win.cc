@@ -2,6 +2,8 @@
 
 /* Copyright 2012 William Woodall and John Harrison */
 
+#include <sstream>
+
 #include "serial/impl/win.h"
 
 using std::string;
@@ -260,16 +262,15 @@ Serial::SerialImpl::close ()
 {
   if (is_open_ == true) {
     if (fd_ != INVALID_HANDLE_VALUE) {
-      int retVal;
-      retVal=CloseHandle(fd_);
-      if (retVal==0)
-      {
+      int ret;
+      ret = CloseHandle(fd_);
+      if (ret == 0) {
         stringstream ss;
         ss << "Error while closing serial port: " << GetLastError();
-        THROW (IOException, ss.str().c_str());    
+        THROW (IOException, ss.str().c_str());
+      } else {
+        fd_ = INVALID_HANDLE_VALUE;
       }
-      else
-      fd_ = INVALID_HANDLE_VALUE;
     }
     is_open_ = false;
   }
@@ -298,7 +299,7 @@ Serial::SerialImpl::available ()
 
 bool
 Serial::SerialImpl::waitReadable (uint32_t timeout)
-{ 
+{
   THROW (IOException, "waitReadable is not implemented on Windows.");
   return false;
 }
