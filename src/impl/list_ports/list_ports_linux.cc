@@ -1,3 +1,5 @@
+#if defined(__linux__)
+
 /*
  * Copyright (c) 2014 Craig Lilley <cralilley@gmail.com>
  * This software is made available under the terms of the MIT licence.
@@ -329,3 +331,5 @@ serial::list_ports()
 
     return results;
 }
+
+#endif // defined(__linux__)
