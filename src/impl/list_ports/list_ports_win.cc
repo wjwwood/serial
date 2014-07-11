@@ -24,7 +24,7 @@ static const DWORD hardware_id_max_length = 256;
 vector<PortInfo>
 serial::list_ports()
 {
-	decltype( serial::list_ports() ) devices_found;
+	vector<PortInfo> devices_found;
 
 	HDEVINFO device_info_set = SetupDiGetClassDevs(
 		(const GUID *) &GUID_DEVCLASS_PORTS,
