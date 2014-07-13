@@ -133,7 +133,7 @@ serial::list_ports()
 			std::string portName = port_name;
 			std::string friendlyName = friendly_name;
 			std::string hardwareId = hardware_id;
-		#endif // !UNICODE
+		#endif
 
 		PortInfo port_entry;
 		port_entry.port = portName;
