@@ -27,6 +27,7 @@
 #include <sys/time.h>
 #include <time.h>
 #ifdef __MACH__
+#include <AvailabilityMacros.h>
 #include <mach/clock.h>
 #include <mach/mach.h>
 #endif
