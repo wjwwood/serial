@@ -22,6 +22,10 @@
     <ProjectGuid>{A8517FB2-C74E-43BD-B3C6-B05D3FC11ECD}</ProjectGuid>
     <RootNamespace>serial</RootNamespace>
   </PropertyGroup>
+  <PropertyGroup>
+    <PlatformToolset Condition="'$(PlatformToolset)' == '' and '$(VisualStudioVersion)' == '12.0'">v120_xp</PlatformToolset>
+    <PlatformToolset Condition="'$(PlatformToolset)' == '' and '$(VisualStudioVersion)' == '11.0'">v110_xp</PlatformToolset>
+  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
