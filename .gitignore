@@ -25,3 +25,10 @@ msg_gen
 srv_gen
 doc/html
 *sublime-workspace
+*.user
+*.suo
+*.sdf
+*.opensdf
+ipch
+Debug
+Release
