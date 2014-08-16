@@ -10,7 +10,7 @@
 #include "serial/serial.h"
 #include <tchar.h>
 #include <windows.h>
-#include <SetupAPI.h>
+#include <setupapi.h>
 #include <devguid.h>
 #include <cstring>
 
