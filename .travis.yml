@@ -1,12 +1,32 @@
 language: cpp
-compiler:
-  - gcc
-  - clang
+matrix:
+  - compiler: gcc
+  - compiler: clang
+  - language: objective-c
+    env: OSX=1
+before_install:
+  - if [ -z $OSX ]; then
+      echo "Not on OS X";
+    else
+      brew update;
+    fi
 install:
-  - sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu precise main" > /etc/apt/sources.list.d/ros-latest.list'
-  - wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
-  - sudo apt-get update
-  - sudo apt-get install ros-groovy-catkin libboost-dev
-  - source /opt/ros/groovy/setup.bash
+  - if [ -z $OSX ]; then
+      sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu precise main" > /etc/apt/sources.list.d/ros-latest.list';
+      wget http://packages.ros.org/ros.key -O - | sudo apt-key add -;
+      sudo apt-get update;
+      sudo apt-get install ros-groovy-catkin libboost-dev;
+      source /opt/ros/groovy/setup.bash;
+    else
+      brew install cmake boost;
+      sudo pip install catkin_pkg empy;
+      mkdir -p /tmp/build_catkin;
+      cd /tmp/build_catkin;
+      git clone https://github.com/ros/catkin.git;
+      cmake catkin;
+      make;
+      sudo make install;
+      cd -;
+    fi
 script:
   - make && make test
