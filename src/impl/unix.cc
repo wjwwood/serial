@@ -369,6 +369,11 @@ Serial::SerialImpl::reconfigurePort ()
     options.c_cflag |=  (PARENB);
   } else if (parity_ == parity_odd) {
     options.c_cflag |=  (PARENB | PARODD);
+  } else if (parity_ == parity_mark) {
+    options.c_cflag |=  (PARENB | CMSPAR | PARODD);
+  } else if (parity_ == parity_space) {
+    options.c_cflag |=  (PARENB | CMSPAR);
+    options.c_cflag &= (tcflag_t) ~(PARODD);
   } else {
     throw invalid_argument ("invalid parity");
   }
