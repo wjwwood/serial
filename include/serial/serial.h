@@ -66,7 +66,9 @@ typedef enum {
 typedef enum {
   parity_none = 0,
   parity_odd = 1,
-  parity_even = 2
+  parity_even = 2,
+  parity_mark = 3,
+  parity_space = 4
 } parity_t;
 
 /*!

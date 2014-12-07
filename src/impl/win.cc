@@ -216,6 +216,10 @@ Serial::SerialImpl::reconfigurePort ()
     dcbSerialParams.Parity = EVENPARITY;
   } else if (parity_ == parity_odd) {
     dcbSerialParams.Parity = ODDPARITY;
+  } else if (parity_ == parity_mark) {
+    dcbSerialParams.Parity = MARKPARITY;
+  } else if (parity_ == parity_space) {
+    dcbSerialParams.Parity = SPACEPARITY;
   } else {
     throw invalid_argument ("invalid parity");
   }
