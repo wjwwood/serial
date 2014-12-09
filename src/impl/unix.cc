@@ -369,12 +369,17 @@ Serial::SerialImpl::reconfigurePort ()
     options.c_cflag |=  (PARENB);
   } else if (parity_ == parity_odd) {
     options.c_cflag |=  (PARENB | PARODD);
-  } else if (parity_ == parity_mark) {
+  } 
+// CMSPAR is not defined on OSX.  don't support mark or space parity
+#ifdef CMSPAR
+  else if (parity_ == parity_mark) {
     options.c_cflag |=  (PARENB | CMSPAR | PARODD);
   } else if (parity_ == parity_space) {
     options.c_cflag |=  (PARENB | CMSPAR);
     options.c_cflag &= (tcflag_t) ~(PARODD);
-  } else {
+  } 
+#endif //CMSPAR  
+  else {
     throw invalid_argument ("invalid parity");
   }
   // setup flow control
