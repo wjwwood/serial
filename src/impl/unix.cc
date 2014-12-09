@@ -369,16 +369,21 @@ Serial::SerialImpl::reconfigurePort ()
     options.c_cflag |=  (PARENB);
   } else if (parity_ == parity_odd) {
     options.c_cflag |=  (PARENB | PARODD);
-  } 
-// CMSPAR is not defined on OSX.  don't support mark or space parity
+  }
 #ifdef CMSPAR
   else if (parity_ == parity_mark) {
     options.c_cflag |=  (PARENB | CMSPAR | PARODD);
-  } else if (parity_ == parity_space) {
+  }
+  else if (parity_ == parity_space) {
     options.c_cflag |=  (PARENB | CMSPAR);
     options.c_cflag &= (tcflag_t) ~(PARODD);
-  } 
-#endif //CMSPAR  
+  }
+#else
+  // CMSPAR is not defined on OSX. So do not support mark or space parity.
+  else if (parity_ == parity_mark || parity_ == parity_space) {
+    throw invalid_argument ("OS does not support mark or space parity");
+  }
+#endif  // ifdef CMSPAR
   else {
     throw invalid_argument ("invalid parity");
   }
