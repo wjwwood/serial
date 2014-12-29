@@ -1,3 +1,5 @@
+os:
+  - linux
 language: cpp
 compiler:
   - gcc
@@ -6,7 +8,29 @@ install:
   - sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu precise main" > /etc/apt/sources.list.d/ros-latest.list'
   - wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
   - sudo apt-get update
-  - sudo apt-get install ros-groovy-catkin libboost-dev
-  - source /opt/ros/groovy/setup.bash
+  - sudo apt-get install ros-hydro-catkin libboost-dev
+  - source /opt/ros/hydro/setup.bash
+script:
+  - make && make test
+
+---
+
+os:
+  - osx
+language: cpp
+before_install:
+  - brew update
+  - brew outdated boost || brew install boost
+  - sudo pip install rosinstall_generator wstool rosdep
+  - sudo rosdep init
+  - rosdep update
+  - mkdir catkin_ws
+  - cd catkin_ws
+  - rosinstall_generator catkin --rosdistro hydro --tar > catkin.rosinstall
+  - wstool init src catkin.rosinstall
+  - rosdep install --from-paths src --ignore-src -y
+  - ./src/catkin/bin/catkin_make install
+  - cd -
+  - source catkin_ws/install/setup.bash
 script:
   - make && make test
