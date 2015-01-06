@@ -22,6 +22,9 @@ API Documentation: http://wjwwood.github.com/serial/doc/1.1.0/index.html
  * [empy](http://www.alcyone.com/pyos/empy/) - Python templating library
  * [catkin_pkg](http://pypi.python.org/pypi/catkin_pkg/) - Runtime Python library for catkin
 
+Basic build and install without catkin is possible by appending
+`CMAKE_FLAGS=-DBUILD_WITH_CATKIN=OFF` to `make` commands below.
+
 ### Install
 
 Get the code:
