@@ -8,7 +8,7 @@ ifeq ($(UNAME),Darwin)
 	brew tap ros/deps
 	brew update
 	brew outdated boost || brew upgrade boost || brew install boost
-	sudo pip install rosinstall_generator wstool rosdep
+	sudo pip install rosinstall_generator wstool rosdep empy catkin_pkg
 	sudo rosdep init
 	rosdep update
 	mkdir catkin_ws
