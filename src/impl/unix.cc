@@ -522,7 +522,7 @@ Serial::SerialImpl::waitReadable (uint32_t timeout)
 void
 Serial::SerialImpl::waitByteTimes (size_t count)
 {
-  timespec wait_time = { 0, byte_time_ns_ * count };
+  timespec wait_time = { 0, static_cast<long>(byte_time_ns_ * count)};
   pselect (0, NULL, NULL, NULL, &wait_time, NULL);
 }
 
