@@ -2,6 +2,22 @@
 Changelog for package serial
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.2.1 (2015-04-21)
+------------------
+* Removed the use of a C++11 feature for compatibility with older browsers.
+* Fixed an issue with cross compiling with mingw on Windows.
+* Restructured Visual Studio project layout.
+* Added include of ``#include <AvailabilityMacros.h>`` on OS X (listing of ports).
+* Fixed MXE for the listing of ports on Windows.
+* Now closes file device if ``reconfigureDevice`` fails (Windows).
+* Added the MARK/SPACE parity bit option, also made it optional.
+  Adding the enumeration values for MARK and SPACE was the only code change to an API header.
+  It should not affect ABI or API.
+* Added support for 576000 baud on Linux.
+* Now releases iterator properly in listing of ports code for OS X.
+* Fixed the ability to open COM ports over COM10 on Windows.
+* Fixed up some documentation about exceptions in ``serial.h``.
+
 1.2.0 (2014-07-02)
 ------------------
 * Removed vestigial ``read_cache_`` private member variable from Serial::Serial
