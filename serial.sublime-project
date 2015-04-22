@@ -13,7 +13,12 @@
 		[
 			"-I/usr/include",
 			"-I/usr/local/include",
-			"-I${folder:${project_path:serial.sublime-project}}/include"
+			"-I${folder:${project_path:serial.sublime-project}}/include",
+			"-I/Library/Developer/CommandLineTools/usr/bin/../include/c++/v1",
+			"-I/usr/local/include",
+			"-I/Library/Developer/CommandLineTools/usr/bin/../lib/clang/6.1.0/include",
+			"-I/Library/Developer/CommandLineTools/usr/include",
+			"-I/usr/include"
 		]
 	}
 }

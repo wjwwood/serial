@@ -324,7 +324,7 @@ serial::list_ports()
         device_entry.port = device;
         device_entry.description = friendly_name;
         device_entry.hardware_id = hardware_id;
-        
+
         results.push_back( device_entry );
 
     }
