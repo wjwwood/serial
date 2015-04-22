@@ -36,9 +36,9 @@ cfstring_to_string( CFStringRef cfstring )
 
     if( cfstring )
     {
-        Boolean success = CFStringGetCString( cfstring, 
-            cstring, 
-            sizeof(cstring), 
+        Boolean success = CFStringGetCString( cfstring,
+            cstring,
+            sizeof(cstring),
             kCFStringEncodingASCII );
 
         if( success )
@@ -106,7 +106,7 @@ get_parent_iousb_device( io_object_t& serial_port )
             result = 0;
             break;
         }
-        
+
         device = parent;
 
         name = get_class_name(device);
@@ -125,15 +125,15 @@ get_string_property( io_object_t& device, const char* property )
 
     if( device )
     {
-        CFStringRef property_as_cfstring = CFStringCreateWithCString ( 
-            kCFAllocatorDefault, 
-            property, 
+        CFStringRef property_as_cfstring = CFStringCreateWithCString (
+            kCFAllocatorDefault,
+            property,
             kCFStringEncodingASCII );
 
-        CFTypeRef name_as_cfstring = IORegistryEntryCreateCFProperty( 
+        CFTypeRef name_as_cfstring = IORegistryEntryCreateCFProperty(
             device,
-            property_as_cfstring, 
-            kCFAllocatorDefault, 
+            property_as_cfstring,
+            kCFAllocatorDefault,
             0 );
 
         if( name_as_cfstring )
@@ -142,12 +142,12 @@ get_string_property( io_object_t& device, const char* property )
                 property_name = cfstring_to_string( static_cast<CFStringRef>(name_as_cfstring) );
 
             CFRelease(name_as_cfstring);
-        }           
+        }
 
         if(property_as_cfstring)
             CFRelease(property_as_cfstring);
     }
-    
+
     return property_name;
 }
 
@@ -158,14 +158,14 @@ get_int_property( io_object_t& device, const char* property )
 
     if( device )
     {
-        CFStringRef property_as_cfstring = CFStringCreateWithCString ( 
-            kCFAllocatorDefault, 
-            property, 
+        CFStringRef property_as_cfstring = CFStringCreateWithCString (
+            kCFAllocatorDefault,
+            property,
             kCFStringEncodingASCII );
 
-        CFTypeRef number = IORegistryEntryCreateCFProperty( device, 
-            property_as_cfstring, 
-            kCFAllocatorDefault, 
+        CFTypeRef number = IORegistryEntryCreateCFProperty( device,
+            property_as_cfstring,
+            kCFAllocatorDefault,
             0 );
 
         if(property_as_cfstring)
@@ -175,8 +175,8 @@ get_int_property( io_object_t& device, const char* property )
         {
             if( CFGetTypeID(number) == CFNumberGetTypeID() )
             {
-                bool success = CFNumberGetValue( static_cast<CFNumberRef>(number), 
-                    kCFNumberSInt16Type, 
+                bool success = CFNumberGetValue( static_cast<CFNumberRef>(number),
+                    kCFNumberSInt16Type,
                     &result );
 
                 if( !success )
@@ -187,7 +187,7 @@ get_int_property( io_object_t& device, const char* property )
         }
 
     }
-    
+
     return result;
 }
 
@@ -198,7 +198,7 @@ string rtrim(const string& str)
     string whitespace = " \t\f\v\n\r";
 
     std::size_t found = result.find_last_not_of(whitespace);
-    
+
     if (found != std::string::npos)
         result.erase(found+1);
     else
@@ -244,7 +244,7 @@ serial::list_ports(void)
 
         if( device_path.empty() )
             continue;
-        
+
         PortInfo port_info;
         port_info.port = device_path;
         port_info.description = "n/a";
@@ -267,18 +267,19 @@ serial::list_ports(void)
             if(serial_number.empty())
                 serial_number = "None";
 
-            int ret = snprintf( cstring, HARDWARE_ID_STRING_LENGTH, "USB VID:PID=%04x:%04x SNR=%s", 
-                vendor_id, 
-                product_id, 
+            int ret = snprintf( cstring, HARDWARE_ID_STRING_LENGTH, "USB VID:PID=%04x:%04x SNR=%s",
+                vendor_id,
+                product_id,
                 serial_number.c_str() );
 
             if( (ret >= 0) && (ret < HARDWARE_ID_STRING_LENGTH) )
                 port_info.hardware_id = cstring;
-        }   
+        }
 
         devices_found.push_back(port_info);
     }
 
+    IOObjectRelease(serial_port_iterator);
     return devices_found;
 }
 
