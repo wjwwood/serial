@@ -20,6 +20,15 @@ using serial::SerialException;
 using serial::PortNotOpenedException;
 using serial::IOException;
 
+inline wstring
+_prefix_port_if_needed(const wstring &input)
+{
+  static wstring windows_com_port_prefix = L"\\\\.\\";
+  if (input.compare(windows_com_port_prefix) != 0)
+  {
+    return windows_com_port_prefix + input;
+  }
+}
 
 Serial::SerialImpl::SerialImpl (const string &port, unsigned long baudrate,
                                 bytesize_t bytesize,
@@ -52,7 +61,9 @@ Serial::SerialImpl::open ()
     throw SerialException ("Serial port already open.");
   }
 
-  LPCWSTR lp_port = port_.c_str();
+  // See: https://github.com/wjwwood/serial/issues/84
+  wstring port_with_prefix = _prefix_port_if_needed(port_);
+  LPCWSTR lp_port = port_with_prefix.c_str();
   fd_ = CreateFileW(lp_port,
                     GENERIC_READ | GENERIC_WRITE,
                     0,
