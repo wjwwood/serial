@@ -28,6 +28,7 @@ _prefix_port_if_needed(const wstring &input)
   {
     return windows_com_port_prefix + input;
   }
+  return input;
 }
 
 Serial::SerialImpl::SerialImpl (const string &port, unsigned long baudrate,
