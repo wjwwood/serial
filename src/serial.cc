@@ -63,7 +63,7 @@ private:
   SerialImpl *pimpl_;
 };
 
-Serial::Serial (const string &port, uint32_t baudrate, serial::Timeout timeout,
+Serial::Serial (const string &port, uint32_t baudrate, const serial::Timeout &timeout,
                 bytesize_t bytesize, parity_t parity, stopbits_t stopbits,
                 flowcontrol_t flowcontrol)
  : pimpl_(new SerialImpl (port, baudrate, bytesize, parity,
@@ -279,7 +279,7 @@ Serial::getPort () const
 }
 
 void
-Serial::setTimeout (serial::Timeout &timeout)
+Serial::setTimeout (const serial::Timeout &timeout)
 {
   pimpl_->setTimeout (timeout);
 }
