@@ -1,12 +1,7 @@
 os:
-  - linux
   - osx
 language: cpp
 compiler:
-  - gcc
   - clang
-install:
-  - make install_deps
-  - source setup.bash
 script:
-  - make && make test
+  - curl  https://raw.githubusercontent.com/mikepurvis/ros-install-osx/travis/install |   bash
