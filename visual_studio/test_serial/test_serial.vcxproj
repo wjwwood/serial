@@ -23,6 +23,7 @@
     <RootNamespace>test_serial</RootNamespace>
   </PropertyGroup>
   <PropertyGroup>
+    <PlatformToolset Condition="'$(PlatformToolset)' == '' and '$(VisualStudioVersion)' == '14.0'">v140_xp</PlatformToolset>
     <PlatformToolset Condition="'$(PlatformToolset)' == '' and '$(VisualStudioVersion)' == '12.0'">v120_xp</PlatformToolset>
     <PlatformToolset Condition="'$(PlatformToolset)' == '' and '$(VisualStudioVersion)' == '11.0'">v110_xp</PlatformToolset>
   </PropertyGroup>
