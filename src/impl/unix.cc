@@ -91,7 +91,7 @@ MillisecondTimer::timespec_now ()
   time.tv_sec = mts.tv_sec;
   time.tv_nsec = mts.tv_nsec;
 # else
-  clock_gettime(CLOCK_REALTIME, &time);
+  clock_gettime(CLOCK_MONOTONIC, &time);
 # endif
   return time;
 }
