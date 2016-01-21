@@ -1,0 +1,3 @@
+set solib-search-path /mnt/workspace/serial/android/library/src/main/obj/local/x86
+source /mnt/android/android-ndk-r10c/prebuilt/common/gdb/common.setup
+directory /mnt/android/android-ndk-r10c/platforms/android-16/arch-x86/usr/include /mnt/android/android-ndk-r10c/sources/cxx-stl/gnu-libstdc++ /mnt/workspace/serial/android/library/src/main/jni/libs/nativehelper/include/nativehelper /mnt/android/android-ndk-r10c/sources/cxx-stl/gnu-libstdc++/4.6/include /mnt/android/android-ndk-r10c/sources/cxx-stl/gnu-libstdc++/4.6/libs/x86/include /mnt/android/android-ndk-r10c/sources/cxx-stl/gnu-libstdc++/4.6/include/backward /mnt/workspace/serial/android/library/src/main/jni/include

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">libserial 示例</string>
+    <string name="action_connect">链接</string>
+    <string name="action_disconnect">断开</string>
+    <string name="action_read">读取</string>
+    <string name="action_send">发送</string>
+    <string name="action_reload">刷新串口</string>
+    <string name="hint_hex_mode">Hex 模式</string>
+    <string name="hint_ports">串口</string>
+    <string name="hint_received">接收到的数据</string>
+    <string name="hint_received_textbox">点击“读取”然后在这里可以看到接收到的数据。</string>
+    <string name="hint_send">要发送的数据</string>
+    <string name="hint_send_textbox">输入要发送的然后点击“发送”即可把数据发送到串口。</string>
+    <string name="toast_send_failed">向 %s 发送数据失败。</string>
+    <string name="toast_connect_failed">链接 %s 失败。</string>
+    <string name="toast_read_failed">读取 %s 的数据失败。</string>
+    <string name="toast_read_success">从 %2$s 读取了 %1$d 字节的数据。</string>
+    <string name="toast_send_success">向 %2$s 发送了 %1$d 字节的数据。</string>
+</resources>

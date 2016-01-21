@@ -1,0 +1,49 @@
+apply plugin: 'com.android.library'
+//apply plugin: 'com.android.model.library'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.2"
+
+    //useDeprecatedNdk true
+
+    /*
+    ndk {
+        moduleName "serial"
+    }
+    */
+
+    sourceSets {
+        main {
+            jni.srcDirs = [] //disable automatic ndk-build call
+        }
+    }
+
+    defaultConfig {
+        minSdkVersion 16
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            jniDebuggable true
+        }
+    }
+    dexOptions {
+        incremental true
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+}

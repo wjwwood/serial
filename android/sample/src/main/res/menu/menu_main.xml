@@ -1,0 +1,14 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="serial.android.sample.MainActivity" >
+    <item android:id="@+id/action_reload"
+        android:title="@string/action_reload"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+    <item android:id="@+id/action_hex"
+          android:title="@string/hint_hex_mode"
+          android:orderInCategory="99"
+          android:checkable="true"
+          app:showAsAction="never" />
+</menu>

@@ -1,0 +1,29 @@
+<resources>
+    <string name="app_name">Serial Sample</string>
+    <string name="action_reload">Reload Ports</string>
+    <string name="action_connect">Connect</string>
+    <string name="action_disconnect">Disconnect</string>
+
+    <string name="action_send">Send</string>
+    <string name="action_read">Read</string>
+
+    <string name="hint_ports">Ports</string>
+    <string name="hint_send">Data to send</string>
+    <string name="hint_received">Received data</string>
+    <string name="hint_hex_mode">Hex Mode</string>
+
+    <string name="hint_available_bytes" translatable="false">%,3d</string>
+    <string name="hint_unknown_bytes" translatable="false">\?\?\?</string>
+
+    <string name="hint_received_textbox">Click \"Read\" and received messages will be display here.</string>
+    <string name="hint_send_textbox">Write your message and click \"Send\" to deliver message to connected port.</string>
+
+    <string name="toast_connect_failed">Failed to connect %s.</string>
+
+    <string name="toast_send_failed">Failed to write to %s.</string>
+    <string name="toast_send_success">Sent %1$d byte(s) to %2$s.</string>
+
+    <string name="toast_read_failed">Failed to read from %s.</string>
+    <string name="toast_read_success">Read %1$d byte(s) from %2$s.</string>
+
+</resources>

@@ -8,6 +8,8 @@ This library is in use in several robotics related projects and can be built and
 
 Serial is a class that provides the basic interface common to serial libraries (open, close, read, write, etc..) and requires no extra dependencies. It also provides tight control over timeouts and control over handshaking lines. 
 
+For android support, see android/README.
+
 ### Documentation
 
 Website: http://wjwwood.github.com/serial/
