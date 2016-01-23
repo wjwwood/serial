@@ -46,6 +46,12 @@
 #include <IOKit/serial/ioss.h>
 #endif
 
+// Fix missing API tcdrain for Android API earlier than 21
+// http://stackoverflow.com/questions/26104961/tcdrain-function-call-with-ndk-toolchain-for-android
+#if defined(__ANDROID__) && __ANDROID_API__ < 21
+#define tcdrain(fd) ioctl(fd, TCSBRK, 1)
+#endif
+
 using std::string;
 using std::stringstream;
 using std::invalid_argument;

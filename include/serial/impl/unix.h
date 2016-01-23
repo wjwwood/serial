@@ -44,12 +44,6 @@
 
 #include <pthread.h>
 
-// Fix missing API tcdrain for Android API earlier than 21
-// http://stackoverflow.com/questions/26104961/tcdrain-function-call-with-ndk-toolchain-for-android
-#if !defined(tcdrain)
-#define tcdrain(fd) ioctl(fd, TCSBRK, 1)
-#endif
-
 namespace serial {
 
 using std::size_t;
