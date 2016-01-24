@@ -83,7 +83,7 @@ if (catkin_FOUND)
       DESTINATION ${CATKIN_GLOBAL_INCLUDE_DESTINATION}/serial)
 else()
     install(FILES include/serial/serial.h include/serial/v8stdint.h
-      DESTINATION ${CMAKE_INSTALL_PREFIX}/serial)
+      DESTINATION ${CMAKE_INSTALL_PREFIX}/include/serial)
 endif()
 
 ## Tests
