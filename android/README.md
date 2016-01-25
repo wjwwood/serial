@@ -1,6 +1,6 @@
 # Serial Communication Library for android
 
-This is the android support for Cross-platform, Serial Port library.
+This is the android JNI support for Cross-platform, Serial Port library.
 
 <big>The android library is not strictly tested. You should test it yourself and handle any issue.</big>
 
@@ -8,16 +8,10 @@ This is the android support for Cross-platform, Serial Port library.
 
 Website: http://wjwwood.github.com/serial/
 
-Native API Documentation: http://wjwwood.github.com/serial/doc/1.1.0/index.html
-Java API Documentation: See android/doc
-
 ### Dependencies
 
 To build the lib:
 * NDK r10 (http://developer.android.com/intl/zh-cn/ndk/downloads/index.html)
-
-To open the sample project:
-* Android Studio 1.5
 
 ### Install
 
@@ -27,13 +21,13 @@ Get the code:
 
 Build:
 
-    cd android/library/src/main/jni
+    cd android
     ndk-build
 
 Use:
 
-Copy android/library to your project folder a reference it as a library project.
-See android/sample for an example.
+Use it directly in your native code, or you may seek for a Java bridge here: https://github.com/chzhong/serial-android
+
 
 ### License
 
