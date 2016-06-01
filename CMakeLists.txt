@@ -1,21 +1,21 @@
 cmake_minimum_required(VERSION 2.8.3)
+
 project(serial)
 
-
-## Sources
-set(serial_SRCS
-    src/serial.cc
-    include/serial/serial.h
-    include/serial/v8stdint.h
-)
-
-# If unix
-list(APPEND serial_SRCS src/impl/unix.cc)
-list(APPEND serial_SRCS src/impl/list_ports/list_ports_linux.cc)
+find_package(ament_cmake REQUIRED)
 
 ## Add serial library
-add_library(${PROJECT_NAME} SHARED ${serial_SRCS})
+add_library(${PROJECT_NAME} SHARED
+    src/serial.cc
+	src/impl/unix.cc
+	src/impl/list_ports/list_ports_linux.cc
+)
+
 target_link_libraries(${PROJECT_NAME} rt pthread)
+
+ament_export_libraries(${PROJECT_NAME})
+
+ament_package()
 
 ## Include headers
 include_directories(include)
