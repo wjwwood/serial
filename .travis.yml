@@ -6,7 +6,7 @@ compiler:
   - gcc
   - clang
 install:
-  - sudo add-apt-repository ppa:george-edison55/cmake-3.x
+  - sudo add-apt-repository --yes ppa:george-edison55/cmake-3.x
   - sudo apt-get update
   - sudo apt-get upgrade
   - make install_deps
