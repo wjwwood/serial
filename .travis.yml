@@ -7,8 +7,8 @@ compiler:
   - clang
 install:
   - sudo add-apt-repository --yes ppa:george-edison55/cmake-3.x
-  - sudo apt-get update
-  - sudo apt-get upgrade
+  - sudo apt-get update --yes
+  - sudo apt-get upgrade --yes
   - make install_deps
   - source setup.bash
 script:
