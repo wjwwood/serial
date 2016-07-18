@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.8)
+cmake_minimum_required(VERSION 2.8.3)
 project(serial)
 
 if(APPLE)
@@ -62,12 +62,7 @@ install(FILES include/serial/serial.h include/serial/v8stdint.h
 ## Install CMake files
 install(EXPORT ${PROJECT_NAME}-targets DESTINATION ${INSTALL_CMAKE_DIR})
 
-include(CMakePackageConfigHelpers)
-write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Version.cmake
-    VERSION 1.2.1
-    COMPATIBILITY AnyNewerVersion)
-
-install(FILES ${CMAKE_SOURCE_DIR}/cmake/${PROJECT_NAME}Config.cmake ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Version.cmake
+install(FILES ${CMAKE_SOURCE_DIR}/cmake/${PROJECT_NAME}Config.cmake ${CMAKE_SOURCE_DIR}/cmake/${PROJECT_NAME}Version.cmake
         DESTINATION ${INSTALL_CMAKE_DIR})
 
 ## Tests
