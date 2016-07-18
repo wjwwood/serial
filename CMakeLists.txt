@@ -62,7 +62,7 @@ install(FILES include/serial/serial.h include/serial/v8stdint.h
 ## Install CMake files
 install(EXPORT ${PROJECT_NAME}-targets DESTINATION ${INSTALL_CMAKE_DIR})
 
-install(FILES ${CMAKE_SOURCE_DIR}/cmake/${PROJECT_NAME}Config.cmake ${CMAKE_SOURCE_DIR}/cmake/${PROJECT_NAME}Version.cmake
+install(FILES ${CMAKE_SOURCE_DIR}/cmake/${PROJECT_NAME}Config.cmake ${CMAKE_SOURCE_DIR}/cmake/${PROJECT_NAME}ConfigVersion.cmake
         DESTINATION ${INSTALL_CMAKE_DIR})
 
 ## Tests
