@@ -450,6 +450,8 @@ public:
    * reading or writing is complete, when a timeout occurs, or when an
    * exception occurs.
    *
+   * A timeout of 0 enables non-blocking mode.
+   *
    * \param timeout A serial::Timeout struct containing the inter byte
    * timeout, and the read and write timeout constants and multipliers.
    *

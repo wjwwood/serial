@@ -617,11 +617,17 @@ Serial::SerialImpl::write (const uint8_t *data, size_t length)
   total_timeout_ms += timeout_.write_timeout_multiplier * static_cast<long> (length);
   MillisecondTimer total_timeout(total_timeout_ms);
 
+  bool first = true;
   while (bytes_written < length) {
     int64_t timeout_remaining_ms = total_timeout.remaining();
-    if (timeout_remaining_ms <= 0) {
+    // Only consider the timeout if it's not the first iteration of the loop
+    // otherwise a timeout of 0 won't be allowed through
+    if (!first && (timeout_remaining_ms <= 0)) {
       // Timed out
       break;
+    }
+    if( first ) {
+      first = false;
     }
     timespec timeout(timespec_from_ms(timeout_remaining_ms));
 
