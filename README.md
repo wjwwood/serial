@@ -21,6 +21,7 @@ API Documentation: http://wjwwood.github.com/serial/doc/1.1.0/index.html
  * [Python](http://www.python.org) - scripting language
  * [empy](http://www.alcyone.com/pyos/empy/) - Python templating library
  * [catkin_pkg](http://pypi.python.org/pypi/catkin_pkg/) - Runtime Python library for catkin
+* [Doxygen](http://www.doxygen.org/) - Documentation generation tool
 
 ### Install
 
@@ -38,7 +39,7 @@ Build and run the tests:
 
 Build the documentation:
 
-    make docs
+    make doc
 
 Install:
 
