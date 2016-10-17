@@ -717,7 +717,7 @@ public:
   virtual ~IOException() throw() {}
   IOException (const IOException& other) : line_(other.line_), e_what_(other.e_what_), errno_(other.errno_) {}
 
-  int getErrorNumber () { return errno_; }
+  int getErrorNumber () const { return errno_; }
 
   virtual const char* what () const throw () {
     return e_what_.c_str();
