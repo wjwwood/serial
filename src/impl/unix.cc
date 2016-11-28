@@ -62,7 +62,7 @@ MillisecondTimer::MillisecondTimer (const uint32_t millis)
   int64_t tv_nsec = expiry.tv_nsec + (millis * 1e6);
   if (tv_nsec >= 1e9) {
     int64_t sec_diff = tv_nsec / static_cast<int> (1e9);
-    expiry.tv_nsec = tv_nsec - static_cast<int> (1e9 * sec_diff);
+    expiry.tv_nsec %= static_cast<int>(1e9);
     expiry.tv_sec += sec_diff;
   } else {
     expiry.tv_nsec = tv_nsec;
