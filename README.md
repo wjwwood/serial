@@ -22,31 +22,41 @@ API Documentation: http://wjwwood.github.com/serial/doc/1.1.0/index.html
  * [empy](http://www.alcyone.com/pyos/empy/) - Python templating library
  * [catkin_pkg](http://pypi.python.org/pypi/catkin_pkg/) - Runtime Python library for catkin
 
-### Install
+### Install dependecies
+-----------------------
+```Shell
+sudo apt-get install python-empy python-nose python-setuptools libgtest-dev build-essential
+sudo pip install catkin_pkg
+```
 
-Get the code:
+### Prepare workspace
+---------------------
+```Shell
+mkdir -p serial_lib/src
+cd serial_lib/src
+git clone https://github.com/ros/catkin.git
+git clone https://gitlab.com/ColossusGroup/serial.git
+cd ..
+```
 
-    git clone https://github.com/wjwwood/serial.git
+### Compile & Install with catkin
+---------------------------------
+```Shell
+sudo su
+./src/catkin/bin/catkin_make install -DCMAKE_INSTALL_PREFIX=/usr/local
+sudo ldconfig -v | grep libserial
+```
 
-Build:
-
-    make
-
-Build and run the tests:
-
-    make test
-
-Build the documentation:
-
-    make docs
-
-Install:
-
-    make install
-
-Uninstall:
-
-    make uninstall
+### Compile & Install with cmake
+--------------------------------
+```Shell
+mkdir -p src/serial/build
+cd src/serial/build
+cmake -DCMAKE_INSTALL_PREFIX=/usr/local ..
+make
+sudo make install
+sudo ldconfig -v | grep libserial
+```
 
 ### License
 
