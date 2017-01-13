@@ -16,12 +16,19 @@ API Documentation: http://wjwwood.github.com/serial/doc/1.1.0/index.html
 
 ### Dependencies
 
+Required:
 * [catkin](http://www.ros.org/wiki/catkin) - cmake and Python based buildsystem
- * [cmake](http://www.cmake.org) - buildsystem
- * [Python](http://www.python.org) - scripting language
- * [empy](http://www.alcyone.com/pyos/empy/) - Python templating library
- * [catkin_pkg](http://pypi.python.org/pypi/catkin_pkg/) - Runtime Python library for catkin
+* [cmake](http://www.cmake.org) - buildsystem
+* [Python](http://www.python.org) - scripting language
+  * [empy](http://www.alcyone.com/pyos/empy/) - Python templating library
+  * [catkin_pkg](http://pypi.python.org/pypi/catkin_pkg/) - Runtime Python library for catkin
+
+Optional (for tests): 
+* [Boost](http://www.boost.org/) - Boost C++ librairies
+
+Optional (for documentation):
 * [Doxygen](http://www.doxygen.org/) - Documentation generation tool
+* [graphviz](http://www.graphviz.org/) - Graph visualization software
 
 ### Install
 
