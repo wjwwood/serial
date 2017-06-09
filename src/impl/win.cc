@@ -250,10 +250,11 @@ Serial::SerialImpl::reconfigurePort ()
     dcbSerialParams.fInX = true;
   }
   if (flowcontrol_ == flowcontrol_hardware) {
-    dcbSerialParams.fOutxCtsFlow = true;
-    dcbSerialParams.fRtsControl = 0x03;
-    dcbSerialParams.fOutX = false;
-    dcbSerialParams.fInX = false;
+    dcbSerialParams.fOutxCtsFlow = TRUE;
+    dcbSerialParams.fOutxDsrFlow = FALSE;
+    dcbSerialParams.fRtsControl = RTS_CONTROL_HANDSHAKE;
+    dcbSerialParams.fOutX = FALSE;
+    dcbSerialParams.fInX = FALSE;
   }
 
   // activate settings
