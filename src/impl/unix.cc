@@ -269,6 +269,9 @@ Serial::SerialImpl::reconfigurePort ()
 #ifdef B460800
   case 460800: baud = B460800; break;
 #endif
+#ifdef B500000
+  case 500000: baud = B500000; break;
+#endif
 #ifdef B576000
   case 576000: baud = B576000; break;
 #endif
