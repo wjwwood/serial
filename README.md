@@ -30,6 +30,8 @@ Optional (for documentation):
 * [Doxygen](http://www.doxygen.org/) - Documentation generation tool
 * [graphviz](http://www.graphviz.org/) - Graph visualization software
 
+If catkin is not available, project will build without catkin support, which will currently disable tests
+
 ### Install
 
 Get the code:
