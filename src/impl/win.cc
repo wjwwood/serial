@@ -239,19 +239,19 @@ Serial::SerialImpl::reconfigurePort ()
   // setup flowcontrol
   if (flowcontrol_ == flowcontrol_none) {
     dcbSerialParams.fOutxCtsFlow = false;
-    dcbSerialParams.fRtsControl = 0x00;
+    dcbSerialParams.fRtsControl = RTS_CONTROL_DISABLE;
     dcbSerialParams.fOutX = false;
     dcbSerialParams.fInX = false;
   }
   if (flowcontrol_ == flowcontrol_software) {
     dcbSerialParams.fOutxCtsFlow = false;
-    dcbSerialParams.fRtsControl = 0x00;
+    dcbSerialParams.fRtsControl = RTS_CONTROL_DISABLE;
     dcbSerialParams.fOutX = true;
     dcbSerialParams.fInX = true;
   }
   if (flowcontrol_ == flowcontrol_hardware) {
     dcbSerialParams.fOutxCtsFlow = true;
-    dcbSerialParams.fRtsControl = 0x03;
+    dcbSerialParams.fRtsControl = RTS_CONTROL_HANDSHAKE;
     dcbSerialParams.fOutX = false;
     dcbSerialParams.fInX = false;
   }
