@@ -52,10 +52,6 @@ Install:
 
     make install
 
-Uninstall:
-
-    make uninstall
-
 ### License
 
 The MIT License

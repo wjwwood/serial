@@ -55,10 +55,4 @@ To install simply:
     sudo make install
 </pre>
 
-To uninstall simply:
-
-<pre>
-    sudo make uninstall
-</pre>
-
  */
