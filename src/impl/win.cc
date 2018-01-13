@@ -471,13 +471,19 @@ Serial::SerialImpl::flush ()
 void
 Serial::SerialImpl::flushInput ()
 {
-  THROW (IOException, "flushInput is not supported on Windows.");
+  if (is_open_ == false) {
+    throw PortNotOpenedException("Serial::flushInput");
+  }
+  PurgeComm(fd_, PURGE_RXCLEAR);
 }
 
 void
 Serial::SerialImpl::flushOutput ()
 {
-  THROW (IOException, "flushOutput is not supported on Windows.");
+  if (is_open_ == false) {
+    throw PortNotOpenedException("Serial::flushOutput");
+  }
+  PurgeComm(fd_, PURGE_TXCLEAR);
 }
 
 void
