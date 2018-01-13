@@ -74,15 +74,15 @@ Serial::SerialImpl::open ()
                     0);
 
   if (fd_ == INVALID_HANDLE_VALUE) {
-    DWORD errno_ = GetLastError();
+    DWORD create_file_err = GetLastError();
 	stringstream ss;
-    switch (errno_) {
+    switch (create_file_err) {
     case ERROR_FILE_NOT_FOUND:
       // Use this->getPort to convert to a std::string
       ss << "Specified port, " << this->getPort() << ", does not exist.";
       THROW (IOException, ss.str().c_str());
     default:
-      ss << "Unknown error opening the serial port: " << errno;
+      ss << "Unknown error opening the serial port: " << create_file_err;
       THROW (IOException, ss.str().c_str());
     }
   }
