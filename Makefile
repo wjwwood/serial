@@ -28,9 +28,6 @@ endif
 install:
 	cd build && make install
 
-uninstall:
-	cd build && make uninstall
-
 serial:
 	@mkdir -p build
 	cd build && cmake $(CMAKE_FLAGS) ..
