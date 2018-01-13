@@ -2,26 +2,28 @@ cmake_minimum_required(VERSION 2.8.3)
 project(serial)
 
 # Find catkin
-find_package(catkin REQUIRED)
+find_package(catkin QUIET)
 
 if(APPLE)
 	find_library(IOKIT_LIBRARY IOKit)
 	find_library(FOUNDATION_LIBRARY Foundation)
 endif()
 
-if(UNIX AND NOT APPLE)
-    # If Linux, add rt and pthread
-    catkin_package(
-        LIBRARIES ${PROJECT_NAME}
-        INCLUDE_DIRS include
-        DEPENDS rt pthread
-    )
-else()
-    # Otherwise normal call
-    catkin_package(
-        LIBRARIES ${PROJECT_NAME}
-        INCLUDE_DIRS include
-    )
+if (catkin_FOUND)
+    if(UNIX AND NOT APPLE)
+        # If Linux, add rt and pthread
+        catkin_package(
+            LIBRARIES ${PROJECT_NAME}
+            INCLUDE_DIRS include
+            DEPENDS rt pthread
+        )
+    else()
+        # Otherwise normal call
+        catkin_package(
+            LIBRARIES ${PROJECT_NAME}
+            INCLUDE_DIRS include
+        )
+    endif()
 endif()
 
 ## Sources
@@ -63,16 +65,30 @@ target_link_libraries(serial_example ${PROJECT_NAME})
 include_directories(include)
 
 ## Install executable
-install(TARGETS ${PROJECT_NAME}
-    ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-    LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-)
+if (catkin_FOUND)
+    install(TARGETS ${PROJECT_NAME}
+        ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+        LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+    )
+else()
+    install(TARGETS ${PROJECT_NAME}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+        LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+    )
+endif()
 
 ## Install headers
-install(FILES include/serial/serial.h include/serial/v8stdint.h
-  DESTINATION ${CATKIN_GLOBAL_INCLUDE_DESTINATION}/serial)
+if (catkin_FOUND)
+    install(FILES include/serial/serial.h include/serial/v8stdint.h
+      DESTINATION ${CATKIN_GLOBAL_INCLUDE_DESTINATION}/serial)
+else()
+    install(FILES include/serial/serial.h include/serial/v8stdint.h
+      DESTINATION ${CMAKE_INSTALL_PREFIX}/include/serial)
+endif()
 
 ## Tests
-if(CATKIN_ENABLE_TESTING)
-    add_subdirectory(tests)
+if (catkin_FOUND)
+    if(CATKIN_ENABLE_TESTING)
+        add_subdirectory(tests)
+    endif()
 endif()
