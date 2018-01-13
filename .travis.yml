@@ -2,9 +2,6 @@ os:
   - linux
   - osx
 language: cpp
-compiler:
-  - gcc
-  - clang
 install:
   - make install_deps
   - source setup.bash
