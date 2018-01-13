@@ -1,11 +1,10 @@
 <?xml version="1.0"?>
-<package>
+<package format="2">
   <name>serial</name>
   <version>1.2.1</version>
   <description>
     Serial is a cross-platform, simple to use library for using serial ports on computers.  This library provides a C++, object oriented interface for interacting with RS-232 like devices on Linux and Windows.
   </description>
-
   <maintainer email="william@osrfoundation.org">William Woodall</maintainer>
 
   <license>MIT</license>
@@ -14,11 +13,9 @@
   <url type="repository">https://github.com/wjwwood/serial</url>
   <url type="bugtracker">https://github.com/wjwwood/serial/issues</url>
 
-  <author email="wjwwood@gmail.com">William Woodall</author>
-  <author email="ash.gti@gmail.com">John Harrison</author>
+  <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <buildtool_depend>catkin</buildtool_depend>
-
-  <test_depend>boost</test_depend>
-
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
 </package>
