@@ -9,4 +9,4 @@ install:
   - make install_deps
   - source setup.bash
 script:
-  - make && make test
+  - make

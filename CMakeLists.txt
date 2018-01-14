@@ -1,27 +1,9 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(serial)
 
-# Find catkin
-find_package(catkin REQUIRED)
-
 if(APPLE)
 	find_library(IOKIT_LIBRARY IOKit)
 	find_library(FOUNDATION_LIBRARY Foundation)
-endif()
-
-if(UNIX AND NOT APPLE)
-    # If Linux, add rt and pthread
-    catkin_package(
-        LIBRARIES ${PROJECT_NAME}
-        INCLUDE_DIRS include
-        DEPENDS rt pthread
-    )
-else()
-    # Otherwise normal call
-    catkin_package(
-        LIBRARIES ${PROJECT_NAME}
-        INCLUDE_DIRS include
-    )
 endif()
 
 ## Sources
@@ -45,7 +27,7 @@ else()
 endif()
 
 ## Add serial library
-add_library(${PROJECT_NAME} ${serial_SRCS})
+add_library(${PROJECT_NAME} STATIC ${serial_SRCS})
 if(APPLE)
 	target_link_libraries(${PROJECT_NAME} ${FOUNDATION_LIBRARY} ${IOKIT_LIBRARY})
 elseif(UNIX)
@@ -54,7 +36,7 @@ else()
 	target_link_libraries(${PROJECT_NAME} setupapi)
 endif()
 
-## Uncomment for example
+## Add example project
 add_executable(serial_example examples/serial_example.cc)
 add_dependencies(serial_example ${PROJECT_NAME})
 target_link_libraries(serial_example ${PROJECT_NAME})
@@ -62,17 +44,29 @@ target_link_libraries(serial_example ${PROJECT_NAME})
 ## Include headers
 include_directories(include)
 
+## Install
+set(INSTALL_LIB_DIR lib)
+set(INSTALL_INCLUDE_DIR include)
+set(INSTALL_CMAKE_DIR share/serial/cmake)
+
 ## Install executable
 install(TARGETS ${PROJECT_NAME}
-    ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-    LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+    DESTINATION ${INSTALL_LIB_DIR}
+    EXPORT ${PROJECT_NAME}-targets
 )
 
 ## Install headers
 install(FILES include/serial/serial.h include/serial/v8stdint.h
-  DESTINATION ${CATKIN_GLOBAL_INCLUDE_DESTINATION}/serial)
+    DESTINATION ${INSTALL_INCLUDE_DIR}/serial)
+
+## Install CMake files
+install(EXPORT ${PROJECT_NAME}-targets DESTINATION ${INSTALL_CMAKE_DIR})
+
+install(FILES ${CMAKE_SOURCE_DIR}/cmake/${PROJECT_NAME}Config.cmake ${CMAKE_SOURCE_DIR}/cmake/${PROJECT_NAME}ConfigVersion.cmake
+        DESTINATION ${INSTALL_CMAKE_DIR})
 
 ## Tests
-if(CATKIN_ENABLE_TESTING)
-    add_subdirectory(tests)
-endif()
+# FIXME
+#if(CATKIN_ENABLE_TESTING)
+#    add_subdirectory(tests)
+#endif()
