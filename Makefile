@@ -18,7 +18,7 @@ ifeq ($(UNAME),Darwin)
 	cd catkin_ws && rosinstall_generator catkin --rosdistro hydro --tar > catkin.rosinstall
 	cd catkin_ws && wstool init src catkin.rosinstall
 	cd catkin_ws && rosdep install --from-paths src --ignore-src -y
-	cd catkin_ws && python2 ./src/catkin/bin/catkin_make -DPYTHON_EXECUTABLE=$(which python2) install
+	cd catkin_ws && python2 ./src/catkin/bin/catkin_make -DPYTHON_EXECUTABLE=`which python2` install
 	echo "source catkin_ws/install/setup.bash" > setup.bash
 else
 	sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu precise main" > /etc/apt/sources.list.d/ros-latest.list'
