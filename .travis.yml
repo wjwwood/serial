@@ -6,4 +6,4 @@ install:
   - make install_deps
   - source setup.bash
 script:
-  - mkdir build && cd build && cmake .. -DPYTHON_EXECUTABLE=$(which python2) && make && CTEST_OUTPUT_ON_FAILURE=1 make test
+  - mkdir build && cd build && cmake .. -DPYTHON_EXECUTABLE=$(which python2) && make && make tests && make run_tests
