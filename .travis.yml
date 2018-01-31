@@ -6,4 +6,4 @@ install:
   - make install_deps
   - source setup.bash
 script:
-  - CMAKE_ARGS=-DPYTHON_EXECUTABLE=$(which python2) make && make test
+  - mkdir build && cd build && cmake .. -DPYTHON_EXECUTABLE=$(which python2) && make && make test
