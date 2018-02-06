@@ -2,11 +2,9 @@ os:
   - linux
   - osx
 language: cpp
-compiler:
-  - gcc
-  - clang
 install:
   - make install_deps
   - source setup.bash
 script:
-  - make && make test
+  - mkdir build && cd build && cmake .. -DPYTHON_EXECUTABLE=$(which python2) && make && make tests && make run_tests
+  - catkin_test_results .

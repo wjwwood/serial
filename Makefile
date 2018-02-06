@@ -8,14 +8,17 @@ ifeq ($(UNAME),Darwin)
 	brew tap ros/deps
 	brew update
 	brew outdated boost || brew upgrade boost || brew install boost
-	sudo pip install rosinstall_generator wstool rosdep empy catkin_pkg
-	sudo rosdep init
+	brew outdated python || brew upgrade python || brew install python
+	sudo -H python2 -m pip install -U pip setuptools
+	sudo -H python2 -m pip install --force-reinstall --no-deps -U pip
+	sudo -H python2 -m pip install rosinstall_generator wstool rosdep empy catkin_pkg
+	sudo -H rosdep init
 	rosdep update
 	mkdir catkin_ws
 	cd catkin_ws && rosinstall_generator catkin --rosdistro hydro --tar > catkin.rosinstall
 	cd catkin_ws && wstool init src catkin.rosinstall
 	cd catkin_ws && rosdep install --from-paths src --ignore-src -y
-	cd catkin_ws && ./src/catkin/bin/catkin_make install
+	cd catkin_ws && python2 ./src/catkin/bin/catkin_make -DPYTHON_EXECUTABLE=`which python2` install
 	echo "source catkin_ws/install/setup.bash" > setup.bash
 else
 	sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu precise main" > /etc/apt/sources.list.d/ros-latest.list'

@@ -5,6 +5,8 @@ if(UNIX)
         target_link_libraries(${PROJECT_NAME}-test util)
     endif()
 
-    catkin_add_gtest(${PROJECT_NAME}-test-timer unit/unix_timer_tests.cc)
-    target_link_libraries(${PROJECT_NAME}-test-timer ${PROJECT_NAME})
+    if(NOT APPLE)  # these tests are unreliable on macOS
+      catkin_add_gtest(${PROJECT_NAME}-test-timer unit/unix_timer_tests.cc)
+      target_link_libraries(${PROJECT_NAME}-test-timer ${PROJECT_NAME})
+    endif()
 endif()
