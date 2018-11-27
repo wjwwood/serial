@@ -1,0 +1,1 @@
+/usr/bin/c++  -g  -rdynamic CMakeFiles/serial_example.dir/examples/serial_example.cc.o  -o serial_example libserial.a -lrt -lpthread 

@@ -1,0 +1,4 @@
+/home/deth/repos/serial/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/deth/repos/serial/cmake-build-debug/CMakeFiles/serial_example.dir
+/home/deth/repos/serial/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/deth/repos/serial/cmake-build-debug/CMakeFiles/serial.dir
