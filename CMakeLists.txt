@@ -45,6 +45,7 @@ elseif(UNIX)
     target_link_libraries(${PROJECT_NAME} rt pthread)
 else()
     target_link_libraries(${PROJECT_NAME} setupapi)
+    ament_export_libraries(setupapi)
 endif()
 
 ## Uncomment for example
