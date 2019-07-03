@@ -19,6 +19,13 @@
   <author email="wjwwood@gmail.com">William Woodall</author>
   <author email="ash.gti@gmail.com">John Harrison</author>
 
-  <buildtool_depend>catkin</buildtool_depend>
+  <buildtool_depend>cmake</buildtool_depend>
 
+  <!-- boost is only needed for test/proof_of_concepts which are not enabled by default --> 
+  <!--test_depend>boost</test_depend-->
+  <test_depend>gtest</test_depend>
+
+  <export>
+    <build_type>cmake</build_type>
+  </export>
 </package>

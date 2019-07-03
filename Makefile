@@ -56,7 +56,7 @@ test:
 	@mkdir -p build
 	cd build && cmake $(CMAKE_FLAGS) ..
 ifneq ($(MAKE),)
-	cd build && $(MAKE) run_tests
+	cd build && $(MAKE) all test
 else
-	cd build && make run_tests
+	cd build && make all test
 endif
