@@ -458,7 +458,7 @@ public:
    * \see serial::Timeout
    */
   void
-  setTimeout (Timeout &timeout);
+  setTimeout (const Timeout &timeout);
 
   /*! Sets the timeout for reads and writes. */
   void
