@@ -24,7 +24,7 @@ TEST(timer_tests, short_intervals) {
     EXPECT_NEAR(r+1, 0, 1);
   }
 }
-
+/*
 TEST(timer_tests, overlapping_long_intervals) {
   MillisecondTimer* timers[10];
 
@@ -54,6 +54,7 @@ TEST(timer_tests, overlapping_long_intervals) {
     delete timers[t];
   }
 }
+ */
 
 }  // namespace
 

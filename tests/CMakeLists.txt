@@ -1,12 +1,11 @@
-if(UNIX)
-    catkin_add_gtest(${PROJECT_NAME}-test unix_serial_tests.cc)
-    target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME} ${Boost_LIBRARIES})
-    if(NOT APPLE)
-        target_link_libraries(${PROJECT_NAME}-test util)
-    endif()
+cmake_minimum_required(VERSION 3.0)
+project(serial-testsuite VERSION 1.0)
 
-    if(NOT APPLE)  # these tests are unreliable on macOS
-      catkin_add_gtest(${PROJECT_NAME}-test-timer unit/unix_timer_tests.cc)
-      target_link_libraries(${PROJECT_NAME}-test-timer ${PROJECT_NAME})
-    endif()
-endif()
+file(GLOB TEST_SRCS unit/unix_timer_tests.cc)
+
+if (UNIX)
+    if (NOT APPLE)
+        add_executable(service_testsuite ${TEST_SRCS})
+        target_link_libraries(service_testsuite PUBLIC serial ${MAIN_LIBS})
+    endif ()
+endif ()
