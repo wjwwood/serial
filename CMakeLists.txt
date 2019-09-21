@@ -1,12 +1,6 @@
 cmake_minimum_required(VERSION 3.2)
 project(serial)
 
-if(APPLE)
-    find_library(IOKIT_LIBRARY IOKit)
-    find_library(FOUNDATION_LIBRARY Foundation)
-endif()
-
-set (MAIN_LIBS "empty")
 if (APPLE)
     message("Apple build")
     if(EXISTS ${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
