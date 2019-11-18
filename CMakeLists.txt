@@ -58,14 +58,43 @@ target_include_directories(${PROJECT_NAME}
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
 
+ament_target_dependencies(${PROJECT_NAME}
+  ament_index_cpp)
+
 install(
   DIRECTORY include/
   DESTINATION include)
+
+install(
+  TARGETS ${PROJECT_NAME}
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin)
 
 ament_export_include_directories(include)
 ament_export_libraries(${PROJECT_NAME})
 
 if(BUILD_TESTING)
+  find_package(ament_cmake_gmock REQUIRED)
+
+  if(UNIX)
+    ament_add_gmock(${PROJECT_NAME}-test
+      tests/unix_serial_tests.cc)
+
+    if(TARGET ${PROJECT_NAME}-test)
+      target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME} ${Boost_LIBRARIES})
+
+      if(NOT APPLE)
+        target_link_libraries(${PROJECT_NAME}-test util)
+      endif()
+    endif()
+  endif()
+
+  if(NOT APPLE)  # these tests are unreliable on macOS
+    ament_add_gmock(${PROJECT_NAME}-test-timer
+      tests/unit/unix_timer_tests.cc)
+    target_link_libraries(${PROJECT_NAME}-test-timer ${PROJECT_NAME})
+  endif()
 endif()
 
 ament_package()
