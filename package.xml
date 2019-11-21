@@ -1,5 +1,5 @@
-<?xml version="1.0"?>
-<package>
+<?xml version='1.0' encoding='utf-8'?>
+<package format="3">
   <name>serial</name>
   <version>1.2.1</version>
   <description>
@@ -19,8 +19,11 @@
   <author email="wjwwood@gmail.com">William Woodall</author>
   <author email="ash.gti@gmail.com">John Harrison</author>
 
-  <buildtool_depend>catkin</buildtool_depend>
+  <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <test_depend>boost</test_depend>
+  <test_depend>ament_cmake_gmock</test_depend>
 
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
 </package>

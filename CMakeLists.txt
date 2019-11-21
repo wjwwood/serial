@@ -1,80 +1,97 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.5)
 project(serial)
 
-# Find catkin
-find_package(catkin REQUIRED)
+# Default to C99
+if(NOT CMAKE_C_STANDARD)
+  set(CMAKE_C_STANDARD 99)
+endif()
+
+# Add support for C++11
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 14)
+endif()
+
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic -Werror)
+endif()
+
+# find dependencies
+find_package(ament_cmake REQUIRED)
 
 if(APPLE)
-    find_library(IOKIT_LIBRARY IOKit)
-    find_library(FOUNDATION_LIBRARY Foundation)
+  find_library(IOKIT_LIBRARY IOKit)
+  find_library(FOUNDATION_LIBRARY Foundation)
 endif()
 
 if(UNIX AND NOT APPLE)
-    # If Linux, add rt and pthread
-    set(rt_LIBRARIES rt)
-    set(pthread_LIBRARIES pthread)
-    catkin_package(
-        LIBRARIES ${PROJECT_NAME}
-        INCLUDE_DIRS include
-        DEPENDS rt pthread
-    )
-else()
-    # Otherwise normal call
-    catkin_package(
-        LIBRARIES ${PROJECT_NAME}
-        INCLUDE_DIRS include
-    )
+  set(RT_LIBRARIES rt)
+  set(PTHREAD_LIBRARIES pthread)
 endif()
 
-## Sources
-set(serial_SRCS
-    src/serial.cc
-    include/serial/serial.h
-    include/serial/v8stdint.h
-)
+set(SERIAL_SRCS
+  src/serial.cc)
+
 if(APPLE)
-    # If OSX
-    list(APPEND serial_SRCS src/impl/unix.cc)
-    list(APPEND serial_SRCS src/impl/list_ports/list_ports_osx.cc)
+  list(APPEND SERIAL_SRCS src/impl/list_ports/list_ports_osx.cc)
+  list(APPEND SERIAL_SRCS src/impl/unix.cc)
 elseif(UNIX)
-    # If unix
-    list(APPEND serial_SRCS src/impl/unix.cc)
-    list(APPEND serial_SRCS src/impl/list_ports/list_ports_linux.cc)
+  list(APPEND SERIAL_SRCS src/impl/list_ports/list_ports_linux.cc)
+  list(APPEND SERIAL_SRCS src/impl/unix.cc)
 else()
-    # If windows
-    list(APPEND serial_SRCS src/impl/win.cc)
-    list(APPEND serial_SRCS src/impl/list_ports/list_ports_win.cc)
+  list(APPEND SERIAL_SRCS src/impl/list_ports/list_ports_win.cc)
+  list(APPEND SERIAL_SRCS src/impl/win.cc)
 endif()
 
-## Add serial library
-add_library(${PROJECT_NAME} ${serial_SRCS})
+add_library(${PROJECT_NAME} SHARED
+  ${SERIAL_SRCS})
+
 if(APPLE)
-    target_link_libraries(${PROJECT_NAME} ${FOUNDATION_LIBRARY} ${IOKIT_LIBRARY})
+  target_link_libraries(${PROJECT_NAME} ${FOUNDATION_LIBRARY} ${IOKIT_LIBRARY})
 elseif(UNIX)
-    target_link_libraries(${PROJECT_NAME} rt pthread)
+  target_link_libraries(${PROJECT_NAME} rt pthread)
 else()
-    target_link_libraries(${PROJECT_NAME} setupapi)
+  target_link_libraries(${PROJECT_NAME} setupapi)
 endif()
 
-## Uncomment for example
-add_executable(serial_example examples/serial_example.cc)
-add_dependencies(serial_example ${PROJECT_NAME})
-target_link_libraries(serial_example ${PROJECT_NAME})
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
 
-## Include headers
-include_directories(include)
+install(
+  DIRECTORY include/
+  DESTINATION include)
 
-## Install executable
-install(TARGETS ${PROJECT_NAME}
-    ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-    LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-)
+install(
+  TARGETS ${PROJECT_NAME}
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin)
 
-## Install headers
-install(FILES include/serial/serial.h include/serial/v8stdint.h
-  DESTINATION ${CATKIN_GLOBAL_INCLUDE_DESTINATION}/serial)
+ament_export_include_directories(include)
+ament_export_libraries(${PROJECT_NAME})
 
-## Tests
-if(CATKIN_ENABLE_TESTING)
-    add_subdirectory(tests)
+if(BUILD_TESTING)
+  find_package(ament_cmake_gmock REQUIRED)
+
+  if(UNIX)
+    ament_add_gmock(${PROJECT_NAME}-test
+      tests/unix_serial_tests.cc)
+
+    if(TARGET ${PROJECT_NAME}-test)
+      target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME} ${Boost_LIBRARIES})
+
+      if(NOT APPLE)
+        target_link_libraries(${PROJECT_NAME}-test util)
+      endif()
+    endif()
+  endif()
+
+  if(NOT APPLE)  # these tests are unreliable on macOS
+    ament_add_gmock(${PROJECT_NAME}-test-timer
+      tests/unit/unix_timer_tests.cc)
+    target_link_libraries(${PROJECT_NAME}-test-timer ${PROJECT_NAME})
+  endif()
 endif()
+
+ament_package()
