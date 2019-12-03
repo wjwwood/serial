@@ -3,6 +3,8 @@ project(serial)
 ## Options 
 # Use Catkin (disabled by default)
 option(USE_CATKIN off)
+# Build serial sample 
+option(BUILD_SAMPLE on)
 
 # Find catkin
 if(USE_CATKIN)
@@ -60,10 +62,15 @@ else()
     target_link_libraries(${PROJECT_NAME} setupapi)
 endif()
 
-## Uncomment for example
-add_executable(serial_example examples/serial_example.cc)
-add_dependencies(serial_example ${PROJECT_NAME})
-target_link_libraries(serial_example ${PROJECT_NAME})
+## Include headers
+
+
+## Example
+if(BUILD_SAMPLE)
+    add_executable(serial_example examples/serial_example.cc)
+    add_dependencies(serial_example ${PROJECT_NAME})
+    target_link_libraries(serial_example ${PROJECT_NAME})
+endif()
 
 ## Include headers
 include_directories(include)
