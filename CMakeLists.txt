@@ -141,7 +141,7 @@ else()
    ## Install executable
     install(TARGETS ${PROJECT_NAME} EXPORT ${EXPORT_TARGET_NAME}
         INCLUDES DESTINATION $<INSTALL_INTERFACE:include/>
-        ARCHIVE DESTINATION ${__dest} COMPONENT ${TARGET_NAME}
+        ARCHIVE DESTINATION "lib" COMPONENT ${PROJECT_NAME}
     )
 endif()
 
