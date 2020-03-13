@@ -9,8 +9,8 @@ project(serial VERSION 1.2.1)
 
 ## Options 
 
-# Use Catkin (disabled by default)
-option(USE_CATKIN off)
+# Use Catkin
+option(USE_CATKIN on)
 # Build serial sample 
 option(BUILD_SAMPLE on)
 
