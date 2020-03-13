@@ -21,6 +21,8 @@ if(USE_CATKIN)
 
     if(UNIX AND NOT APPLE)
     # If Linux, add rt and pthread
+    set(rt_LIBRARIES rt)
+    set(pthread_LIBRARIES pthread)
     catkin_package(
         LIBRARIES ${PROJECT_NAME}
         INCLUDE_DIRS include
@@ -35,12 +37,6 @@ if(USE_CATKIN)
     endif()
 endif()
 
-
-
-if(APPLE)
-	find_library(IOKIT_LIBRARY IOKit)
-	find_library(FOUNDATION_LIBRARY Foundation)
-endif()
 
 
 
@@ -69,6 +65,9 @@ endif()
 add_library(${PROJECT_NAME} ${serial_SRCS})
 
 if(APPLE)
+    find_library(IOKIT_LIBRARY IOKit)
+    find_library(FOUNDATION_LIBRARY Foundation)
+
 	target_link_libraries(${PROJECT_NAME} ${FOUNDATION_LIBRARY} ${IOKIT_LIBRARY})
 elseif(UNIX)
 	target_link_libraries(${PROJECT_NAME} rt pthread)
