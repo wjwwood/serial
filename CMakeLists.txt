@@ -33,7 +33,7 @@ elseif(WIN32) # Windows
         src/impl/win.cc
         src/impl/list_ports/list_ports_win.cc
     )
-      target_link_libraries(${PROJECT_NAME} setupapi)
+    target_link_libraries(${PROJECT_NAME} setupapi)
     ament_export_libraries(setupapi)
 endif()
 
@@ -54,13 +54,17 @@ install(TARGETS ${PROJECT_NAME}
 )
 
 ## Install headers
-install(FILES include/serial/serial.h include/serial/v8stdint.h
-    DESTINATION include/serial
+install(
+  FILES include/serial/serial.h include/serial/v8stdint.h
+  DESTINATION include/serial
 )
 
 ## Tests
-#if(BUILD_TESTING)
-#    add_subdirectory(tests)
-#endif()
+if(BUILD_TESTING)
+    add_subdirectory(tests)
+endif()
+
+ament_export_include_directories(include)
+ament_export_libraries(${PROJECT_NAME})
 
 ament_package()
