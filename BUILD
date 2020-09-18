@@ -1,16 +1,16 @@
-load("@rules_cc//cc:defs.bzl", "cc_library", "cc_binary")
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
 
 cc_library(
     name = "serial",
+    visibility = ["//visibility:public"],
     deps = [
         ":serial_facade",
         ":common_impl",
     ] + select({
         ":windows": [":windows_impl"],
         ":linux": [":linux_impl"],
-        ":macos": [":unix_impl"],
+        ":macos": [":macos_impl"],
     }),
-    visibility = ["//visibility:public"],
 )
 
 cc_library(
@@ -32,6 +32,15 @@ cc_library(
     name = "linux_impl",
     srcs = [
         "src/impl/list_ports/list_ports_linux.cc",
+        "src/impl/unix.cc",
+    ],
+    deps = [":serial_facade"],
+)
+
+cc_library(
+    name = "macos_impl",
+    srcs = [
+        "src/impl/list_ports/list_ports_osx.cc",
         "src/impl/unix.cc",
     ],
     deps = [":serial_facade"],
