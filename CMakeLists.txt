@@ -16,6 +16,9 @@ if(APPLE)
     find_library(FOUNDATION_LIBRARY Foundation)
 endif()
 
+# Public options and command line configuration
+option(ENABLE_TEST_PROGRAM "Build test program" OFF)
+
 if(UNIX AND NOT APPLE)
     # If Linux, add rt and pthread
     set(rt_LIBRARIES rt)
@@ -75,11 +78,6 @@ else()
     target_link_libraries(${PROJECT_NAME} setupapi)
 endif()
 
-## Uncomment for example
-add_executable(serial_example examples/serial_example.cc)
-add_dependencies(serial_example ${PROJECT_NAME})
-target_link_libraries(serial_example ${PROJECT_NAME})
-
 ## Include headers
 include_directories(include)
 
@@ -92,7 +90,14 @@ install(TARGETS ${PROJECT_NAME}
         ${CATKIN_GLOBAL_INCLUDE_DESTINATION}/${PROJECT_NAME}
 )
 
-## Tests
+
+# Other targets: test program, pkg-config and tests.
 if(CATKIN_ENABLE_TESTING)
     add_subdirectory(tests)
+endif()
+
+if (ENABLE_TEST_PROGRAM)
+    add_executable(serial_example examples/serial_example.cc)
+    add_dependencies(serial_example ${PROJECT_NAME})
+    target_link_libraries(serial_example ${PROJECT_NAME})
 endif()
