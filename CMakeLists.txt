@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.5.0)
-project(serial)
+
 
 # Find catkin
 find_package(catkin REQUIRED)
 
-# General setup
+set(PROJ_SOVERSION 1)
 project(serial
     VERSION 1.2.1
     DESCRIPTION "Cross-platform, Serial Port library written in C++"
@@ -54,7 +54,19 @@ else()
 endif()
 
 ## Add serial library
+set(serial_HEADERS
+    include/serial/serial.h
+    include/serial/v8stdint.h
+)
+# Build, link and install main library
 add_library(${PROJECT_NAME} ${serial_SRCS})
+set_target_properties(${PROJECT_NAME} PROPERTIES
+    VERSION ${PROJECT_VERSION}
+    SOVERSION ${PROJ_SOVERSION}
+    PUBLIC_HEADER "${serial_HEADERS}"
+)
+target_include_directories(${PROJECT_NAME} PUBLIC include)
+
 if(APPLE)
     target_link_libraries(${PROJECT_NAME} ${FOUNDATION_LIBRARY} ${IOKIT_LIBRARY})
 elseif(UNIX)
@@ -76,11 +88,9 @@ install(TARGETS ${PROJECT_NAME}
     ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
     LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
     RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
+    PUBLIC_HEADER DESTINATION
+        ${CATKIN_GLOBAL_INCLUDE_DESTINATION}/${PROJECT_NAME}
 )
-
-## Install headers
-install(FILES include/serial/serial.h include/serial/v8stdint.h
-  DESTINATION ${CATKIN_GLOBAL_INCLUDE_DESTINATION}/serial)
 
 ## Tests
 if(CATKIN_ENABLE_TESTING)
