@@ -18,6 +18,7 @@ endif()
 
 # Public options and command line configuration
 option(ENABLE_TEST_PROGRAM "Build test program" OFF)
+option(CATKIN_ENABLE_TESTING "Enable catkin unit tests" ON)
 set(SERIAL_DOCDIR ${CMAKE_INSTALL_PREFIX}/share/doc/serial
     CACHE STRING "Installation root for doxygen docs."
 )
