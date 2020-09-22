@@ -18,6 +18,9 @@ endif()
 
 # Public options and command line configuration
 option(ENABLE_TEST_PROGRAM "Build test program" OFF)
+set(SERIAL_DOCDIR ${CMAKE_INSTALL_PREFIX}/share/doc/serial
+    CACHE STRING "Installation root for doxygen docs."
+)
 
 if(UNIX AND NOT APPLE)
     # If Linux, add rt and pthread
@@ -78,6 +81,7 @@ else()
     target_link_libraries(${PROJECT_NAME} setupapi)
 endif()
 
+
 ## Include headers
 include_directories(include)
 
@@ -101,3 +105,17 @@ if (ENABLE_TEST_PROGRAM)
     add_dependencies(serial_example ${PROJECT_NAME})
     target_link_libraries(serial_example ${PROJECT_NAME})
 endif()
+
+find_package(Doxygen)
+if (DOXYGEN_FOUND AND DOXYGEN_DOT_FOUND)
+    set(DOXYGEN_OUT ${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile)
+    add_custom_target(doc ALL
+        COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_OUT}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        COMMENT "Generating API documentation with Doxygen"
+        VERBATIM
+    )
+    install(DIRECTORY  ${CMAKE_BINARY_DIR}/doc/html
+        DESTINATION ${SERIAL_DOCDIR}
+    )
+endif ()
