@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.5.0)
 
 # General setup
+set(PROJ_SOVERSION 1)
 project(serial
     VERSION 1.2.1
     DESCRIPTION "Cross-platform, Serial Port library written in C++"
@@ -33,9 +34,18 @@ else()
 endif()
 
 ## Add serial library
+set(serial_HEADERS
+    include/serial/serial.h
+    include/serial/v8stdint.h
+)
+# Build, link and install main library
 add_library(${PROJECT_NAME} ${serial_SRCS})
 set_target_properties(${PROJECT_NAME} PROPERTIES
-    POSITION_INDEPENDENT_CODE ON)
+    VERSION ${PROJECT_VERSION}
+    SOVERSION ${PROJ_SOVERSION}
+    PUBLIC_HEADER "${serial_HEADERS}"
+)
+target_include_directories(${PROJECT_NAME} PUBLIC include)
 
 if(APPLE)
     target_link_libraries(${PROJECT_NAME} ${FOUNDATION_LIBRARY} ${IOKIT_LIBRARY})
@@ -58,6 +68,7 @@ install(TARGETS ${PROJECT_NAME}
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION bin
+    PUBLIC_HEADER DESTINATION include/${PROJECT_NAME}
 )
 
 ## Install headers
