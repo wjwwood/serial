@@ -1,5 +1,11 @@
-cmake_minimum_required(VERSION 2.8.12)
-project(serial)
+cmake_minimum_required(VERSION 3.5.0)
+
+# General setup
+project(serial
+    VERSION 1.2.1
+    DESCRIPTION "Cross-platform, Serial Port library written in C++"
+    HOMEPAGE_URL "http://wjwwood.io/serial/"
+)
 
 if(APPLE)
     find_library(IOKIT_LIBRARY IOKit)
