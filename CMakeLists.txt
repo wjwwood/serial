@@ -1,15 +1,25 @@
 cmake_minimum_required(VERSION 3.5.0)
 
 
+option(USE_CXX_SERIAL "build package name cxx-serial" OFF)
+if (USE_CXX_SERIAL)
+    set(PKG_NAME cxx-serial)
+else ()
+    set(PKG_NAME serial)
+endif ()
+message(STATUS "Building package ${PKG_NAME}")
+
 # Find catkin
 find_package(catkin REQUIRED)
 
 set(PROJ_SOVERSION 1)
-project(serial
+project(${PKG_NAME}
     VERSION 1.2.1
     DESCRIPTION "Cross-platform, Serial Port library written in C++"
     HOMEPAGE_URL "http://wjwwood.io/serial/"
 )
+
+configure_file(package.xml.in ${PROJECT_SOURCE_DIR}/package.xml @ONLY)
 
 if(APPLE)
     find_library(IOKIT_LIBRARY IOKit)
@@ -19,7 +29,7 @@ endif()
 # Public options and command line configuration
 option(ENABLE_TEST_PROGRAM "Build test program" OFF)
 option(CATKIN_ENABLE_TESTING "Enable catkin unit tests" ON)
-set(SERIAL_DOCDIR ${CMAKE_INSTALL_PREFIX}/share/doc/serial
+set(SERIAL_DOCDIR ${CMAKE_INSTALL_PREFIX}/share/doc/${PROJECT_NAME}
     CACHE STRING "Installation root for doxygen docs."
 )
 

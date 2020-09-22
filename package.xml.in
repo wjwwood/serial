@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package>
-  <name>serial</name>
+  <name>@PROJECT_NAME@</name>
   <version>1.2.1</version>
   <description>
     Serial is a cross-platform, simple to use library for using serial ports on computers.
