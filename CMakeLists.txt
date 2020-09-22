@@ -23,6 +23,8 @@ set(SERIAL_DOCDIR ${CMAKE_INSTALL_PREFIX}/share/doc/serial
     CACHE STRING "Installation root for doxygen docs."
 )
 
+find_path(HAVE_STDINT_H NAMES stdint.h)
+
 if(UNIX AND NOT APPLE)
     # If Linux, add rt and pthread
     set(rt_LIBRARIES rt)
@@ -41,11 +43,11 @@ else()
 endif()
 
 ## Sources
-set(serial_SRCS
-    src/serial.cc
-    include/serial/serial.h
-    include/serial/v8stdint.h
-)
+set(serial_SRCS src/serial.cc include/serial/serial.h)
+if (NOT HAVE_STDINT_H)
+    list(APPEND serial_SRCS include/serial/v8stdint.h)
+endif ()
+
 if(APPLE)
     # If OSX
     list(APPEND serial_SRCS src/impl/unix.cc)
@@ -61,10 +63,11 @@ else()
 endif()
 
 ## Add serial library
-set(serial_HEADERS
-    include/serial/serial.h
-    include/serial/v8stdint.h
-)
+set(serial_HEADERS include/serial/serial.h)
+if (NOT HAVE_STDINT_H)
+    list(APPEND serial_HEADERS include/serial/v8stdint.h)
+endif ()
+
 # Build, link and install main library
 add_library(${PROJECT_NAME} ${serial_SRCS})
 set_target_properties(${PROJECT_NAME} PROPERTIES
@@ -73,6 +76,9 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
     PUBLIC_HEADER "${serial_HEADERS}"
 )
 target_include_directories(${PROJECT_NAME} PUBLIC include)
+if (HAVE_STDINT_H)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE -DHAVE_STDINT_H)
+endif ()
 
 if(APPLE)
     target_link_libraries(${PROJECT_NAME} ${FOUNDATION_LIBRARY} ${IOKIT_LIBRARY})
