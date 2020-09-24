@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>@PROJECT_NAME@</name>
-  <version>1.2.1</version>
+  <version>@PROJECT_VERSION@</version>
   <description>
     Serial is a cross-platform, simple to use library for using serial ports on computers.
     This library provides a C++, object oriented interface for interacting with RS-232

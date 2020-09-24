@@ -32,3 +32,6 @@ doc/html
 ipch
 Debug
 Release
+
+# Generated from package.xml.in, must live in top dir.
+package.xml

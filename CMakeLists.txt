@@ -13,6 +13,7 @@ message(STATUS "Building package ${PKG_NAME}")
 find_package(catkin REQUIRED)
 
 set(PROJ_SOVERSION 1)
+
 project(${PKG_NAME}
     VERSION 1.2.1
     DESCRIPTION "Cross-platform, Serial Port library written in C++"
