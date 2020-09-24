@@ -1,11 +1,52 @@
-os:
-  - linux
-  - osx
+---
 language: cpp
-install:
-  - make install_deps
-  - source setup.bash
-script:
-  - mkdir build && cd build && cmake .. -DPYTHON_EXECUTABLE=$(which python2) && make && make tests && make run_tests
-  - catkin_test_results .
+matrix:
+  include:
+    - os: linux
+      dist: focal
+      compiler: gcc
+      script:
+        - sudo apt update
+        - >
+          sudo apt install
+          build-essential cmake doxygen graphviz googletest libgtest-dev
+        - mkdir build && cd build
+        - cmake -DDISABLE_CATKIN=ON ..
+        - make
+        - make test
+    - os: linux
+      dist: xenial
+      compiler: gcc
+      script:
+        - sudo apt update
+        - >
+          sudo apt install
+          build-essential catkin cmake doxygen graphviz libgtest-dev
+        - mkdir build && cd build
+        - cmake -DDISABLE_CATKIN=OFF -DCATKIN_ENABLE_TESTING=OFF ..
+        - make
 
+
+#   Does not build, breaks in make install_deps.
+#   - os: linux
+#     dist: precise
+#     compiler: gcc
+#     install:
+#       - make install_deps
+#       - source setup.bash
+#     script:
+#       - mkdir build && cd build
+#       - cmake -DPYTHON_EXECUTABLE=$(which python2) ..
+#       - make
+#       - make test
+
+#   - os: osx
+#     compiler: clang
+#     install:
+#       - make install_deps
+#       - source setup.bash
+#     script:
+#       - mkdir build && cd build
+#       - cmake -DPYTHON_EXECUTABLE=$(which python2) ..
+#       - make
+#       - make run_tests
