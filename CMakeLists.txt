@@ -9,49 +9,54 @@ else ()
 endif ()
 message(STATUS "Building package ${PKG_NAME}")
 
-# Find catkin
-find_package(catkin REQUIRED)
+option(DISABLE_CATKIN "Disable build of catkin package and tests" OFF)
+if (DISABLE_CATKIN AND "${CATKIN_ENABLE_TESTING}" STREQUAL "" )
+    set(CATKIN_ENABLE_TESTING OFF)
+endif ()
 
 set(PROJ_SOVERSION 1)
-
 project(${PKG_NAME}
     VERSION 1.2.1
     DESCRIPTION "Cross-platform, Serial Port library written in C++"
     HOMEPAGE_URL "http://wjwwood.io/serial/"
 )
+include(GNUInstallDirs)
 
+if (NOT DISABLE_CATKIN)
+    find_package(catkin REQUIRED)
+endif ()
 configure_file(package.xml.in ${PROJECT_SOURCE_DIR}/package.xml @ONLY)
 
-if(APPLE)
-    find_library(IOKIT_LIBRARY IOKit)
-    find_library(FOUNDATION_LIBRARY Foundation)
-endif()
 
 # Public options and command line configuration
 option(ENABLE_TEST_PROGRAM "Build test program" OFF)
 option(CATKIN_ENABLE_TESTING "Enable catkin unit tests" ON)
+
 set(SERIAL_DOCDIR ${CMAKE_INSTALL_PREFIX}/share/doc/${PROJECT_NAME}
     CACHE STRING "Installation root for doxygen docs."
 )
 
 find_path(HAVE_STDINT_H NAMES stdint.h)
 
-if(UNIX AND NOT APPLE)
-    # If Linux, add rt and pthread
-    set(rt_LIBRARIES rt)
-    set(pthread_LIBRARIES pthread)
+if (NOT DISABLE_CATKIN)
+    find_library(PTHREAD_LIB NAMES pthread REQUIRED)
+    if (PTHREAD_LIB)
+        set(PTHREAD_LIBRARIES ${PTHREAD_LIB})
+    endif ()
+    find_package(Rt)
+    if (RT_FOUND)
+        set(_RT RT)
+    endif ()
+    configure_file(package.xml.in ${PROJECT_SOURCE_DIR}/package.xml @ONLY)
     catkin_package(
         LIBRARIES ${PROJECT_NAME}
         INCLUDE_DIRS include
-        DEPENDS rt pthread
+        DEPENDS ${_RT} PTHREAD
     )
-else()
-    # Otherwise normal call
-    catkin_package(
-        LIBRARIES ${PROJECT_NAME}
-        INCLUDE_DIRS include
-    )
-endif()
+    set(CMAKE_INSTALL_LIBDIR ${CATKIN_PACKAGE_LIB_DESTINATION})
+    set(CMAKE_INSTALL_BINDIR ${CATKIN_GLOBAL_BIN_DESTINATION})
+    set(CMAKE_INSTALL_INCLUDEDIR ${CATKIN_GLOBAL_INCLUDE_DESTINATION})
+endif ()
 
 ## Sources
 set(serial_SRCS src/serial.cc include/serial/serial.h)
@@ -91,13 +96,15 @@ if (HAVE_STDINT_H)
     target_compile_definitions(${PROJECT_NAME} PRIVATE -DHAVE_STDINT_H)
 endif ()
 
-if(APPLE)
-    target_link_libraries(${PROJECT_NAME} ${FOUNDATION_LIBRARY} ${IOKIT_LIBRARY})
-elseif(UNIX)
-    target_link_libraries(${PROJECT_NAME} rt pthread)
-else()
+if (APPLE)
+    find_library(IOKIT_LIB IOKit)
+    find_library(FOUNDATION_LIB Foundation)
+    target_link_libraries(${PROJECT_NAME} ${FOUNDATION_LIB} ${IOKIT_LIB})
+elseif (UNIX)
+    target_link_libraries(${PROJECT_NAME} ${RT_LIBRARIES} ${PTHREAD_LIBRARIES})
+else ()
     target_link_libraries(${PROJECT_NAME} setupapi)
-endif()
+endif ()
 
 
 ## Include headers
@@ -105,17 +112,27 @@ include_directories(include)
 
 ## Install executable
 install(TARGETS ${PROJECT_NAME}
-    ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-    LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-    RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
-    PUBLIC_HEADER DESTINATION
-        ${CATKIN_GLOBAL_INCLUDE_DESTINATION}/${PROJECT_NAME}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
 )
 
 
 # Other targets: test program, pkg-config and tests.
-if(CATKIN_ENABLE_TESTING)
+if (CATKIN_ENABLE_TESTING)
+    include(CTest)
+    find_package(GTest REQUIRED)
+    enable_testing()
     add_subdirectory(tests)
+endif()
+
+if (DISABLE_CATKIN)
+    configure_file(serial.pc.in ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.pc @ONLY)
+    install(
+        FILES ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.pc
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
+    )
 endif()
 
 if (ENABLE_TEST_PROGRAM)
