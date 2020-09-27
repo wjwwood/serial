@@ -1,0 +1,27 @@
+clone_folder: c:\project\serial
+shallow_clone: false
+clone_depth: 10
+
+image:
+- Visual Studio 2017
+
+platform:
+- Win32
+
+configuration: RelWithDebInfo
+test: OFF
+
+install:
+  - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars32.bat"
+  - choco install cmake
+
+before_build:
+  - cd c:\project\serial
+  - mkdir build
+  - cd build
+  - cmake -DDISABLE_CATKIN=ON -DCATKIN_ENABLE_TESTING=OFF ..
+
+build_script:
+  - cmake build .
+  - cmake --build . --target install
+
