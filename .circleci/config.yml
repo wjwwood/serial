@@ -1,0 +1,68 @@
+---
+version: 2
+jobs:
+   build-focal:
+     docker:
+       - image: circleci/buildpack-deps:focal-scm
+     steps:
+       - checkout
+       - run: sudo apt install build-essential cmake libcppunit-dev doxygen graphviz
+       - run: git clone https://github.com/google/googletest
+       - run: mkdir googletest/build; cd googletest/build; cmake ..
+       - run: cd googletest/build; make; sudo make install
+       - run: mkdir build 
+       - run: cd build && cmake -DDISABLE_CATKIN=ON ..
+       - run: cd build && make && make test
+   build-macos:
+     macos:
+       xcode: "10.0.0"
+     steps:
+       - checkout
+       - restore-cache:
+           keys:
+             - 2020-09-29-v1
+       - run: brew update 
+       - run: brew upgrade git
+       - run: >
+           for p in llvm cmake cppunit doxygen; do
+           brew list --version $p || brew install $p;
+           brew link $p;
+           done
+       - run: >
+           brew list --version graphviz
+           || brew install graphviz || brew install graphviz || :;
+           brew link graphviz
+       - run: git clone https://github.com/google/googletest
+       - run: mkdir googletest/build; cd googletest/build; cmake ..
+       - run: cd googletest/build; make; sudo make install
+       - save-cache:
+           key: 2020-09-29-v1
+           paths:
+             - /usr/local/Homebrew
+             - /usr/local/Cellar
+       - run: mkdir build 
+       - run: >
+           cd build && cmake
+           -DDISABLE_CATKIN=ON
+           -DENABLE_CATKIN_TESTING=ON
+           ..
+       - run: cd build && make
+       - run: cd build && ARGS="--verbose" make test
+
+
+workflows:
+  version: 2
+  build_all:
+    jobs:
+      - build-focal:
+          filters:
+            branches:
+              only:
+                - master
+                - build
+      - build-macos:
+          filters:
+            branches:
+              only:
+                - master
+                - build
