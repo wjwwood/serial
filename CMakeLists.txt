@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.5.0)
 
+# Public options and command line configuration
+option(ENABLE_TEST_PROGRAM "Build test program" OFF)
+option(CATKIN_ENABLE_TESTING "Enable catkin unit tests" ON)
+
 
 option(USE_CXX_SERIAL "build package name cxx-serial" OFF)
 if (USE_CXX_SERIAL)
@@ -9,6 +13,9 @@ else ()
 endif ()
 message(STATUS "Building package ${PKG_NAME}")
 
+set(SERIAL_DOCDIR ${CMAKE_INSTALL_PREFIX}/share/doc/${PKG_NAME}
+    CACHE STRING "Installation root for doxygen docs."
+)
 option(DISABLE_CATKIN "Disable build of catkin package and tests" OFF)
 if (DISABLE_CATKIN AND "${CATKIN_ENABLE_TESTING}" STREQUAL "" )
     set(CATKIN_ENABLE_TESTING OFF)
@@ -21,24 +28,17 @@ project(${PKG_NAME}
     HOMEPAGE_URL "http://wjwwood.io/serial/"
 )
 include(GNUInstallDirs)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 
+# Locate packages, headers and libraries
 if (NOT DISABLE_CATKIN)
     find_package(catkin REQUIRED)
 endif ()
-configure_file(package.xml.in ${PROJECT_SOURCE_DIR}/package.xml @ONLY)
-
-
-# Public options and command line configuration
-option(ENABLE_TEST_PROGRAM "Build test program" OFF)
-option(CATKIN_ENABLE_TESTING "Enable catkin unit tests" ON)
-
-set(SERIAL_DOCDIR ${CMAKE_INSTALL_PREFIX}/share/doc/${PROJECT_NAME}
-    CACHE STRING "Installation root for doxygen docs."
-)
 
 find_path(HAVE_STDINT_H NAMES stdint.h)
 
 if (NOT DISABLE_CATKIN)
+    # Build the catkin library
     find_library(PTHREAD_LIB NAMES pthread REQUIRED)
     if (PTHREAD_LIB)
         set(PTHREAD_LIBRARIES ${PTHREAD_LIB})
@@ -65,26 +65,24 @@ if (NOT HAVE_STDINT_H)
 endif ()
 
 if(APPLE)
-    # If OSX
     list(APPEND serial_SRCS src/impl/unix.cc)
     list(APPEND serial_SRCS src/impl/list_ports/list_ports_osx.cc)
 elseif(UNIX)
-    # If unix
+    # linux
     list(APPEND serial_SRCS src/impl/unix.cc)
     list(APPEND serial_SRCS src/impl/list_ports/list_ports_linux.cc)
 else()
-    # If windows
+    # win32
     list(APPEND serial_SRCS src/impl/win.cc)
     list(APPEND serial_SRCS src/impl/list_ports/list_ports_win.cc)
 endif()
 
-## Add serial library
 set(serial_HEADERS include/serial/serial.h)
 if (NOT HAVE_STDINT_H)
     list(APPEND serial_HEADERS include/serial/v8stdint.h)
 endif ()
 
-# Build, link and install main library
+# Build  and link main library
 add_library(${PROJECT_NAME} ${serial_SRCS})
 set_target_properties(${PROJECT_NAME} PROPERTIES
     VERSION ${PROJECT_VERSION}
@@ -107,17 +105,13 @@ else ()
 endif ()
 
 
-## Include headers
-include_directories(include)
-
-## Install executable
+## Install main library, possibly the catkin one.
 install(TARGETS ${PROJECT_NAME}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
 )
-
 
 # Other targets: test program, pkg-config and tests.
 if (CATKIN_ENABLE_TESTING)
