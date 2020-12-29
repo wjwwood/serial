@@ -1,6 +1,6 @@
 if(UNIX)
     catkin_add_gtest(${PROJECT_NAME}-test unix_serial_tests.cc)
-    target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME} ${Boost_LIBRARIES})
+    target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
     if(NOT APPLE)
         target_link_libraries(${PROJECT_NAME}-test util)
     endif()
