@@ -62,12 +62,15 @@ endif()
 
 ## Uncomment for example
 add_executable(serial_example examples/serial_example.cc)
-#ament_target_dependencies(serial_example ${PROJECT_NAME})
 target_link_libraries(serial_example ${PROJECT_NAME})
 
 
 ## Include headers
-include_directories(include)
+target_include_directories(${PROJECT_NAME} 
+    PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include>)
+#include_directories(include)
 
 ## Install executable
 install(TARGETS ${PROJECT_NAME}
@@ -86,13 +89,12 @@ install(TARGETS serial_example
 )
 
 ## Tests
-#if(BUILD_TESTING)
-#    add_subdirectory(tests)
-#endif()
+if(BUILD_TESTING)
+    find_package(ament_lint_auto REQUIRED)  
 
-target_include_directories(${PROJECT_NAME} 
-    PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<INSTALL_INTERFACE:include>)
+    #add_subdirectory(tests)
+
+    ament_lint_auto_find_test_dependencies()
+endif()
         
 ament_package()
