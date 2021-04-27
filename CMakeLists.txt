@@ -72,16 +72,23 @@ target_include_directories(${PROJECT_NAME}
         $<INSTALL_INTERFACE:include>)
 #include_directories(include)
 
-## Install executable
-install(TARGETS ${PROJECT_NAME}
+## Install library
+install(
+    TARGETS ${PROJECT_NAME}
+    EXPORT ${PROJECT_NAME}
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION bin
+    INCLUDES DESTINATION include
 )
 
 ## Install headers
-install(FILES include/serial/serial.h include/serial/v8stdint.h
-  DESTINATION share/${PROJECT_NAME})
+#install(FILES include/serial/serial.h include/serial/v8stdint.h
+#  DESTINATION share/${PROJECT_NAME})
+install(
+    DIRECTORY include/
+    DESTINATION include
+)
 
 # Install executable
 install(TARGETS serial_example
@@ -96,5 +103,7 @@ if(BUILD_TESTING)
 
     ament_lint_auto_find_test_dependencies()
 endif()
-        
+
+ament_export_targets(${PROJECT_NAME})
+#ament_export_libraries(${PROJECT_NAME})
 ament_package()
