@@ -23,4 +23,8 @@
 
   <test_depend>boost</test_depend>
 
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+
 </package>
