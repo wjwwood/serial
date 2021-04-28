@@ -17,7 +17,7 @@ API Documentation: http://wjwwood.github.com/serial/doc/1.1.0/index.html
 ### Dependencies
 
 Required:
-* [catkin](http://www.ros.org/wiki/catkin) - cmake and Python based buildsystem
+* [colcon](https://docs.ros.org/en/foxy/Tutorials/Colcon-Tutorial.html) - Colcon compiler
 * [cmake](http://www.cmake.org) - buildsystem
 * [Python](http://www.python.org) - scripting language
   * [empy](http://www.alcyone.com/pyos/empy/) - Python templating library
