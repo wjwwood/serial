@@ -70,7 +70,7 @@ Serial::SerialImpl::open ()
                     0,
                     0,
                     OPEN_EXISTING,
-                    FILE_ATTRIBUTE_NORMAL,
+					FILE_ATTRIBUTE_NORMAL, // FILE_FLAG_OVERLAPPED
                     0);
 
   if (fd_ == INVALID_HANDLE_VALUE) {
@@ -107,6 +107,20 @@ Serial::SerialImpl::reconfigurePort ()
     //error getting state
     THROW (IOException, "Error getting the serial port state.");
   }
+
+  // Boilerplate default settings
+  dcbSerialParams.fBinary = TRUE;
+  dcbSerialParams.fDtrControl = DTR_CONTROL_ENABLE;
+  dcbSerialParams.fDsrSensitivity = FALSE;
+  dcbSerialParams.fTXContinueOnXoff = FALSE;
+  dcbSerialParams.fOutX = FALSE;
+  dcbSerialParams.fInX = FALSE;
+  dcbSerialParams.fErrorChar = FALSE;
+  dcbSerialParams.fNull = FALSE;
+  dcbSerialParams.fRtsControl = RTS_CONTROL_ENABLE;
+  dcbSerialParams.fAbortOnError = FALSE;
+  dcbSerialParams.fOutxCtsFlow = FALSE;
+  dcbSerialParams.fOutxDsrFlow = FALSE;
 
   // setup baud rate
   switch (baudrate_) {
