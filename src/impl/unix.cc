@@ -665,14 +665,27 @@ Serial::SerialImpl::write (const uint8_t *data, size_t length)
         // This will write some
         ssize_t bytes_written_now =
           ::write (fd_, data + bytes_written, length - bytes_written);
+
+        // even though pselect returned readiness the call might still be 
+        // interrupted. In that case simply retry.
+        if (bytes_written_now == -1 && errno == EINTR) {
+          continue;
+        }
+
         // write should always return some data as select reported it was
         // ready to write when we get to this point.
         if (bytes_written_now < 1) {
           // Disconnected devices, at least on Linux, show the
           // behavior that they are always ready to write immediately
           // but writing returns nothing.
-          throw SerialException ("device reports readiness to write but "
-                                 "returned no data (device disconnected?)");
+          std::stringstream strs;
+          strs << "device reports readiness to write but "
+            "returned no data (device disconnected?)";
+          strs << " errno=" << errno;
+          strs << " bytes_written_now= " << bytes_written_now;
+          strs << " bytes_written=" << bytes_written;
+          strs << " length=" << length;
+          throw SerialException(strs.str().c_str());
         }
         // Update bytes_written
         bytes_written += static_cast<size_t> (bytes_written_now);
