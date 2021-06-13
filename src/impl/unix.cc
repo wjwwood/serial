@@ -951,9 +951,9 @@ while (is_open_ == true) {
 #else
   int command = (TIOCM_CD|TIOCM_DSR|TIOCM_RI|TIOCM_CTS);
 
-  if (-1 == ioctl (fd_, TIOCMIWAIT, &command)) {
+  if (-1 == ioctl (fd_, TIOCMIWAIT, command)) {
     stringstream ss;
-    ss << "waitForDSR failed on a call to ioctl(TIOCMIWAIT): "
+    ss << "waitForChange failed on a call to ioctl(TIOCMIWAIT): "
        << errno << " " << strerror(errno);
     throw(SerialException(ss.str().c_str()));
   }
