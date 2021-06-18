@@ -130,7 +130,7 @@ public:
   getPort () const;
 
   void
-  setTimeout (Timeout &timeout);
+  setTimeout (const Timeout &timeout);
 
   Timeout
   getTimeout () const;

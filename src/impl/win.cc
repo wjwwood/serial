@@ -370,7 +370,7 @@ Serial::SerialImpl::getPort () const
 }
 
 void
-Serial::SerialImpl::setTimeout (serial::Timeout &timeout)
+Serial::SerialImpl::setTimeout (const serial::Timeout &timeout)
 {
   timeout_ = timeout;
   if (is_open_) {
