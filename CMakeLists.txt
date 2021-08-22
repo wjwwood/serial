@@ -47,7 +47,15 @@ else()
 endif()
 
 ## Add serial library
+set(WJWSERIAL_BUILD_SHARED "ON" CACHE BOOL "Only build the shared version.")
+
+if(WJWSERIAL_BUILD_SHARED)
 add_library(${PROJECT_NAME} ${serial_SRCS})
+else()
+add_library(${PROJECT_NAME} ${serial_SRCS})
+add_library(${PROJECT_NAME}_static STATIC ${serial_SRCS})
+endif()
+
 if(APPLE)
     target_link_libraries(${PROJECT_NAME} ${FOUNDATION_LIBRARY} ${IOKIT_LIBRARY})
 elseif(UNIX)
