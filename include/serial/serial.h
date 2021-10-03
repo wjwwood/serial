@@ -211,6 +211,10 @@ public:
   bool
   isOpen () const;
 
+  /*! Cancels all pending read and write operation. */
+  void
+  cancel();
+
   /*! Closes the serial port. */
   void
   close ();

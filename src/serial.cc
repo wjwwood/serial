@@ -84,6 +84,12 @@ Serial::open ()
 }
 
 void
+Serial::cancel()
+{
+  pimpl_->cancel();
+}
+
+void
 Serial::close ()
 {
   pimpl_->close ();
