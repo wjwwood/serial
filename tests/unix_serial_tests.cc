@@ -27,7 +27,7 @@ void loop()
 
 #include "serial/serial.h"
 
-#if defined(__linux__)
+#if (defined(__linux__) || defined(__unix__))
 #include <pty.h>
 #else
 #include <util.h>

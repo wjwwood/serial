@@ -1,4 +1,4 @@
-#if defined(__linux__)
+#if (defined(__linux__) || defined(__unix__))
 
 /*
  * Copyright (c) 2014 Craig Lilley <cralilley@gmail.com>
