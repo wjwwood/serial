@@ -4,7 +4,9 @@ set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake" 
 
 # Find catkin
 find_package(catkin REQUIRED)
-find_package(Boost REQUIRED)
+if(CATKIN_ENABLE_TESTING)
+  find_package(Boost REQUIRED)
+endif()
 
 if(APPLE)
     find_library(IOKIT_LIBRARY IOKit)

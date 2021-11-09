@@ -21,6 +21,6 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <test_depend>Boost</test_depend>
+  <test_depend>boost</test_depend>
 
 </package>
