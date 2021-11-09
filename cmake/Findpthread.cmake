@@ -1,0 +1,10 @@
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+
+if(Threads_FOUND)
+  #message( "lib pthread FOUND!" )
+  set(pthread_LIBRARIES Threads::Threads)
+  set(pthread_INCLUDE_DIRS ${Threads_INCLUDE_DIR})
+else(Threads_FOUND)
+  #message( "lib pthread NOT FOUND!" )
+endif()
