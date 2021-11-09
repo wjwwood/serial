@@ -1,8 +1,12 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(serial)
+set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake" )
 
 # Find catkin
 find_package(catkin REQUIRED)
+if(CATKIN_ENABLE_TESTING)
+  find_package(Boost REQUIRED)
+endif()
 
 if(APPLE)
     find_library(IOKIT_LIBRARY IOKit)
@@ -11,20 +15,19 @@ endif()
 
 if(UNIX AND NOT APPLE)
     # If Linux, add rt and pthread
-    set(rt_LIBRARIES rt)
-    set(pthread_LIBRARIES pthread)
-    catkin_package(
-        LIBRARIES ${PROJECT_NAME}
-        INCLUDE_DIRS include
-        DEPENDS rt pthread
-    )
+    find_package(pthread)
+    find_package(rt)
+    set(CATKIN_PACKAGE_DEPENDS "rt pthread")
+    #message("rt_LIBRARIES=${rt_LIBRARIES}")
+    #message("pthread_LIBRARIES=${pthread_LIBRARIES}")
 else()
-    # Otherwise normal call
-    catkin_package(
-        LIBRARIES ${PROJECT_NAME}
-        INCLUDE_DIRS include
-    )
+    set(CATKIN_PACKAGE_DEPENDS "")
 endif()
+catkin_package(
+    LIBRARIES ${PROJECT_NAME}
+    INCLUDE_DIRS include
+    DEPENDS ${CATKIN_PACKAGE_DEPENDS}
+)
 
 ## Sources
 set(serial_SRCS
@@ -51,7 +54,7 @@ add_library(${PROJECT_NAME} ${serial_SRCS})
 if(APPLE)
     target_link_libraries(${PROJECT_NAME} ${FOUNDATION_LIBRARY} ${IOKIT_LIBRARY})
 elseif(UNIX)
-    target_link_libraries(${PROJECT_NAME} rt pthread)
+  target_link_libraries(${PROJECT_NAME} ${rt_LIBRARIES} ${pthread_LIBRARIES})
 else()
     target_link_libraries(${PROJECT_NAME} setupapi)
 endif()
