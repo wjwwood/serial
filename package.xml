@@ -20,7 +20,6 @@
   <author email="ash.gti@gmail.com">John Harrison</author>
 
   <buildtool_depend>catkin</buildtool_depend>
-
-  <test_depend>boost</test_depend>
+  <build_depend>boost</build_depend>
 
 </package>
