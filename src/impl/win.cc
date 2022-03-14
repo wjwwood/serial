@@ -275,8 +275,26 @@ Serial::SerialImpl::reconfigurePort ()
 }
 
 void
+Serial::SerialImpl::cancel()
+{
+  if (is_open_ == true) {
+     if (fd_ != INVALID_HANDLE_VALUE) {
+        int ret;
+        ret = CancelIoEx(fd_, NULL);
+        DWORD last_error = GetLastError();
+        if (ret == 0 && last_error != ERROR_NOT_FOUND) {
+          stringstream ss;
+          ss << "Error while canceling serial port: " << last_error;
+          THROW(IOException, ss.str().c_str());
+        }
+      }
+  }
+}
+
+void
 Serial::SerialImpl::close ()
 {
+  this->cancel();
   if (is_open_ == true) {
     if (fd_ != INVALID_HANDLE_VALUE) {
       int ret;

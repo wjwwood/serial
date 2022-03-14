@@ -67,6 +67,9 @@ public:
   open ();
 
   void
+  cancel();
+
+  void
   close ();
 
   bool
