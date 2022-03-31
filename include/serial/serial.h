@@ -179,7 +179,7 @@ public:
    */
   Serial (const std::string &port = "",
           uint32_t baudrate = 9600,
-          Timeout timeout = Timeout(),
+          const Timeout &timeout = Timeout(),
           bytesize_t bytesize = eightbits,
           parity_t parity = parity_none,
           stopbits_t stopbits = stopbits_one,
@@ -458,7 +458,7 @@ public:
    * \see serial::Timeout
    */
   void
-  setTimeout (Timeout &timeout);
+  setTimeout (const Timeout &timeout);
 
   /*! Sets the timeout for reads and writes. */
   void
