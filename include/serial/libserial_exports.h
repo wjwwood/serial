@@ -1,8 +1,7 @@
 #pragma once
 
-
 #if defined(_WIN32)
-#  if defined(LIBSERIAL_STATIC)
+#  if !defined(LIBSERIAL_DYNAMIC)
 #    define LIBSERIAL_EXPORT_API
 #  else
 #    if defined(LIBSERIAL_EXPORTS)
