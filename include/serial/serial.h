@@ -89,6 +89,12 @@ typedef enum {
   flowcontrol_hardware
 } flowcontrol_t;
 
+typedef enum {
+    dtr_disable = 0,
+    dtr_enable = 1,
+    dtr_handshake = 2
+} dtrcontrol_t;
+
 /*!
  * Structure for setting the timeout of the serial port, times are
  * in milliseconds.
@@ -183,7 +189,8 @@ public:
           bytesize_t bytesize = eightbits,
           parity_t parity = parity_none,
           stopbits_t stopbits = stopbits_one,
-          flowcontrol_t flowcontrol = flowcontrol_none);
+          flowcontrol_t flowcontrol = flowcontrol_none,
+          dtrcontrol_t dtr = dtr_disable);
 
   /*! Destructor */
   virtual ~Serial ();
@@ -612,7 +619,7 @@ public:
 
   /*! Set the DTR handshaking line to the given level.  Defaults to true. */
   void
-  setDTR (bool level = true);
+  setDTR (dtrcontrol_t dtrcontrol = dtr_enable);
 
   /*!
    * Blocks until CTS, DSR, RI, CD changes or something interrupts it.

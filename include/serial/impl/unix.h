@@ -70,7 +70,8 @@ public:
               bytesize_t bytesize,
               parity_t parity,
               stopbits_t stopbits,
-              flowcontrol_t flowcontrol);
+              flowcontrol_t flowcontrol,
+              dtrcontrol_t dtrcontrol);
 
   virtual ~SerialImpl ();
 
@@ -117,7 +118,7 @@ public:
   setRTS (bool level);
 
   void
-  setDTR (bool level);
+  setDTR (dtrcontrol_t dtrcontrol);
 
   bool
   waitForChange ();
@@ -207,6 +208,7 @@ private:
   bytesize_t bytesize_;       // Size of the bytes
   stopbits_t stopbits_;       // Stop Bits
   flowcontrol_t flowcontrol_; // Flow Control
+  dtrcontrol_t dtrcontrol_;   // Data Terminal Ready Control
 
   // Mutex used to lock the read functions
   pthread_mutex_t read_mutex;

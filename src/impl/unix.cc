@@ -108,10 +108,12 @@ timespec_from_ms (const uint32_t millis)
 Serial::SerialImpl::SerialImpl (const string &port, unsigned long baudrate,
                                 bytesize_t bytesize,
                                 parity_t parity, stopbits_t stopbits,
-                                flowcontrol_t flowcontrol)
+                                flowcontrol_t flowcontrol,
+                                dtrcontrol_t dtrcontrol)
   : port_ (port), fd_ (-1), is_open_ (false), xonxoff_ (false), rtscts_ (false),
     baudrate_ (baudrate), parity_ (parity),
-    bytesize_ (bytesize), stopbits_ (stopbits), flowcontrol_ (flowcontrol)
+    bytesize_ (bytesize), stopbits_ (stopbits),
+    flowcontrol_ (flowcontrol), dtrcontrol_ (dtrcontrol)
 {
   pthread_mutex_init(&this->read_mutex, NULL);
   pthread_mutex_init(&this->write_mutex, NULL);
@@ -375,6 +377,13 @@ Serial::SerialImpl::reconfigurePort ()
   if (flowcontrol_ == flowcontrol_hardware) {
     xonxoff_ = false;
     rtscts_ = true;
+  }
+  // setup dtr control
+  int dtr_flag = TIOCM_DTR;
+  if (dtrcontrol_ == dtr_enable) {
+    ioctl(fd_, TIOCMBIS, &dtr_flag);
+  } else if (dtrcontrol_ == dtr_disable) {
+    ioctl(fd_, TIOCMBIC, &dtr_flag);
   }
   // xonxoff
 #ifdef IXANY
@@ -893,7 +902,7 @@ Serial::SerialImpl::setRTS (bool level)
 }
 
 void
-Serial::SerialImpl::setDTR (bool level)
+Serial::SerialImpl::setDTR (dtrcontrol_t dtrcontrol)
 {
   if (is_open_ == false) {
     throw PortNotOpenedException ("Serial::setDTR");
@@ -901,14 +910,14 @@ Serial::SerialImpl::setDTR (bool level)
 
   int command = TIOCM_DTR;
 
-  if (level) {
+  if (dtrcontrol == dtr_enable) {
     if (-1 == ioctl (fd_, TIOCMBIS, &command))
     {
       stringstream ss;
       ss << "setDTR failed on a call to ioctl(TIOCMBIS): " << errno << " " << strerror(errno);
       throw(SerialException(ss.str().c_str()));
     }
-  } else {
+  } else if (dtrcontrol == dtr_disable) {
     if (-1 == ioctl (fd_, TIOCMBIC, &command))
     {
       stringstream ss;
