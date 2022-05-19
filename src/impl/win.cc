@@ -533,6 +533,7 @@ Serial::SerialImpl::setDTR (dtrcontrol_t dtrcontrol)
   if (is_open_ == false) {
     throw PortNotOpenedException ("Serial::setDTR");
   }
+  dtrcontrol_ = dtrcontrol;
   if (dtrcontrol == dtr_enable) {
     EscapeCommFunction (fd_, SETDTR);
   } else if (dtrcontrol == dtr_disable) {
