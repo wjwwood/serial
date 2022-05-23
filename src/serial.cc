@@ -65,9 +65,9 @@ private:
 
 Serial::Serial (const string &port, uint32_t baudrate, serial::Timeout timeout,
                 bytesize_t bytesize, parity_t parity, stopbits_t stopbits,
-                flowcontrol_t flowcontrol)
+                flowcontrol_t flowcontrol, dtrcontrol_t dtrcontrol)
  : pimpl_(new SerialImpl (port, baudrate, bytesize, parity,
-                                           stopbits, flowcontrol))
+                                           stopbits, flowcontrol, dtrcontrol))
 {
   pimpl_->setTimeout(timeout);
 }
@@ -401,9 +401,9 @@ void Serial::setRTS (bool level)
   pimpl_->setRTS (level);
 }
 
-void Serial::setDTR (bool level)
+void Serial::setDTR (dtrcontrol_t dtrcontrol)
 {
-  pimpl_->setDTR (level);
+  pimpl_->setDTR (dtrcontrol);
 }
 
 bool Serial::waitForChange()

@@ -34,10 +34,12 @@ _prefix_port_if_needed(const wstring &input)
 Serial::SerialImpl::SerialImpl (const string &port, unsigned long baudrate,
                                 bytesize_t bytesize,
                                 parity_t parity, stopbits_t stopbits,
-                                flowcontrol_t flowcontrol)
+                                flowcontrol_t flowcontrol,
+                                dtrcontrol_t dtrcontrol)
   : port_ (port.begin(), port.end()), fd_ (INVALID_HANDLE_VALUE), is_open_ (false),
     baudrate_ (baudrate), parity_ (parity),
-    bytesize_ (bytesize), stopbits_ (stopbits), flowcontrol_ (flowcontrol)
+    bytesize_ (bytesize), stopbits_ (stopbits),
+    flowcontrol_ (flowcontrol), dtrcontrol_ (dtrcontrol)
 {
   if (port_.empty () == false)
     open ();
@@ -254,6 +256,13 @@ Serial::SerialImpl::reconfigurePort ()
     dcbSerialParams.fRtsControl = RTS_CONTROL_HANDSHAKE;
     dcbSerialParams.fOutX = false;
     dcbSerialParams.fInX = false;
+  }
+
+  // setup dtr control
+  if (dtrcontrol_ == dtr_enable) {
+    dcbSerialParams.fDtrControl = DTR_CONTROL_ENABLE;
+  } else if (dtrcontrol_ == dtr_disable) {
+    dcbSerialParams.fDtrControl = DTR_CONTROL_DISABLE;
   }
 
   // activate settings
@@ -519,14 +528,15 @@ Serial::SerialImpl::setRTS (bool level)
 }
 
 void
-Serial::SerialImpl::setDTR (bool level)
+Serial::SerialImpl::setDTR (dtrcontrol_t dtrcontrol)
 {
   if (is_open_ == false) {
     throw PortNotOpenedException ("Serial::setDTR");
   }
-  if (level) {
+  dtrcontrol_ = dtrcontrol;
+  if (dtrcontrol == dtr_enable) {
     EscapeCommFunction (fd_, SETDTR);
-  } else {
+  } else if (dtrcontrol == dtr_disable) {
     EscapeCommFunction (fd_, CLRDTR);
   }
 }
