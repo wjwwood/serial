@@ -43,6 +43,8 @@ Serial::SerialImpl::SerialImpl (const string &port, unsigned long baudrate,
     open ();
   read_mutex = CreateMutex(NULL, false, NULL);
   write_mutex = CreateMutex(NULL, false, NULL);
+  memset(&overlapped_, 0x00, sizeof(overlapped_));
+  overlapped_.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
 }
 
 Serial::SerialImpl::~SerialImpl ()
@@ -50,6 +52,7 @@ Serial::SerialImpl::~SerialImpl ()
   this->close();
   CloseHandle(read_mutex);
   CloseHandle(write_mutex);
+  CloseHandle(overlapped_.hEvent);
 }
 
 void
@@ -70,7 +73,7 @@ Serial::SerialImpl::open ()
                     0,
                     0,
                     OPEN_EXISTING,
-                    FILE_ATTRIBUTE_NORMAL,
+                    FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED,
                     0);
 
   if (fd_ == INVALID_HANDLE_VALUE) {
@@ -279,6 +282,8 @@ Serial::SerialImpl::close ()
 {
   if (is_open_ == true) {
     if (fd_ != INVALID_HANDLE_VALUE) {
+      SetCommMask(fd_, 0);
+      ResetEvent(overlapped_.hEvent);
       int ret;
       ret = CloseHandle(fd_);
       if (ret == 0) {
@@ -315,9 +320,49 @@ Serial::SerialImpl::available ()
 }
 
 bool
-Serial::SerialImpl::waitReadable (uint32_t /*timeout*/)
+Serial::SerialImpl::waitReadable (uint32_t timeout)
 {
-  THROW (IOException, "waitReadable is not implemented on Windows.");
+  COMSTAT cs;
+  DWORD error;
+  DWORD old_msk, msk, length;
+
+  if (!isOpen()) {
+      return false;
+  }
+
+  if (!GetCommMask(fd_, &old_msk)) {
+      stringstream ss;
+      ss << "Error while get mask of the serial port: " << GetLastError();
+      THROW(IOException, ss.str().c_str());
+  }
+
+  msk = 0;
+  SetCommMask(fd_, EV_RXCHAR | EV_ERR);
+  if (!WaitCommEvent(fd_, &msk, &overlapped_)) {
+      if (GetLastError() == ERROR_IO_PENDING) {
+          if (WaitForSingleObject(overlapped_.hEvent, (DWORD)timeout) == WAIT_TIMEOUT) {
+              SetCommMask(fd_, old_msk);
+              return false;
+          }
+  
+          GetOverlappedResult(fd_, &overlapped_, &length, TRUE);
+          ::ResetEvent(overlapped_.hEvent);
+      } else {
+          ClearCommError(fd_, &error, &cs);
+          SetCommMask(fd_, old_msk);
+          return cs.cbInQue > 0;
+      }
+  }
+
+  SetCommMask(fd_, old_msk);
+  if (msk & EV_ERR) {
+      ClearCommError(fd_, &error, &cs);
+      return cs.cbInQue > 0;
+  }
+  if (msk & EV_RXCHAR) {
+      return true;
+  }
+  
   return false;
 }
 
@@ -338,11 +383,13 @@ Serial::SerialImpl::read (uint8_t *buf, size_t size)
     throw PortNotOpenedException ("Serial::read");
   }
   DWORD bytes_read;
-  if (!ReadFile(fd_, buf, static_cast<DWORD>(size), &bytes_read, NULL)) {
-    stringstream ss;
-    ss << "Error while reading from the serial port: " << GetLastError();
-    THROW (IOException, ss.str().c_str());
+  overlapped_.Offset = 0;
+  overlapped_.OffsetHigh = 0;
+  if (!ReadFile(fd_, buf, static_cast<DWORD>(size), NULL, &overlapped_)) {
+      WaitForSingleObject(overlapped_.hEvent, timeout_.read_timeout_constant);
   }
+  GetOverlappedResult(fd_, &overlapped_, &bytes_read, TRUE);
+  ::ResetEvent(overlapped_.hEvent);
   return (size_t) (bytes_read);
 }
 
@@ -353,11 +400,13 @@ Serial::SerialImpl::write (const uint8_t *data, size_t length)
     throw PortNotOpenedException ("Serial::write");
   }
   DWORD bytes_written;
-  if (!WriteFile(fd_, data, static_cast<DWORD>(length), &bytes_written, NULL)) {
-    stringstream ss;
-    ss << "Error while writing to the serial port: " << GetLastError();
-    THROW (IOException, ss.str().c_str());
+  overlapped_.Offset = 0;
+  overlapped_.OffsetHigh = 0;
+  if (!WriteFile(fd_, data, static_cast<DWORD>(length), NULL, &overlapped_)) {
+      WaitForSingleObject(overlapped_.hEvent, timeout_.write_timeout_constant);
   }
+  GetOverlappedResult(fd_, &overlapped_, &bytes_written, TRUE);
+  ::ResetEvent(overlapped_.hEvent);
   return (size_t) (bytes_written);
 }
 
