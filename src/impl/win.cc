@@ -322,9 +322,13 @@ Serial::SerialImpl::waitReadable (uint32_t /*timeout*/)
 }
 
 void
-Serial::SerialImpl::waitByteTimes (size_t /*count*/)
+Serial::SerialImpl::waitByteTimes (size_t count)
 {
-  THROW (IOException, "waitByteTimes is not implemented on Windows.");
+  DWORD wait_time = timeout_.inter_byte_timeout * count;
+  HANDLE wait_event = CreateEvent(NULL, FALSE, FALSE, NULL);
+  ResetEvent(wait_event);
+  WaitForSingleObject(wait_event, wait_time);
+  CloseHandle(wait_event);
 }
 
 size_t
