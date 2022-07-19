@@ -198,6 +198,7 @@ private:
   HANDLE read_mutex;
   // Mutex used to lock the write functions
   HANDLE write_mutex;
+  OVERLAPPED overlapped_;
 };
 
 }
