@@ -95,7 +95,7 @@ get_parent_iousb_device( io_object_t& serial_port )
     string name = get_class_name(device);
 
     // Walk the IO Registry tree looking for this devices parent IOUSBDevice.
-    while( name != "IOUSBDevice" )
+    while( name != "IOUSBDevice" && name != "IOUSBHostInterface" )
     {
         kern_result = IORegistryEntryGetParentEntry( device,
         kIOServicePlane,
