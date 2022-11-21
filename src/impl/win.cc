@@ -335,16 +335,54 @@ Serial::SerialImpl::available ()
 }
 
 bool
-Serial::SerialImpl::waitReadable (uint32_t /*timeout*/)
+Serial::SerialImpl::waitReadable (uint32_t timeout)
 {
-  THROW (IOException, "waitReadable is not implemented on Windows.");
+  COMSTAT cs;
+  DWORD error;
+  DWORD old_msk, msk, length;
+  if (!isOpen()) {
+    return false;
+  }
+  if (!GetCommMask(fd_, &old_msk)) {
+    stringstream ss;
+    ss << "Error while get mask of the serial port: " << GetLastError();
+    THROW(IOException, ss.str().c_str());
+  }
+  msk = 0;
+  SetCommMask(fd_, EV_RXCHAR | EV_ERR);
+  if (!WaitCommEvent(fd_, &msk, &ov_read)) {
+    if (GetLastError() == ERROR_IO_PENDING) {
+      if (WaitForSingleObject(ov_read.hEvent, (DWORD)timeout) == WAIT_TIMEOUT) {
+        SetCommMask(fd_, old_msk);
+        return false;
+      }
+      GetOverlappedResult(fd_, &ov_read, &length, TRUE);
+      ResetEvent(ov_read.hEvent);
+    } else {
+      ClearCommError(fd_, &error, &cs);
+      SetCommMask(fd_, old_msk);
+      return cs.cbInQue > 0;
+    }
+  }
+  SetCommMask(fd_, old_msk);
+  if (msk & EV_ERR) {
+    ClearCommError(fd_, &error, &cs);
+    return cs.cbInQue > 0;
+  }
+  if (msk & EV_RXCHAR) {
+    return true;
+  }
   return false;
 }
 
 void
-Serial::SerialImpl::waitByteTimes (size_t /*count*/)
+Serial::SerialImpl::waitByteTimes (size_t count)
 {
-  THROW (IOException, "waitByteTimes is not implemented on Windows.");
+  DWORD wait_time = timeout_.inter_byte_timeout * count;
+  HANDLE wait_event = CreateEvent(NULL, FALSE, FALSE, NULL);
+  ResetEvent(wait_event);
+  WaitForSingleObject(wait_event, wait_time);
+  CloseHandle(wait_event);
 }
 
 size_t
@@ -389,14 +427,35 @@ Serial::SerialImpl::write (const uint8_t *data, size_t length)
   DWORD bytes_written;
   int success = WriteFile(fd_, data, static_cast<DWORD>(length), &bytes_written, &ov_write);
   DWORD error = success ? ERROR_SUCCESS : GetLastError();
-  if ((error == ERROR_INVALID_USER_BUFFER) || (error == ERROR_NOT_ENOUGH_MEMORY) || (error == ERROR_OPERATION_ABORTED)) {
-    return 0;
-  } else if ((error == ERROR_SUCCESS) || (error == ERROR_IO_PENDING)) {
-    return (size_t) (bytes_written);
+  if (timeout_.write_timeout_constant != 0) {
+    if ((error != ERROR_SUCCESS) && (error != ERROR_IO_PENDING)) {
+      stringstream ss;
+      ss << "WriteFile failed: " << error;
+      THROW (IOException, ss.str().c_str());
+    }
+    GetOverlappedResult(fd_, &ov_write, &bytes_written, TRUE);
+    error = GetLastError();
+    if (error == ERROR_OPERATION_ABORTED) {
+      return bytes_written;
+    }
+    if (bytes_written != length) {
+      stringstream ss;
+      ss << "Write timeout.";
+      THROW (IOException, ss.str().c_str());
+    }
+    return bytes_written;
   } else {
-    stringstream ss;
-    ss << "WriteFile failed: " << error;
-    THROW (IOException, ss.str().c_str());
+    if ((error == ERROR_INVALID_USER_BUFFER) ||
+        (error == ERROR_NOT_ENOUGH_MEMORY) ||
+        (error == ERROR_OPERATION_ABORTED)) {
+      return 0;
+    } else if ((error == ERROR_SUCCESS) || (error == ERROR_IO_PENDING)) {
+      return (size_t) (bytes_written);
+    } else {
+      stringstream ss;
+      ss << "WriteFile failed: " << error;
+      THROW (IOException, ss.str().c_str());
+    }
   }
 }
 
