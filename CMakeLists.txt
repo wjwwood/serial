@@ -65,10 +65,12 @@ else()
     target_link_libraries(${PROJECT_NAME} setupapi)
 endif()
 
-## Uncomment for example
-add_executable(serial_example examples/serial_example.cc)
-add_dependencies(serial_example ${PROJECT_NAME})
-target_link_libraries(serial_example ${PROJECT_NAME})
+option(SERIAL_ENABLE_EXAMPLE "Enable example" ON)
+if(${SERIAL_ENABLE_EXAMPLE})
+    add_executable(serial_example examples/serial_example.cc)
+    add_dependencies(serial_example ${PROJECT_NAME})
+    target_link_libraries(serial_example ${PROJECT_NAME})
+endif()
 
 
 
