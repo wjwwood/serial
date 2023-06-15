@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.5.0)
 
 # General setup
+option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
+
 set(PROJ_SOVERSION 1)
 project(serial
     VERSION 1.2.1
