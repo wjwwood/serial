@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.5.0)
 
 # General setup
-option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
-
 set(PROJ_SOVERSION 1)
 project(serial
     VERSION 1.2.1
@@ -41,12 +39,16 @@ set(serial_HEADERS
     include/serial/v8stdint.h
 )
 # Build, link and install main library
+if(NOT DEFINED CMAKE_POSITION_INDEPENDENT_CODE)
+    set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+endif()
 add_library(${PROJECT_NAME} ${serial_SRCS})
 set_target_properties(${PROJECT_NAME} PROPERTIES
     VERSION ${PROJECT_VERSION}
     SOVERSION ${PROJ_SOVERSION}
     PUBLIC_HEADER "${serial_HEADERS}"
 )
+
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 
 if(APPLE)
