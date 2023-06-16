@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.16)
 # General setup
 project(serial
     VERSION 1.2.1
+    LANGUAGES CXX
     DESCRIPTION "Cross-platform, Serial Port library written in C++"
     HOMEPAGE_URL "http://wjwwood.io/serial/"
 )
