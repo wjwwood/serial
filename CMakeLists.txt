@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
 # General setup
-set(PROJ_SOVERSION 1)
 project(serial
     VERSION 1.2.1
     DESCRIPTION "Cross-platform, Serial Port library written in C++"
@@ -45,7 +44,7 @@ endif()
 add_library(${PROJECT_NAME} ${serial_SRCS})
 set_target_properties(${PROJECT_NAME} PROPERTIES
     VERSION ${PROJECT_VERSION}
-    SOVERSION ${PROJ_SOVERSION}
+    SOVERSION 1
     PUBLIC_HEADER "${serial_HEADERS}"
 )
 
