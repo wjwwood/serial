@@ -195,9 +195,12 @@ private:
   flowcontrol_t flowcontrol_; // Flow Control
 
   // Mutex used to lock the read functions
-  HANDLE read_mutex;
+  HANDLE read_mutex_;
   // Mutex used to lock the write functions
-  HANDLE write_mutex;
+  HANDLE write_mutex_;
+
+  OVERLAPPED ov_read_;           // OVERLAPPED read
+  OVERLAPPED ov_write_;          // OVERLAPPED write
 };
 
 }
