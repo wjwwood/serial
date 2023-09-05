@@ -37,23 +37,24 @@ Serial::SerialImpl::SerialImpl (const string &port, unsigned long baudrate,
                                 flowcontrol_t flowcontrol)
   : port_ (port.begin(), port.end()), fd_ (INVALID_HANDLE_VALUE), is_open_ (false),
     baudrate_ (baudrate), parity_ (parity),
-    bytesize_ (bytesize), stopbits_ (stopbits), flowcontrol_ (flowcontrol)
+    bytesize_ (bytesize), stopbits_ (stopbits), flowcontrol_ (flowcontrol),
+    ov_read_{}, ov_write_{}
 {
   if (port_.empty () == false)
     open ();
-  read_mutex = CreateMutex(NULL, false, NULL);
-  write_mutex = CreateMutex(NULL, false, NULL);
-  ov_read.hEvent = CreateEvent(NULL, 1, 0, NULL);
-  ov_write.hEvent = CreateEvent(NULL, 0, 0, NULL);
+  read_mutex_ = CreateMutex(NULL, false, NULL);
+  write_mutex_ = CreateMutex(NULL, false, NULL);
+  ov_read_.hEvent = CreateEvent(NULL, 1, 0, NULL);
+  ov_write_.hEvent = CreateEvent(NULL, 0, 0, NULL);
 }
 
 Serial::SerialImpl::~SerialImpl ()
 {
   this->close();
-  CloseHandle(read_mutex);
-  CloseHandle(write_mutex);
-  CloseHandle(ov_read.hEvent);
-  CloseHandle(ov_write.hEvent);
+  CloseHandle(read_mutex_);
+  CloseHandle(write_mutex_);
+  CloseHandle(ov_read_.hEvent);
+  CloseHandle(ov_write_.hEvent);
 }
 
 void
@@ -284,18 +285,18 @@ Serial::SerialImpl::close ()
   if (is_open_) {
     // Cancel a blocking operation.
     DWORD rc;
-    WINBOOL err;
-    err = GetOverlappedResult(fd_, &ov_read, &rc, FALSE);
+    BOOL err;
+    err = GetOverlappedResult(fd_, &ov_read_, &rc, FALSE);
     if (!err) {
       rc = GetLastError();
       if (rc == ERROR_IO_PENDING || rc == ERROR_IO_INCOMPLETE)
-        CancelIoEx(fd_, &ov_read);
+        CancelIoEx(fd_, &ov_read_);
     }
-    err = GetOverlappedResult(fd_, &ov_write, &rc, FALSE);
+    err = GetOverlappedResult(fd_, &ov_write_, &rc, FALSE);
     if (!err) {
       rc = GetLastError();
       if (rc == ERROR_IO_PENDING || rc == ERROR_IO_INCOMPLETE)
-        CancelIoEx(fd_, &ov_write);
+        CancelIoEx(fd_, &ov_write_);
     }
 
     if (fd_ != INVALID_HANDLE_VALUE) {
@@ -350,14 +351,14 @@ Serial::SerialImpl::waitReadable (uint32_t timeout)
   }
   msk = 0;
   SetCommMask(fd_, EV_RXCHAR | EV_ERR);
-  if (!WaitCommEvent(fd_, &msk, &ov_read)) {
+  if (!WaitCommEvent(fd_, &msk, &ov_read_)) {
     if (GetLastError() == ERROR_IO_PENDING) {
-      if (WaitForSingleObject(ov_read.hEvent, (DWORD)timeout) == WAIT_TIMEOUT) {
+      if (WaitForSingleObject(ov_read_.hEvent, (DWORD)timeout) == WAIT_TIMEOUT) {
         SetCommMask(fd_, old_msk);
         return false;
       }
-      GetOverlappedResult(fd_, &ov_read, &length, TRUE);
-      ResetEvent(ov_read.hEvent);
+      GetOverlappedResult(fd_, &ov_read_, &length, TRUE);
+      ResetEvent(ov_read_.hEvent);
     } else {
       ClearCommError(fd_, &error, &cs);
       SetCommMask(fd_, old_msk);
@@ -392,9 +393,9 @@ Serial::SerialImpl::read (uint8_t *buf, size_t size)
     throw PortNotOpenedException ("Serial::read");
   }
   if (size > 0) {
-    ResetEvent(ov_read.hEvent);
+    ResetEvent(ov_read_.hEvent);
     DWORD bytes_read;
-    WINBOOL read_ok = ReadFile(fd_, buf, static_cast<DWORD>(size), &bytes_read, &ov_read);
+    BOOL read_ok = ReadFile(fd_, buf, static_cast<DWORD>(size), &bytes_read, &ov_read_);
     if (!read_ok) {
       DWORD error = GetLastError();
       if ((error != ERROR_SUCCESS) && (error != ERROR_IO_PENDING)) {
@@ -403,7 +404,7 @@ Serial::SerialImpl::read (uint8_t *buf, size_t size)
         THROW (IOException, ss.str().c_str());
       }
     }
-    WINBOOL result_ok = GetOverlappedResult(fd_, &ov_read, &bytes_read, TRUE);
+    BOOL result_ok = GetOverlappedResult(fd_, &ov_read_, &bytes_read, TRUE);
     if (!result_ok) {
       DWORD error = GetLastError();
       if (error != ERROR_OPERATION_ABORTED) {
@@ -425,7 +426,7 @@ Serial::SerialImpl::write (const uint8_t *data, size_t length)
     throw PortNotOpenedException ("Serial::write");
   }
   DWORD bytes_written;
-  int success = WriteFile(fd_, data, static_cast<DWORD>(length), &bytes_written, &ov_write);
+  int success = WriteFile(fd_, data, static_cast<DWORD>(length), &bytes_written, &ov_write_);
   DWORD error = success ? ERROR_SUCCESS : GetLastError();
   if (timeout_.write_timeout_constant != 0) {
     if ((error != ERROR_SUCCESS) && (error != ERROR_IO_PENDING)) {
@@ -433,7 +434,7 @@ Serial::SerialImpl::write (const uint8_t *data, size_t length)
       ss << "WriteFile failed: " << error;
       THROW (IOException, ss.str().c_str());
     }
-    GetOverlappedResult(fd_, &ov_write, &bytes_written, TRUE);
+    GetOverlappedResult(fd_, &ov_write_, &bytes_written, TRUE);
     error = GetLastError();
     if (error == ERROR_OPERATION_ABORTED) {
       return bytes_written;
@@ -715,7 +716,7 @@ Serial::SerialImpl::getCD()
 void
 Serial::SerialImpl::readLock()
 {
-  if (WaitForSingleObject(read_mutex, INFINITE) != WAIT_OBJECT_0) {
+  if (WaitForSingleObject(read_mutex_, INFINITE) != WAIT_OBJECT_0) {
     THROW (IOException, "Error claiming read mutex.");
   }
 }
@@ -723,7 +724,7 @@ Serial::SerialImpl::readLock()
 void
 Serial::SerialImpl::readUnlock()
 {
-  if (!ReleaseMutex(read_mutex)) {
+  if (!ReleaseMutex(read_mutex_)) {
     THROW (IOException, "Error releasing read mutex.");
   }
 }
@@ -731,7 +732,7 @@ Serial::SerialImpl::readUnlock()
 void
 Serial::SerialImpl::writeLock()
 {
-  if (WaitForSingleObject(write_mutex, INFINITE) != WAIT_OBJECT_0) {
+  if (WaitForSingleObject(write_mutex_, INFINITE) != WAIT_OBJECT_0) {
     THROW (IOException, "Error claiming write mutex.");
   }
 }
@@ -739,7 +740,7 @@ Serial::SerialImpl::writeLock()
 void
 Serial::SerialImpl::writeUnlock()
 {
-  if (!ReleaseMutex(write_mutex)) {
+  if (!ReleaseMutex(write_mutex_)) {
     THROW (IOException, "Error releasing write mutex.");
   }
 }
