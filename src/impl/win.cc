@@ -3,6 +3,7 @@
 /* Copyright 2012 William Woodall and John Harrison */
 
 #include <sstream>
+#include <algorithm>
 
 #include "serial/impl/win.h"
 
@@ -366,7 +367,11 @@ Serial::SerialImpl::setPort (const string &port)
 string
 Serial::SerialImpl::getPort () const
 {
-  return string(port_.begin(), port_.end());
+    string str(port_.length(), 0);
+    std::transform(port_.begin(), port_.end(), str.begin(), [] (wchar_t c) {
+        return (char)c;
+    });
+    return str;
 }
 
 void
