@@ -1,8 +1,13 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(serial)
 
+option(DISABLE_CATKIN OFF "disables catkin")
+
 # Find catkin
+if(NOT DISABLE_CATKIN)
 find_package(catkin REQUIRED)
+endif()
+
 
 if(APPLE)
     find_library(IOKIT_LIBRARY IOKit)
@@ -13,17 +18,21 @@ if(UNIX AND NOT APPLE)
     # If Linux, add rt and pthread
     set(rt_LIBRARIES rt)
     set(pthread_LIBRARIES pthread)
+    if(NOT DISABLE_CATKIN)
     catkin_package(
         LIBRARIES ${PROJECT_NAME}
         INCLUDE_DIRS include
         DEPENDS rt pthread
     )
+    endif()
 else()
     # Otherwise normal call
+    if(NOT DISABLE_CATKIN)
     catkin_package(
         LIBRARIES ${PROJECT_NAME}
         INCLUDE_DIRS include
     )
+    endif()
 endif()
 
 ## Sources
@@ -63,7 +72,7 @@ target_link_libraries(serial_example ${PROJECT_NAME})
 
 ## Include headers
 include_directories(include)
-
+if(NOT DISABLE_CATKIN)
 ## Install executable
 install(TARGETS ${PROJECT_NAME}
     ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
@@ -74,6 +83,7 @@ install(TARGETS ${PROJECT_NAME}
 ## Install headers
 install(FILES include/serial/serial.h include/serial/v8stdint.h
   DESTINATION ${CATKIN_GLOBAL_INCLUDE_DESTINATION}/serial)
+endif()
 
 ## Tests
 if(CATKIN_ENABLE_TESTING)
