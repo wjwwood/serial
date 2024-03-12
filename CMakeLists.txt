@@ -62,9 +62,4 @@ install(FILES include/serial/serial.h include/serial/v8stdint.h
     DESTINATION include/serial
 )
 
-## Tests
-# if(BUILD_TESTING)
-#    add_subdirectory(tests)
-# endif()
-
 ament_package()
