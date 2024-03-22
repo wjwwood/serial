@@ -36,6 +36,7 @@ endif()
 target_sources(${PROJECT_NAME}
     PRIVATE
         src/serial.cc
+        ${serial_SRCS}
     PUBLIC
         include/serial/serial.h
 )
