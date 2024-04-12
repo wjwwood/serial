@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(serial)
+set (SERIAL_VERSION_MAJOR 1)
+set (SERIAL_VERSION_MINOR 2)
+set (SERIAL_VERSION_PATCH 1)
 
 # Find catkin
 find_package(catkin REQUIRED)
@@ -47,7 +50,7 @@ else()
 endif()
 
 ## Add serial library
-add_library(${PROJECT_NAME} ${serial_SRCS})
+add_library(${PROJECT_NAME} SHARED ${serial_SRCS})
 if(APPLE)
     target_link_libraries(${PROJECT_NAME} ${FOUNDATION_LIBRARY} ${IOKIT_LIBRARY})
 elseif(UNIX)
@@ -57,9 +60,12 @@ else()
 endif()
 
 ## Uncomment for example
-add_executable(serial_example examples/serial_example.cc)
-add_dependencies(serial_example ${PROJECT_NAME})
-target_link_libraries(serial_example ${PROJECT_NAME})
+# add_executable(serial_example examples/serial_example.cc)
+# add_dependencies(serial_example ${PROJECT_NAME})
+# target_link_libraries(serial_example ${PROJECT_NAME})
+
+set (SERIAL_VERSION_STRING ${SERIAL_VERSION_MAJOR}.${SERIAL_VERSION_MINOR}.${SERIAL_VERSION_PATCH})
+set_target_properties (${PROJECT_NAME} PROPERTIES VERSION ${SERIAL_VERSION_STRING} SOVERSION ${SERIAL_VERSION_MAJOR})
 
 ## Include headers
 include_directories(include)
