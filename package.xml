@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<package>
+<package format="3">
   <name>serial</name>
   <version>1.2.1</version>
   <description>
@@ -9,7 +9,6 @@
   </description>
 
   <maintainer email="william@osrfoundation.org">William Woodall</maintainer>
-
   <license>MIT</license>
 
   <url type="website">http://wjwwood.github.com/serial/</url>
@@ -19,6 +18,18 @@
   <author email="wjwwood@gmail.com">William Woodall</author>
   <author email="ash.gti@gmail.com">John Harrison</author>
 
-  <buildtool_depend>catkin</buildtool_depend>
+  <!-- Dependencies for ROS 2 Humble -->
+  <buildtool_depend>ament_cmake</buildtool_depend>
 
+  <depend>rclcpp</depend>
+  <depend>rcutils</depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+  <test_depend>ament_cmake_gtest</test_depend>
+
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
 </package>
