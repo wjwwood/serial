@@ -1,0 +1,15 @@
+cmake_minimum_required(VERSION 3.15)
+project(serial LANGUAGES CXX)
+
+set(serial_SRCS
+    src/serial.cc
+    src/impl/unix.cc
+    src/impl/list_ports/list_ports_linux.cc
+)
+
+add_library(serial ${serial_SRCS})
+target_include_directories(serial PUBLIC include)
+target_link_libraries(serial PUBLIC rt pthread)
+
+install(TARGETS serial ARCHIVE DESTINATION lib LIBRARY DESTINATION lib)
+install(DIRECTORY include/serial DESTINATION include)
